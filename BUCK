@@ -25,8 +25,8 @@ drop['flags']['common'] = {
 }
 
 drop['flags']['debug'] = {
-    'compiler': ['-O0', '-g'],
-    'linker': []
+    'compiler': ['-O0', '-g', '-fprofile-instr-generate', '-fcoverage-mapping'],
+    'linker': ['-fprofile-instr-generate', '-fcoverage-mapping']
 }
 
 drop['flags']['release'] = {
