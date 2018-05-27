@@ -11,6 +11,8 @@ class test;
 #include <string>
 #include <functional>
 
+// Classes
+
 class test
 {
     // Service nested classes
@@ -62,5 +64,11 @@ public:
 
     void run();
 };
+
+// Macros
+
+#define $$$test(counter, ...) test __test__##counter##__(__VA_ARGS__)
+#define $$test(counter, ...) $$$test(counter, __VA_ARGS__)
+#define $test(...) $$test(__COUNTER__, __VA_ARGS__)
 
 #endif

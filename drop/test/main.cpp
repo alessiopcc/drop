@@ -5,4 +5,5 @@
 int main()
 {
     test :: run("hello-world");
+    test :: run("hello-again");
 }
