@@ -1,9 +1,8 @@
-#include "hello.h"
+#include <iostream>
+
+#include "framework/test.h"
 
 int main()
 {
-    std :: cout << "Message from test: ";
-
-    hello hello;
-    hello.world();
+    test :: run("hello-world");
 }

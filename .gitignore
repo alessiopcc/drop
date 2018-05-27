@@ -1,5 +1,10 @@
 # Created by https://www.gitignore.io/api/osx,c++,buck,linux,windows (+ buckaroo, added manually)
 
+### Coverage ###
+
+*.profraw
+*.profdata
+
 ### Buck ###
 buck-out/
 .buckconfig.local
