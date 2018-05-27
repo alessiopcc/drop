@@ -4,6 +4,6 @@
 
 int main()
 {
-    test :: run("hello-world");
-    test :: run("hello-again");
+    for(const auto & name : test :: enumerate())
+        std :: cout << name << std :: endl;
 }

@@ -7,9 +7,11 @@ class test;
 
 // Libraries
 
-#include <unordered_map>
 #include <string>
+#include <vector>
+#include <unordered_map>
 #include <functional>
+#include <algorithm>
 
 // Classes
 
@@ -33,6 +35,7 @@ public:
     // Static methods
 
     static void run(const std :: string &);
+    static std :: vector <std :: string> enumerate();
 };
 
 class test :: interface

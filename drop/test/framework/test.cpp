@@ -16,6 +16,18 @@ void test :: run(const std :: string & name)
     test->run();
 }
 
+std :: vector <std :: string> test :: enumerate()
+{
+    std :: vector <std :: string> names;
+
+    for(auto const & [name, test] : tests)
+        names.push_back(name);
+
+    std :: sort(names.begin(), names.end());
+
+    return names;
+}
+
 // interface
 
 // Destructor
