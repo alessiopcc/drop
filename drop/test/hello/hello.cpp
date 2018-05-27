@@ -13,3 +13,8 @@ $test("hello-again", []
 {
     std :: cout << "Hello again, World!" << std :: endl;
 });
+
+$test("break-me", []
+{
+    throw "Something went wrong, as expected!";
+});
