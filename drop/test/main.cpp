@@ -8,6 +8,7 @@ int main(int argc, char * argv[])
     {
         std :: cout << "usage: test enumerate" << std :: endl;
         std :: cout << "       test run [test_name]" << std :: endl;
+        std :: cout << "       test configuration [test_name]" << std :: endl;
 
         return -1;
     };
@@ -15,7 +16,7 @@ int main(int argc, char * argv[])
     if(argc < 2)
         return usage();
 
-    if(strcmp(argv[1], "enumerate") && strcmp(argv[1], "run"))
+    if(strcmp(argv[1], "enumerate") && strcmp(argv[1], "run") && strcmp(argv[1], "configuration"))
         return usage();
 
     if(!strcmp(argv[1], "enumerate"))
@@ -38,6 +39,7 @@ int main(int argc, char * argv[])
         try
         {
             test :: run(argv[2]);
+            return 0;
         }
         catch(const std :: exception & exception)
         {
@@ -50,6 +52,25 @@ int main(int argc, char * argv[])
         catch(...)
         {
             std :: cerr << "Test failed: (unknown exception)" << std :: endl;
+        }
+
+        return -1;
+    }
+
+    if(!strcmp(argv[1], "configuration"))
+    {
+        if(argc < 3)
+            return usage();
+
+        try
+        {
+            auto configuration = test :: configuration(argv[2]);
+            std :: cout << "{" << "\"instances\": " << configuration.instances << "}" << std :: endl;
+        }
+        catch(const std :: exception & exception)
+        {
+            std :: cerr << "Configuration unavailable: " << exception.what() << std :: endl;
+            return -1;
         }
     }
 }

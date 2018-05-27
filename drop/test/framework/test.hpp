@@ -11,7 +11,13 @@
 
 template <typename lambda> test :: test(const std :: string & name, const lambda & test)
 {
-    tests[name] = new specialization <lambda> (test);
+    tests[name] = {.test = new specialization <lambda> (test)};
+}
+
+template <typename lambda> test :: test(const std :: string & name, struct configuration configuration, const lambda & test)
+{
+    configuration.test = new specialization <lambda> (test);
+    tests[name] = configuration;
 }
 
 // specialization

@@ -22,19 +22,27 @@ class test
     class interface;
     template <typename> class specialization;
 
+public:
+
+    struct configuration;
+
+private:
+
     // Static members
 
-    static std :: unordered_map <std :: string, interface *> tests;
+    static std :: unordered_map <std :: string, configuration> tests;
 
 public:
 
     // Constructors
 
     template <typename lambda> test(const std :: string &, const lambda &);
+    template <typename lambda> test(const std :: string &, configuration, const lambda &);
 
     // Static methods
 
     static void run(const std :: string &);
+    static configuration configuration(const std :: string &);
     static std :: vector <std :: string> enumerate();
 };
 
@@ -66,6 +74,12 @@ public:
     // Methods
 
     void run();
+};
+
+struct test :: configuration
+{
+    test :: interface * test = nullptr;
+    size_t instances = 1;
 };
 
 // Macros

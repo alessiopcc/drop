@@ -6,14 +6,19 @@
 
 // Static members
 
-std :: unordered_map <std :: string, test :: interface *> test :: tests;
+std :: unordered_map <std :: string, struct test :: configuration> test :: tests;
 
 // Static methods
 
 void test :: run(const std :: string & name)
 {
-    interface * test = tests.at(name);
-    test->run();
+    struct configuration test = tests.at(name);
+    test.test->run();
+}
+
+struct test :: configuration test :: configuration(const std :: string & name)
+{
+    return tests.at(name);
 }
 
 std :: vector <std :: string> test :: enumerate()

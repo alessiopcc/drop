@@ -18,3 +18,8 @@ $test("break-me", []
 {
     throw "Something went wrong, as expected!";
 });
+
+$test("many-instances", {.instances = 32}, []
+{
+    std :: cout << "Soooo many instances!" << std :: endl;
+});
