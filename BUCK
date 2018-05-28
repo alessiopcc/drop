@@ -21,7 +21,7 @@ drop = {
 
 drop['flags']['common'] = {
     'compiler': ['-std=c++2a', '-stdlib=libc++', '-fcoroutines-ts'],
-    'linker': ['-std=libc++', '-lc++abi', '-pthread']
+    'linker': ['-stdlib=libc++', '-lc++abi', '-pthread']
 }
 
 drop['flags']['debug'] = {
