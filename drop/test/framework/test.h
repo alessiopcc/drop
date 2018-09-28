@@ -12,6 +12,7 @@ class test;
 #include <unordered_map>
 #include <functional>
 #include <algorithm>
+#include <iostream>
 
 // Classes
 
@@ -81,6 +82,10 @@ struct test :: configuration
     test :: interface * test = nullptr;
     size_t instances = 1;
 };
+
+// Ostream integration
+
+std :: ostream & operator << (std :: ostream &, const class test :: configuration &);
 
 // Macros
 
