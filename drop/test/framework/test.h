@@ -25,6 +25,8 @@ class test
 
 public:
 
+    // Nested classes
+
     struct configuration;
 
 private:

@@ -45,9 +45,9 @@ test :: interface :: ~interface()
 
 // Ostream integration
 
-std :: ostream & operator << (std :: ostream & out, const class test :: configuration & conf)
+std :: ostream & operator << (std :: ostream & out, const class test :: configuration & configuration)
 {
-    out << "{" << "\"instances\": " << conf.instances << "}";
+    out << "{" << "\"instances\": " << configuration.instances << "}";
 
     return out;
 }
