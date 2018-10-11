@@ -14,6 +14,7 @@ buck-out/
 
 ### Buckaroo ###
 
+buckaroo.lock.json
 buckaroo/
 BUCKAROO_DEPS
 
