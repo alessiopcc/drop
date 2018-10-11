@@ -46,24 +46,31 @@ namespace
         // Members
 
         int i;
+        double j;
 
         // Tags
 
         $tag(mytag, i);
+        $tag(mytag, j);
 
     public:
 
         // Constructors
 
-        myotherclass(const int & i) : i(i)
+        myotherclass(const int & i, const double & j) : i(i), j(j)
         {
         }
 
         // Getters
 
-        const int & value()
+        const int & get_i()
         {
             return this->i;
+        }
+
+        const double & get_j()
+        {
+            return this->j;
         }
     };
 
@@ -87,10 +94,23 @@ namespace
             throw "Tag `mytag` found more or less than 2 times in class `myclass`.";
     });
 
-    $test("introspection/macro", []
+    $test("introspection/get", []
     {
-        myotherclass myobject(33);
+        myotherclass myobject(33, 3.3);
         introspection :: get <mytag, 0> (myobject) = 44;
-        std :: cout << myobject.value() << std :: endl;
+        std :: cout << myobject.get_i() << std :: endl;
+    });
+
+    $test("introspection/visit", []
+    {
+        myotherclass myobject(11, 1.1);
+        introspection :: visit <mytag> (myobject, [](auto && x)
+        {
+            std :: cout << x + 5 << std :: endl;
+            x += 2;
+        });
+
+        std :: cout << myobject.get_i() << std :: endl;
+        std :: cout << myobject.get_j() << std :: endl;
     });
 };

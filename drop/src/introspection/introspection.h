@@ -69,6 +69,9 @@ namespace drop
 
         template <template <typename, size_t, std :: nullptr_t> typename, typename, ssize_t, size_t> static constexpr size_t countloop();
 
+        template <typename tag, typename type, typename lambda, size_t index> static inline void visitloop(type &, const lambda &);
+        template <typename tag, typename type, typename lambda, size_t index> static inline void visitloop(const type &, const lambda &);
+
     public:
 
         // Static methods
@@ -78,6 +81,9 @@ namespace drop
 
         template <typename tag, size_t index, typename type, std :: enable_if_t <introspection :: exists <type :: template __tag__, tag, index, -1> ()> * = nullptr> static inline auto & get(type &);
         template <typename tag, size_t index, typename type, std :: enable_if_t <introspection :: exists <type :: template __tag__, tag, index, -1> ()> * = nullptr> static inline const auto & get(const type &);
+
+        template <typename tag, typename type, typename lambda> static inline void visit(type &, const lambda &);
+        template <typename tag, typename type, typename lambda> static inline void visit(const type &, const lambda &);
     };
 
     template <template <typename, size_t, std :: nullptr_t> typename progressive, typename tag, size_t index, ssize_t shuffle> class introspection :: sfinae :: exists
