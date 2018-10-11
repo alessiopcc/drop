@@ -98,7 +98,9 @@ namespace
     {
         myotherclass myobject(33, 3.3);
         introspection :: get <mytag, 0> (myobject) = 44;
-        std :: cout << myobject.get_i() << std :: endl;
+
+        if(myobject.get_i() != 44)
+            throw "First element of `mytag` was not properly modified.";
     });
 
     $test("introspection/visit", []
@@ -106,11 +108,10 @@ namespace
         myotherclass myobject(11, 1.1);
         introspection :: visit <mytag> (myobject, [](auto && x)
         {
-            std :: cout << x + 5 << std :: endl;
             x += 2;
         });
 
-        std :: cout << myobject.get_i() << std :: endl;
-        std :: cout << myobject.get_j() << std :: endl;
+        if(myobject.get_i() != 13 || myobject.get_j() != 3.1)
+            throw "Elements of `mytag` were not properly modified.";
     });
 };
