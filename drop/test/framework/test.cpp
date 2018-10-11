@@ -40,3 +40,14 @@ std :: vector <std :: string> test :: enumerate()
 test :: interface :: ~interface()
 {
 }
+
+// configuration
+
+// Ostream integration
+
+std :: ostream & operator << (std :: ostream & out, const class test :: configuration & conf)
+{
+    out << "{" << "\"instances\": " << conf.instances << "}";
+
+    return out;
+}
