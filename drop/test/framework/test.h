@@ -14,6 +14,12 @@ class test;
 #include <algorithm>
 #include <iostream>
 
+// Macros
+
+#define $$$test(counter, ...) test __test__##counter##__(__VA_ARGS__)
+#define $$test(counter, ...) $$$test(counter, __VA_ARGS__)
+#define $test(...) $$test(__COUNTER__, __VA_ARGS__)
+
 // Classes
 
 class test
@@ -88,11 +94,5 @@ struct test :: configuration
 // Ostream integration
 
 std :: ostream & operator << (std :: ostream &, const class test :: configuration &);
-
-// Macros
-
-#define $$$test(counter, ...) test __test__##counter##__(__VA_ARGS__)
-#define $$test(counter, ...) $$$test(counter, __VA_ARGS__)
-#define $test(...) $$test(__COUNTER__, __VA_ARGS__)
 
 #endif
