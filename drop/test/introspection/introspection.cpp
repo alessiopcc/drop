@@ -17,6 +17,7 @@ namespace
     // Tags
 
     class mytag;
+    class myothertag;
 
     // Classes
 
@@ -47,17 +48,20 @@ namespace
 
         int i;
         double j;
+        const char z;
 
         // Tags
 
         $tag(mytag, i);
         $tag(mytag, j);
 
+        $tag(myothertag, z);
+
     public:
 
         // Constructors
 
-        myotherclass(const int & i, const double & j) : i(i), j(j)
+        myotherclass(const int & i, const double & j, const char & z) : i(i), j(j), z(z)
         {
         }
 
@@ -96,19 +100,25 @@ namespace
 
     $test("introspection/get", []
     {
-        myotherclass myobject(33, 3.3);
+        myotherclass myobject(33, 3.3, '3');
         introspection :: get <mytag, 0> (myobject) = 44;
 
         if(myobject.get_i() != 44)
             throw "First element of `mytag` was not properly modified.";
 
-        if(introspection :: get <mytag, 1> (myotherclass(55, 5.5)) != 5.5)
+        if(introspection :: get <myothertag, 0> (myobject) != '3')
+            throw "`const` element of `myothertag` is not correctly retrieved.";
+
+        if(!(std :: is_same <decltype(introspection :: get <myothertag, 0> (myobject)), const char &> :: value))
+            throw "`get` does not return a `const` reference from `const` element of `myothertag`";
+
+        if(introspection :: get <mytag, 1> (myotherclass(55, 5.5, '5')) != 5.5)
             throw "Second element of `const mytag` is not correctly retrieved.";
     });
 
     $test("introspection/visit", []
     {
-        myotherclass myobject(11, 1.1);
+        myotherclass myobject(11, 1.1, '1');
         introspection :: visit <mytag> (myobject, [](auto && x)
         {
             x += 2;
