@@ -101,6 +101,9 @@ namespace
 
         if(myobject.get_i() != 44)
             throw "First element of `mytag` was not properly modified.";
+
+        if(introspection :: get <mytag, 1> (myotherclass(55, 5.5)) != 5.5)
+            throw "Second element of `const mytag` is not correctly retrieved.";
     });
 
     $test("introspection/visit", []

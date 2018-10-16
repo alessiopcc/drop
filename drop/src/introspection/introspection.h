@@ -36,14 +36,8 @@ namespace drop
                                                                                 \
         /* Static methods */                                                    \
                                                                                 \
-        template <typename __tagtype__> static inline auto & get(__tagtype__ &  \
+        template <typename __tagtype__> static inline auto & get(__tagtype__ && \
             instance)                                                           \
-        {                                                                       \
-            return instance.item;                                               \
-        }                                                                       \
-                                                                                \
-        template <typename __tagtype__> static inline const auto & get(const    \
-            __tagtype__ & instance)                                             \
         {                                                                       \
             return instance.item;                                               \
         }                                                                       \
