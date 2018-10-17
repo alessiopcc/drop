@@ -62,9 +62,7 @@ namespace drop
         // Private static methods
 
         template <template <typename, size_t, std :: nullptr_t> typename, typename, ssize_t, size_t> static constexpr size_t countloop();
-
-        template <typename tag, typename type, typename lambda, size_t index> static inline void visitloop(type &, const lambda &);
-        template <typename tag, typename type, typename lambda, size_t index> static inline void visitloop(const type &, const lambda &);
+        template <typename tag, size_t index, typename type, typename lambda> static inline void visitloop(type &&, lambda &&);
 
     public:
 
@@ -73,11 +71,8 @@ namespace drop
         template <template <typename, size_t, std :: nullptr_t> typename, typename, size_t, ssize_t> static constexpr bool exists();
         template <template <typename, size_t, std :: nullptr_t> typename, typename, ssize_t> static constexpr size_t count();
 
-        template <typename tag, size_t index, typename type, std :: enable_if_t <introspection :: exists <type :: template __tag__, tag, index, -1> ()> * = nullptr> static inline auto & get(type &);
-        template <typename tag, size_t index, typename type, std :: enable_if_t <introspection :: exists <type :: template __tag__, tag, index, -1> ()> * = nullptr> static inline const auto & get(const type &);
-
-        template <typename tag, typename type, typename lambda> static inline void visit(type &, const lambda &);
-        template <typename tag, typename type, typename lambda> static inline void visit(const type &, const lambda &);
+        template <typename tag, size_t index, typename type, std :: enable_if_t <introspection :: exists <std :: decay_t <type> :: template __tag__, tag, index, -1> ()> * = nullptr> static inline auto & get(type &&);
+        template <typename tag, typename type, typename lambda> static inline void visit(type &&, lambda &&);
     };
 
     template <template <typename, size_t, std :: nullptr_t> typename progressive, typename tag, size_t index, ssize_t shuffle> class introspection :: sfinae :: exists
