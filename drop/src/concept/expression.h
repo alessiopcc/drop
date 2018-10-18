@@ -70,6 +70,7 @@ namespace drop
         // Methods
 
         template <typename type> constexpr bool is() const;
+        template <typename type> constexpr bool casts() const;
 
         // Casting
 

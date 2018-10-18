@@ -59,4 +59,16 @@ namespace
         if($expression($type(myclass).q()).is <int> ())
             throw "Expression `myclass.q()` is detected to be an `int`.";
     });
+
+    $test("expression/casts", []
+    {
+        if(!($expression($type(myclass).q()).casts <const int &> ()))
+            throw "Expression `myclass.q()` is not detected to cast to `const int &`.";
+
+        if($expression($type(int).f()).casts <void> ())
+            throw "Expression `int.f()` is detected to cast to `void`.";
+
+        if(!($expression($type(myclass).q()).casts <int> ()))
+            throw "Expression `myclass.q()` is not detected to cast to `int`.";
+    });
 };
