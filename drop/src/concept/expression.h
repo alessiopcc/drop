@@ -14,6 +14,7 @@ namespace drop
 
 #define $expression(expr) expression :: evaluate([](auto && identity) -> decltype(expr) {})
 #define $type(type) identity (std :: declval <type> ())
+
 namespace drop
 {
     // Classes
@@ -68,7 +69,7 @@ namespace drop
 
         // Methods
 
-        template <typename type> constexpr bool returns() const;
+        template <typename type> constexpr bool is() const;
 
         // Casting
 
