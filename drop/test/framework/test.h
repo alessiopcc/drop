@@ -39,7 +39,7 @@ private:
 
     // Static members
 
-    static std :: unordered_map <std :: string, configuration> tests;
+    static std :: unordered_map <std :: string, configuration> * singleton;
 
 public:
 
@@ -49,6 +49,8 @@ public:
     template <typename lambda> test(const std :: string &, configuration, const lambda &);
 
     // Static methods
+
+    static inline std :: unordered_map <std :: string, configuration> & tests();
 
     static void run(const std :: string &);
     static configuration configuration(const std :: string &);
