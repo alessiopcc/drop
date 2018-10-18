@@ -8,7 +8,7 @@ namespace drop
 #if !defined(__forward__) && !defined(__src__introspection__introspection__h)
 #define __src__introspection__introspection__h
 
-// Includes
+// Libraries
 
 #include <type_traits>
 
