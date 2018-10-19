@@ -4,10 +4,33 @@
 // Includes
 
 #include "introspection.h"
+#include "concept/expression.hpp"
 
 namespace drop
 {
     // introspection
+
+    // Constraint helpers
+
+    template <typename lambda, typename type, typename tag, size_t index> constexpr bool introspection :: constraints :: visitorloop()
+    {
+        if constexpr (index < introspection :: count <std :: decay_t <type> :: template __tag__, tag, -1> ())
+        {
+            if constexpr (!($expression($type(lambda)(introspection :: get <tag, index> ($type(type))))))
+                return false;
+            else
+                return visitorloop <lambda, type, tag, index + 1> ();
+        }
+        else
+            return true;
+    }
+
+    // Constraints
+
+    template <typename lambda, typename type, typename tag> constexpr bool introspection :: constraints :: visitor()
+    {
+        return visitorloop <lambda, type, tag, 0> ();
+    }
 
     // Private static methods
 
@@ -45,7 +68,7 @@ namespace drop
         return std :: decay_t <type> :: template __tag__ <tag, index, nullptr> :: get(instance);
     }
 
-    template <typename tag, typename type, typename lambda> inline void introspection :: visit(type && instance, lambda && callback)
+    template <typename tag, typename type, typename lambda, std :: enable_if_t <introspection :: constraints :: visitor <lambda, type, tag> ()> *> inline void introspection :: visit(type && instance, lambda && callback)
     {
         introspection :: visitloop <tag, 0> (instance, callback);
     }

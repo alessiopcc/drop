@@ -18,6 +18,7 @@ namespace
 
     class mytag;
     class myothertag;
+    class mymixedtag;
 
     // Classes
 
@@ -49,6 +50,8 @@ namespace
         int i;
         double j;
         const char z;
+        const char * q;
+        const int w;
 
         // Tags
 
@@ -57,11 +60,16 @@ namespace
 
         $tag(myothertag, z);
 
+        $tag(mymixedtag, i);
+        $tag(mymixedtag, j);
+        $tag(mymixedtag, q);
+        $tag(mymixedtag, w);
+
     public:
 
         // Constructors
 
-        myotherclass(const int & i, const double & j, const char & z) : i(i), j(j), z(z)
+        myotherclass(const int & i, const double & j, const char & z, const int & w) : i(i), j(j), z(z), w(w)
         {
         }
 
@@ -75,6 +83,16 @@ namespace
         const double & get_j()
         {
             return this->j;
+        }
+    };
+
+    class refvisitor
+    {
+    public:
+
+        template <typename type, std :: enable_if_t <!(std :: is_const <type> :: value)> * = nullptr> void operator () (type &)
+        {
+            std :: cout << __PRETTY_FUNCTION__ << std :: endl;
         }
     };
 
@@ -100,7 +118,7 @@ namespace
 
     $test("introspection/get", []
     {
-        myotherclass myobject(33, 3.3, '3');
+        myotherclass myobject(33, 3.3, '3', 3);
         introspection :: get <mytag, 0> (myobject) = 44;
 
         if(myobject.get_i() != 44)
@@ -112,13 +130,13 @@ namespace
         if(!(std :: is_same <decltype(introspection :: get <myothertag, 0> (myobject)), const char &> :: value))
             throw "`get` does not return a `const` reference from `const` element of `myothertag`";
 
-        if(introspection :: get <mytag, 1> (myotherclass(55, 5.5, '5')) != 5.5)
+        if(introspection :: get <mytag, 1> (myotherclass(55, 5.5, '5', 5)) != 5.5)
             throw "Second element of `const mytag` is not correctly retrieved.";
     });
 
     $test("introspection/visit", []
     {
-        myotherclass myobject(11, 1.1, '1');
+        myotherclass myobject(11, 1.1, '1', 1);
         introspection :: visit <mytag> (myobject, [](auto && x)
         {
             x += 2;
@@ -126,5 +144,31 @@ namespace
 
         if(myobject.get_i() != 13 || myobject.get_j() != 3.1)
             throw "Elements of `mytag` were not properly modified.";
+    });
+
+    $test("introspection/visitor", []
+    {
+        auto intlambda = [](const int &)
+        {
+        };
+
+        auto anylambda = [](auto &&)
+        {
+        };
+
+        if(!(introspection :: constraints :: visitor <decltype(intlambda), myotherclass, mytag> ()))
+            throw "Lambda function accepting `const int &` cannot be used to visit `mytag`.";
+
+        if(introspection :: constraints :: visitor <decltype(intlambda), myotherclass, mymixedtag> ())
+            throw "Lambda function accepting `const int &` can be used to visit `mymixedtag`.";
+
+        if(introspection :: constraints :: visitor <refvisitor, myotherclass, mymixedtag> ())
+            throw "Reference visitor can be used to visit `mymixedtag`, which includes constant members.";
+
+        if(!(introspection :: constraints :: visitor <decltype(anylambda), myotherclass, mytag> ()))
+            throw "Lambda function accepting `auto &&` cannot be used to visit `mytag`.";
+
+        if(!(introspection :: constraints :: visitor <decltype(anylambda), myotherclass, mymixedtag> ()))
+            throw "Lambda function accepting `auto &&` cannot be used to visit `mymixedtag`.";
     });
 };

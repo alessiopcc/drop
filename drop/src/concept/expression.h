@@ -12,8 +12,8 @@ namespace drop
 
 // Macros
 
-#define $expression(expr) expression :: evaluate([](auto && identity) -> decltype(expr) {})
-#define $type(type) identity (std :: declval <type> ())
+#define $expression(expr) :: drop :: expression :: evaluate([](auto && identity) -> decltype(expr) {})
+#define $type(type) identity(std :: declval <type> ())
 
 namespace drop
 {
