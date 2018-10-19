@@ -99,4 +99,49 @@ namespace
                 throw "Copy construction of `variant` with `copyable` does not call copy constructor.";
         }
     });
+
+    $test("variant/visit", []
+    {
+        auto empty = []()
+        {
+        };
+
+        auto acceptdouble = [](double)
+        {
+        };
+
+        auto acceptanything = [](auto &&)
+        {
+        };
+
+        if(variant <int, double, char> :: constraints :: visitor <decltype(empty)> ())
+            throw "`variant <int, double, char>` can be visited by lambda with no arguments.";
+
+        if(!(variant <int, double, char> :: constraints :: visitor <decltype(acceptdouble)> ()))
+            throw "`variant <int, double, char>` cannot be visited by lambda with `double` argument.";
+
+        if(variant <int, double, char, movable> :: constraints :: visitor <decltype(acceptdouble)> ())
+            throw "`variant <int, double, char, movable>` can be visited by lambda with `double` argument.";
+
+        if(!(variant <int, double, char, movable> :: constraints :: visitor <decltype(acceptanything)> ()))
+            throw "`variant <int, double, char, movable>` cannot be visited by lambda with `auto` argument.";
+
+        {
+            variant <int, double, char> v = 'q';
+            v.visit([](auto && value)
+            {
+                if(!(std :: is_same <decltype(value), char &> :: value))
+                    throw "`variant` does not apply `char &` to visitor correctly.";
+            });
+        }
+
+        {
+            const variant <int, double, char> v = 'q';
+            v.visit([](auto && value)
+            {
+                if(!(std :: is_same <decltype(value), const char &> :: value))
+                    throw "`const variant` does not apply `const char &` to visitor correctly.";
+            });
+        }
+    });
 };

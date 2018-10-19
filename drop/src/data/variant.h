@@ -15,6 +15,7 @@ namespace drop
 // Includes
 
 #include "utils/math.hpp"
+#include "concept/expression.hpp"
 
 namespace drop
 {
@@ -32,8 +33,11 @@ namespace drop
 
             template <typename> static constexpr bool defined();
             template <typename> static constexpr bool variant();
+
             template <typename> static constexpr bool copyable();
             template <typename> static constexpr bool movable();
+
+            template <typename> static constexpr bool visitor();
         };
 
         // Static asserts
@@ -68,7 +72,15 @@ namespace drop
 
         template <typename type, std :: enable_if_t <constraints :: template variant <type> ()> * = nullptr> bool is() const;
 
+        template <typename lambda, std :: enable_if_t <constraints :: template visitor <lambda> ()> * = nullptr> void visit(lambda &&);
+        template <typename lambda, std :: enable_if_t <constraints :: template visitor <lambda> ()> * = nullptr> void visit(lambda &&) const;
+
     private:
+
+        // Private methods
+
+        template <typename type, typename... tail, typename lambda> void visitloop(lambda &&);
+        template <typename type, typename... tail, typename lambda> void visitloop(lambda &&) const;
 
         // Static private methods
 

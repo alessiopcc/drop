@@ -37,6 +37,11 @@ namespace drop
         return defined <type> () && std :: is_move_constructible <type> :: value;
     }
 
+    template <typename... types> template <typename lambda> constexpr bool variant <types...> :: constraints :: visitor()
+    {
+        return (... && $expression($type(lambda)($type(types))));
+    }
+
     // Constructors
 
     template <typename... types> variant <types...> :: variant() : _typeid(0)
@@ -73,6 +78,42 @@ namespace drop
             return (this->_typeid == 0);
         else
             return (this->_typeid == index <type, types...> ());
+    }
+
+    template <typename... types> template <typename lambda, std :: enable_if_t <variant <types...> :: constraints :: template visitor <lambda> ()> *> void variant <types...> :: visit(lambda && callback)
+    {
+        this->visitloop <types...> (callback);
+    }
+
+    template <typename... types> template <typename lambda, std :: enable_if_t <variant <types...> :: constraints :: template visitor <lambda> ()> *> void variant <types...> :: visit(lambda && callback) const
+    {
+        this->visitloop <types...> (callback);
+    }
+
+    // Private methods
+
+    template <typename... types> template <typename type, typename... tail, typename lambda> void variant <types...> :: visitloop(lambda && callback)
+    {
+        if(index <type, types...> () == this->_typeid)
+        {
+            callback(this->reinterpret <type> ());
+            return;
+        }
+
+        if constexpr (sizeof...(tail) > 0)
+            this->visitloop <tail...> (callback);
+    }
+
+    template <typename... types> template <typename type, typename... tail, typename lambda> void variant <types...> :: visitloop(lambda && callback) const
+    {
+        if(index <type, types...> () == this->_typeid)
+        {
+            callback(this->reinterpret <type> ());
+            return;
+        }
+
+        if constexpr (sizeof...(tail) > 0)
+            this->visitloop <tail...> (callback);
     }
 
     // Static private methods
