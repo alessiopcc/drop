@@ -7,6 +7,34 @@
 
 namespace drop
 {
+    // Constraint helpers
+
+    template <typename... types> template <typename type, bool constvar, typename lambda> constexpr bool variant <types...> :: constraints :: callable()
+    {
+        if constexpr (constvar)
+            return :: drop :: callable <lambda, type> :: value ||
+                   :: drop :: callable <lambda, const type> :: value ||
+                   :: drop :: callable <lambda, const type &> :: value;
+        else
+            return :: drop :: callable <lambda, type> :: value ||
+                   :: drop :: callable <lambda, const type> :: value ||
+                   :: drop :: callable <lambda, type &> :: value ||
+                   :: drop :: callable <lambda, const type &> :: value;
+    }
+
+    template <typename... types> template <typename type, bool constvar, typename lambda> constexpr bool variant <types...> :: constraints :: specific()
+    {
+        return callable <type, constvar, lambda> () && ((... + (callable <types, constvar, lambda> () ? 1 : 0)) == 1);
+    }
+
+    template <typename... types> template <typename type, bool constvar, typename... lambdas> constexpr bool variant <types...> :: constraints :: matchable()
+    {
+        if constexpr (constvar)
+            return (... || ($expression($type(lambdas)($type(const type &)))));
+        else
+            return (... || ($expression($type(lambdas)($type(type &)))));
+    }
+
     // Constraints
 
     template <typename... types> template <typename needle, typename... haystack> constexpr bool variant <types...> :: constraints :: distinct()
@@ -37,9 +65,17 @@ namespace drop
         return defined <type> () && std :: is_move_constructible <type> :: value;
     }
 
-    template <typename... types> template <typename lambda> constexpr bool variant <types...> :: constraints :: visitor()
+    template <typename... types> template <bool constvar, typename lambda> constexpr bool variant <types...> :: constraints :: visitor()
     {
-        return (... && $expression($type(lambda)($type(types))));
+        if constexpr (constvar)
+            return (... && $expression($type(lambda)($type(const types &))));
+        else
+            return (... && $expression($type(lambda)($type(types &))));
+    }
+
+    template <typename... types> template <bool constvar, typename... lambdas> constexpr bool variant <types...> :: constraints :: match()
+    {
+        return (... && matchable <types, constvar, lambdas...> ());
     }
 
     // Constructors
@@ -80,14 +116,36 @@ namespace drop
             return (this->_typeid == index <type, types...> ());
     }
 
-    template <typename... types> template <typename lambda, std :: enable_if_t <variant <types...> :: constraints :: template visitor <lambda> ()> *> void variant <types...> :: visit(lambda && callback)
+    template <typename... types> template <typename lambda, std :: enable_if_t <variant <types...> :: constraints :: template visitor <false, lambda> ()> *> void variant <types...> :: visit(lambda && callback)
     {
         this->visitloop <types...> (callback);
     }
 
-    template <typename... types> template <typename lambda, std :: enable_if_t <variant <types...> :: constraints :: template visitor <lambda> ()> *> void variant <types...> :: visit(lambda && callback) const
+    template <typename... types> template <typename lambda, std :: enable_if_t <variant <types...> :: constraints :: template visitor <true, lambda> ()> *> void variant <types...> :: visit(lambda && callback) const
     {
         this->visitloop <types...> (callback);
+    }
+
+    template <typename... types> template <typename... lambdas, std :: enable_if_t <variant <types...> :: constraints :: template match <false, lambdas...> ()> *> void variant <types...> :: match(lambdas && ... matchcases)
+    {
+        this->visit([&](auto & value)
+        {
+            typedef std :: decay_t <decltype(value)> type;
+            constexpr bool specific = (... || (constraints :: template specific <type, false, lambdas> ()));
+
+            this->matchloop <type, specific> (value, matchcases...);
+        });
+    }
+
+    template <typename... types> template <typename... lambdas, std :: enable_if_t <variant <types...> :: constraints :: template match <true, lambdas...> ()> *> void variant <types...> :: match(lambdas && ... matchcases) const
+    {
+        this->visit([&](auto & value)
+        {
+            typedef std :: decay_t <decltype(value)> type;
+            constexpr bool specific = (... || (constraints :: template specific <type, true, lambdas> ()));
+
+            this->matchloop <type, specific> (value, matchcases...);
+        });
     }
 
     // Private methods
@@ -114,6 +172,22 @@ namespace drop
 
         if constexpr (sizeof...(tail) > 0)
             this->visitloop <tail...> (callback);
+    }
+
+    template <typename... types> template <typename type, bool specific, typename lambda, typename... tail> void variant <types...> :: matchloop(type & value, lambda && matchcase, tail && ... matchtail)
+    {
+        if constexpr ((specific && constraints :: template specific <type, false, lambda> ()) || (!specific && $expression($type(lambda)(value))))
+            matchcase(value);
+        else
+            this->matchloop <type, specific> (value, matchtail...);
+    }
+
+    template <typename... types> template <typename type, bool specific, typename lambda, typename... tail> void variant <types...> :: matchloop(const type & value, lambda && matchcase, tail && ... matchtail) const
+    {
+        if constexpr ((specific && constraints :: template specific <type, true, lambda> ()) || (!specific && $expression($type(lambda)(value))))
+            matchcase(value);
+        else
+            this->matchloop <type, specific> (value, matchtail...);
     }
 
     // Static private methods

@@ -16,6 +16,7 @@ namespace drop
 
 #include "utils/math.hpp"
 #include "concept/expression.hpp"
+#include "concept/callable.h"
 
 namespace drop
 {
@@ -27,8 +28,21 @@ namespace drop
 
         // Constraints
 
-        struct constraints
+        class constraints
         {
+        public: // REMOVE ME
+
+            // Helpers
+
+            template <typename, bool, typename> static constexpr bool callable();
+            template <typename, bool, typename> static constexpr bool specific();
+
+            template <typename, bool constvar, typename...> static constexpr bool matchable();
+
+        public:
+
+            // Constraints
+
             template <typename, typename...> static constexpr bool distinct();
 
             template <typename> static constexpr bool defined();
@@ -37,7 +51,8 @@ namespace drop
             template <typename> static constexpr bool copyable();
             template <typename> static constexpr bool movable();
 
-            template <typename> static constexpr bool visitor();
+            template <bool, typename> static constexpr bool visitor();
+            template <bool, typename...> static constexpr bool match();
         };
 
         // Static asserts
@@ -72,8 +87,11 @@ namespace drop
 
         template <typename type, std :: enable_if_t <constraints :: template variant <type> ()> * = nullptr> bool is() const;
 
-        template <typename lambda, std :: enable_if_t <constraints :: template visitor <lambda> ()> * = nullptr> void visit(lambda &&);
-        template <typename lambda, std :: enable_if_t <constraints :: template visitor <lambda> ()> * = nullptr> void visit(lambda &&) const;
+        template <typename lambda, std :: enable_if_t <constraints :: template visitor <false, lambda> ()> * = nullptr> void visit(lambda &&);
+        template <typename lambda, std :: enable_if_t <constraints :: template visitor <true, lambda> ()> * = nullptr> void visit(lambda &&) const;
+
+        template <typename... lambdas, std :: enable_if_t <constraints :: template match <false, lambdas...> ()> * = nullptr> void match(lambdas && ...);
+        template <typename... lambdas, std :: enable_if_t <constraints :: template match <true, lambdas...> ()> * = nullptr> void match(lambdas && ...) const;
 
     private:
 
@@ -81,6 +99,9 @@ namespace drop
 
         template <typename type, typename... tail, typename lambda> void visitloop(lambda &&);
         template <typename type, typename... tail, typename lambda> void visitloop(lambda &&) const;
+
+        template <typename type, bool specific, typename lambda, typename... tail> void matchloop(type &, lambda &&, tail && ...);
+        template <typename type, bool specific, typename lambda, typename... tail> void matchloop(const type &, lambda &&, tail && ...) const;
 
         // Static private methods
 
