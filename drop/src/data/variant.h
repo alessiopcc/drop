@@ -15,7 +15,6 @@ namespace drop
 // Includes
 
 #include "utils/math.hpp"
-#include "concept/expression.hpp"
 #include "concept/callable.h"
 
 namespace drop
@@ -39,7 +38,7 @@ namespace drop
             template <typename, bool, typename> static constexpr bool callable();
             template <typename, bool, typename> static constexpr bool specific();
 
-            template <typename, bool constvar, typename...> static constexpr bool matchable();
+            template <bool, typename> static constexpr bool matchable();
 
         public:
 
@@ -53,7 +52,6 @@ namespace drop
             template <typename> static constexpr bool copyable();
             template <typename> static constexpr bool movable();
 
-            template <bool, typename> static constexpr bool visitor();
             template <bool, typename...> static constexpr bool match();
         };
 
@@ -89,9 +87,6 @@ namespace drop
 
         template <typename type, std :: enable_if_t <constraints :: template variant <type> ()> * = nullptr> bool is() const;
 
-        template <typename lambda, std :: enable_if_t <constraints :: template visitor <false, lambda> ()> * = nullptr> void visit(lambda &&);
-        template <typename lambda, std :: enable_if_t <constraints :: template visitor <true, lambda> ()> * = nullptr> void visit(lambda &&) const;
-
         template <typename... lambdas, std :: enable_if_t <constraints :: template match <false, lambdas...> ()> * = nullptr> void match(lambdas && ...);
         template <typename... lambdas, std :: enable_if_t <constraints :: template match <true, lambdas...> ()> * = nullptr> void match(lambdas && ...) const;
 
@@ -99,11 +94,13 @@ namespace drop
 
         // Private methods
 
-        template <typename type, typename... tail, typename lambda> void visitloop(lambda &&);
-        template <typename type, typename... tail, typename lambda> void visitloop(lambda &&) const;
+        template <typename type, typename... tail, typename lambda> void unwrap(lambda &&);
+        template <typename type, typename... tail, typename lambda> void unwrap(lambda &&) const;
 
         template <typename type, bool specific, typename lambda, typename... tail> void matchloop(type &, lambda &&, tail && ...);
         template <typename type, bool specific, typename lambda, typename... tail> void matchloop(const type &, lambda &&, tail && ...) const;
+
+        template <typename lambda, typename... tail> void matchloop(lambda &&, tail && ...) const;
 
         // Static private methods
 
