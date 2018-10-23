@@ -63,10 +63,8 @@ namespace drop
 
         // Constraints
 
-        struct constraints
+        class constraints
         {
-        private:
-
             // Helpers
 
             template <typename, typename, typename, size_t> static constexpr bool visitorloop();

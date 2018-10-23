@@ -53,6 +53,13 @@ namespace
         }
     };
 
+    class myclass
+    {
+    public:
+
+        int i;
+    };
+
     // Tests
 
     $test("variant/constructors", []
@@ -114,17 +121,29 @@ namespace
         {
         };
 
-        if(variant <int, double, char> :: constraints :: visitor <decltype(empty)> ())
+        if(variant <int, double, char> :: constraints :: visitor <false, decltype(empty)> ())
             throw "`variant <int, double, char>` can be visited by lambda with no arguments.";
 
-        if(!(variant <int, double, char> :: constraints :: visitor <decltype(acceptdouble)> ()))
+        if(variant <int, double, char> :: constraints :: visitor <true, decltype(empty)> ())
+            throw "`const variant <int, double, char>` can be visited by lambda with no arguments.";
+
+        if(!(variant <int, double, char> :: constraints :: visitor <false, decltype(acceptdouble)> ()))
             throw "`variant <int, double, char>` cannot be visited by lambda with `double` argument.";
 
-        if(variant <int, double, char, movable> :: constraints :: visitor <decltype(acceptdouble)> ())
+        if(!(variant <int, double, char> :: constraints :: visitor <true, decltype(acceptdouble)> ()))
+            throw "`const variant <int, double, char>` cannot be visited by lambda with `double` argument.";
+
+        if(variant <int, double, char, movable> :: constraints :: visitor <false, decltype(acceptdouble)> ())
             throw "`variant <int, double, char, movable>` can be visited by lambda with `double` argument.";
 
-        if(!(variant <int, double, char, movable> :: constraints :: visitor <decltype(acceptanything)> ()))
+        if(variant <int, double, char, movable> :: constraints :: visitor <true, decltype(acceptdouble)> ())
+            throw "`const variant <int, double, char, movable>` can be visited by lambda with `double` argument.";
+
+        if(!(variant <int, double, char, movable> :: constraints :: visitor <false, decltype(acceptanything)> ()))
             throw "`variant <int, double, char, movable>` cannot be visited by lambda with `auto` argument.";
+
+        if(!(variant <int, double, char, movable> :: constraints :: visitor <true, decltype(acceptanything)> ()))
+            throw "`const variant <int, double, char, movable>` cannot be visited by lambda with `auto` argument.";
 
         {
             variant <int, double, char> v = 'q';

@@ -30,7 +30,9 @@ namespace drop
 
         class constraints
         {
-        public: // REMOVE ME
+            // Friends
+
+            template <typename...> friend class variant;
 
             // Helpers
 
