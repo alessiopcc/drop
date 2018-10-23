@@ -109,17 +109,9 @@ namespace
 
     $test("variant/visit", []
     {
-        auto empty = []()
-        {
-        };
-
-        auto acceptdouble = [](double)
-        {
-        };
-
-        auto acceptanything = [](auto &&)
-        {
-        };
+        auto empty = [](){};
+        auto acceptdouble = [](double){};
+        auto acceptanything = [](auto &&){};
 
         if(variant <int, double, char> :: constraints :: visitor <false, decltype(empty)> ())
             throw "`variant <int, double, char>` can be visited by lambda with no arguments.";
@@ -161,6 +153,44 @@ namespace
                 if(!(std :: is_same <decltype(value), const char &> :: value))
                     throw "`const variant` does not apply `const char &` to visitor correctly.";
             });
+        }
+    });
+
+    template <typename type> void print()
+    {
+        std :: cout << __PRETTY_FUNCTION__ << std :: endl;
+    }
+
+    $test("variant/match", []
+    {
+        auto empty = [](){};
+        auto intspecific = [](int &){};
+        auto constintspecific = [](const int &){};
+        auto doublespecific = [](double &){};
+        auto constdoublespecific = [](const double &){};
+        auto charspecific = [](char &){};
+        auto constcharspecific = [](const char &){};
+        auto myclassspecific = [](myclass &){};
+        auto constmyclassspecific = [](const myclass &){};
+
+        if(variant <int, char, myclass, double> :: constraints :: match <false, decltype(empty)> ())
+            throw "`variant <int, char, myclass, double>` accepts `(empty)` as match cases.";
+
+        bool lastop;
+
+        {
+            lastop = false;
+            const variant <int, char, myclass, double> myvariant = 'q';
+
+            myvariant.match([&](auto &)
+            {
+                lastop = true;
+            }, [](char &)
+            {
+            });
+
+            if(!lastop)
+                throw "`const variant <int, char, myclass, double>` accepts `[](char &){}` as specific match case.";
         }
     });
 };
