@@ -193,4 +193,16 @@ namespace
                 throw "`const variant <int, char, myclass, double>` accepts `[](char &){}` as specific match case.";
         }
     });
+
+    $test("variant/cast", []
+    {
+        variant <int> emptyvariant;
+        variant <int> fullvariant = 33;
+
+        if(emptyvariant)
+            throw "Undefined `variant` casts to boolean `true`.";
+
+        if(!fullvariant)
+            throw "Non-undefined `variant` casts to boolean `false`.";
+    });
 };

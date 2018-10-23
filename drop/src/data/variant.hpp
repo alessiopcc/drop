@@ -199,6 +199,13 @@ namespace drop
         else
             return 1 + index <needle, tail...> ();
     }
+
+    // Casting
+
+    template <typename... types> variant <types...> :: operator bool () const
+    {
+        return this->_typeid;
+    }
 };
 
 #endif

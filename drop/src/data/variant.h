@@ -108,6 +108,12 @@ namespace drop
         // Static private methods
 
         template <typename, typename, typename...> static constexpr uint8_t index();
+
+    public:
+
+        // Casting
+
+        operator bool () const;
     };
 };
 
