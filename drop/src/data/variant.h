@@ -1,3 +1,5 @@
+// Forward declarations
+
 namespace drop
 {
     template <typename...> class variant;
