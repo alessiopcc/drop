@@ -9,6 +9,8 @@ namespace drop
 
     // Classes
 
+    template <typename> class base;
+
     template <typename...> class variant;
     class undefined;
 };
@@ -30,7 +32,7 @@ namespace drop
 {
     // Classes
 
-    template <typename... types> class variant
+    template <typename... types> class base <variant <types...>>
     {
     public:
 
@@ -40,7 +42,7 @@ namespace drop
         {
             // Friends
 
-            template <typename...> friend class variant;
+            friend class base <variant <types...>>;
 
             // Helpers
 
@@ -78,14 +80,16 @@ namespace drop
         uint8_t _typeid;
         std :: aligned_storage_t <max({sizeof(types)...}), max({alignof(types)...})> _value;
 
-    public:
+    protected:
 
         // Constructors
 
-        variant();
+        base();
 
-        template <typename type, std :: enable_if_t <constraints :: template copyable <type> ()> * = nullptr> variant(const type &);
-        template <typename type, std :: enable_if_t <constraints :: template movable <type> ()> * = nullptr> variant(type &&);
+        template <typename type, std :: enable_if_t <constraints :: template copyable <type> ()> * = nullptr> base(const type &);
+        template <typename type, std :: enable_if_t <constraints :: template movable <type> ()> * = nullptr> base(type &&);
+
+    public:
 
         // Getters
 
@@ -123,6 +127,22 @@ namespace drop
         // Casting
 
         operator bool () const;
+    };
+
+    template <typename... types> class variant : public base <variant <types...>>
+    {
+    public:
+
+        // Constraints
+
+        typedef typename base <variant <types...>> :: constraints constraints;
+
+        // Constructors
+
+        variant();
+
+        template <typename type, std :: enable_if_t <constraints :: template copyable <type> ()> * = nullptr> variant(const type &);
+        template <typename type, std :: enable_if_t <constraints :: template movable <type> ()> * = nullptr> variant(type &&);
     };
 };
 
