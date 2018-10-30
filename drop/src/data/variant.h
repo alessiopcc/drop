@@ -27,6 +27,7 @@ namespace drop
 
 #include "utils/math.hpp"
 #include "concept/callable.h"
+#include "utils/enablers.h"
 
 namespace drop
 {
@@ -129,7 +130,11 @@ namespace drop
         operator bool () const;
     };
 
-    template <typename... types> class variant : public base <variant <types...>>
+    template <typename... types> class variant : public base <variant <types...>>,
+                                                 public enablers :: copy_constructible <(... && (std :: is_copy_constructible <types> :: value))>,
+                                                 public enablers :: move_constructible <(... && (std :: is_move_constructible <types> :: value))>,
+                                                 public enablers :: copy_assignable <(... && (std :: is_copy_assignable <types> :: value)) && (... && (std :: is_copy_constructible <types> :: value))>,
+                                                 public enablers :: move_assignable <(... && (std :: is_move_assignable <types> :: value)) && (... && (std :: is_copy_constructible <types> :: value))>
     {
     public:
 
