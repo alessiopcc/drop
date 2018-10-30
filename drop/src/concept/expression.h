@@ -1,3 +1,5 @@
+// Forward declarations
+
 namespace drop
 {
     class expression;
