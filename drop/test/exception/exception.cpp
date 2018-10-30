@@ -16,7 +16,19 @@ namespace
 
     // Tests
 
-    $test("exception/develop", []
+    $test("exception/tag", []
+    {
+    });
+
+    $test("exception/source", []
+    {
+    });
+
+    $test("exception/what", []
+    {
+    });
+
+    $test("exception/details", []
     {
     });
 };
