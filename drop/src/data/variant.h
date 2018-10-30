@@ -2,6 +2,13 @@
 
 namespace drop
 {
+    // Tags
+
+    class bad_access;
+    class type_mismatch;
+
+    // Classes
+
     template <typename...> class variant;
     class undefined;
 };
@@ -81,6 +88,9 @@ namespace drop
         template <typename type, std :: enable_if_t <constraints :: template movable <type> ()> * = nullptr> variant(type &&);
 
         // Getters
+
+        template <typename type, std :: enable_if_t <constraints :: template defined <type> ()> * = nullptr> type & get();
+        template <typename type, std :: enable_if_t <constraints :: template defined <type> ()> * = nullptr> const type & get() const;
 
         template <typename type, std :: enable_if_t <constraints :: template defined <type> ()> * = nullptr> type & reinterpret();
         template <typename type, std :: enable_if_t <constraints :: template defined <type> ()> * = nullptr> const type & reinterpret() const;

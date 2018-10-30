@@ -4,6 +4,7 @@
 // Includes
 
 #include "variant.h"
+#include "exception/exception.hpp"
 
 namespace drop
 {
@@ -84,6 +85,22 @@ namespace drop
     }
 
     // Getters
+
+    template <typename... types> template <typename type, std :: enable_if_t <variant <types...> :: constraints :: template defined <type> ()> *> type & variant <types...> :: get()
+    {
+        if(index <type, types...> () != this->_typeid)
+            exception <bad_access, type_mismatch> :: raise(this);
+
+        return reinterpret_cast <type &> (this->_value);
+    }
+
+    template <typename... types> template <typename type, std :: enable_if_t <variant <types...> :: constraints :: template defined <type> ()> *> const type & variant <types...> :: get() const
+    {
+        if(index <type, types...> () != this->_typeid)
+            exception <bad_access, type_mismatch> :: raise(this);
+
+        return reinterpret_cast <type &> (this->_value);
+    }
 
     template <typename... types> template <typename type, std :: enable_if_t <variant <types...> :: constraints :: template defined <type> ()> *> type & variant <types...> :: reinterpret()
     {

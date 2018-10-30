@@ -104,6 +104,41 @@ namespace
     {
     });
 
+    $test("variant/reinterpret", []
+    {
+    });
+
+    $test("variant/get", []
+    {
+        variant <int, float, char> myvariant = 'c';
+
+        try
+        {
+            myvariant.get <char> () = 'q';
+        }
+        catch(...)
+        {
+            throw "`myvariant.get <char> ()` raises an exception.";
+        }
+
+        if(myvariant.get <char> () != 'q')
+            throw "`myvariant.get <char> ()` does not retrieve or set the value appropriately.";
+
+        bool except = false;
+
+        try
+        {
+            myvariant.get <float> () = 4.44;
+        }
+        catch(exception <bad_access, type_mismatch> &)
+        {
+            except = true;
+        }
+
+        if(!except)
+            throw "`myvariant.get <float> ()` does not raise an exception.";
+    });
+
     $test("variant/cast", []
     {
         variant <int> emptyvariant;
