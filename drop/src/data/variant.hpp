@@ -116,6 +116,17 @@ namespace drop
         });
     }
 
+    // Destructor
+
+    template <typename... types> base <variant <types...>> :: ~base()
+    {
+       this->unwrap <types...> ([](auto && value)
+       {
+           typedef std :: remove_reference_t <decltype(value)> vtype;
+           value.~vtype();
+       });
+    }
+
     // Getters
 
     template <typename... types> template <typename type, std :: enable_if_t <base <variant <types...>> :: constraints :: template defined <type> ()> *> type & base <variant <types...>> :: get()

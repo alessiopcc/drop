@@ -54,6 +54,16 @@ namespace
         }
     };
 
+    class destructible
+    {
+    public:
+
+        ~destructible()
+        {
+            lastop = 'D';
+        }
+    };
+
     // Tests
 
     $test("variant/constructors", []
@@ -129,6 +139,16 @@ namespace
 
         if(std :: is_copy_constructible <variant <copyable, enablers :: copy_constructible <false>>> :: value)
             throw "`variant <copyable, enablers :: copy_constructible <false>>` is copy constructible";
+    });
+
+    $test("variant/destructor", []
+    {
+        lastop = 'X';
+        {
+            variant <destructible> myvariant = destructible();
+        }
+        if(lastop != 'D')
+            throw "When deleted, `variant <destructible>` does not call `destructible`'s destructor.'";
     });
 
     $test("variant/match", []

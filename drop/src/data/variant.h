@@ -97,6 +97,10 @@ namespace drop
         base(const base &);
         base(base &&);
 
+        // Destructor
+
+        ~base();
+
         // Getters
 
         template <typename type, std :: enable_if_t <constraints :: template defined <type> ()> * = nullptr> type & get();
