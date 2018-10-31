@@ -83,14 +83,19 @@ namespace drop
 
     protected:
 
-        // Constructors
+        // Protected constructors
 
         base();
 
-        template <typename type, std :: enable_if_t <constraints :: template copyable <type> ()> * = nullptr> base(const type &);
-        template <typename type, std :: enable_if_t <constraints :: template movable <type> ()> * = nullptr> base(type &&);
+        template <typename type> base(const type &);
+        template <typename type> base(type &&);
 
     public:
+
+        // Constructors
+
+        base(const base &);
+        base(base &&);
 
         // Getters
 

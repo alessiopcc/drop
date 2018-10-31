@@ -3,6 +3,7 @@
 // Libraries
 
 #include <iostream>
+#include <type_traits>
 
 // Includes
 
@@ -98,6 +99,36 @@ namespace
             if(lastop != 'C')
                 throw "Copy construction of `variant` with `copyable` does not call copy constructor.";
         }
+    });
+
+    $test("variant/copy-move", []
+    {
+        {
+            variant <movable> myvariant = movable();
+            lastop = 'X';
+            variant <movable> myothervariant = std :: move(myvariant);
+            if(lastop != 'M')
+                throw "Move constructor of `variant <movable>` does not call `movable`'s move constructor.'";
+        }
+
+        {
+            variant <movable, enablers :: move_constructible <false>> myvariant = movable();
+            lastop = 'X';
+            variant <movable, enablers :: move_constructible <false>> myothervariant = std :: move(myvariant);
+            if(lastop != 'C')
+                throw "Move constructor of `variant <movable, enablers :: move_constructible <false>>` does not call `movable`'s copy constructor.'";
+        }
+
+        {
+            variant <copyable> myvariant = copyable();
+            lastop = 'X';
+            variant <copyable> myothervariant = myvariant;
+            if(lastop != 'C')
+                throw "Copy constructor of `variant <copyable>` does not call `copyable`'s copy constructor.'";
+        }
+
+        if(std :: is_copy_constructible <variant <copyable, enablers :: copy_constructible <false>>> :: value)
+            throw "`variant <copyable, enablers :: copy_constructible <false>>` is copy constructible";
     });
 
     $test("variant/match", []

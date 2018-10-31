@@ -57,12 +57,18 @@ namespace drop
 
     template <typename... types> template <typename type> constexpr bool base <variant <types...>> :: constraints :: copyable()
     {
-        return defined <type> () && std :: is_copy_constructible <type> :: value;
+        if constexpr (defined <type> ())
+            return std :: is_copy_constructible <type> :: value;
+        else
+            return false;
     }
 
     template <typename... types> template <typename type> constexpr bool base <variant <types...>> :: constraints :: movable()
     {
-        return defined <type> () && std :: is_move_constructible <type> :: value;
+        if constexpr (defined <type> ())
+            return std :: is_move_constructible <type> :: value;
+        else
+            return false;
     }
 
     template <typename... types> template <bool constvar, typename... lambdas> constexpr bool base <variant <types...>> :: constraints :: match()
@@ -70,20 +76,44 @@ namespace drop
         return (... && matchable <constvar, lambdas> ());
     }
 
-    // Constructors
+    // Protected constructors
 
     template <typename... types> base <variant <types...>> :: base() : _typeid(0)
     {
     }
 
-    template <typename... types> template <typename type, std :: enable_if_t <base <variant <types...>> :: constraints :: template copyable <type> ()> *> base <variant <types...>> :: base(const type & value) : _typeid(index <type, types...> ())
+    template <typename... types> template <typename type> base <variant <types...>> :: base(const type & value) : _typeid(index <type, types...> ())
     {
         new (&(this->_value)) type(value);
     }
 
-    template <typename... types> template <typename type, std :: enable_if_t <base <variant <types...>> :: constraints :: template movable <type> ()> *> base <variant <types...>> :: base(type && value) : _typeid(index <type, types...> ())
+    template <typename... types> template <typename type> base <variant <types...>> :: base(type && value) : _typeid(index <type, types...> ())
     {
         new (&(this->_value)) type(std :: move(value));
+    }
+
+    // Constructors
+
+    template <typename... types> base <variant <types...>> :: base(const base & that)
+    {
+        this->_typeid = that._typeid;
+
+        that.unwrap <types...> ([&](auto && value)
+        {
+            typedef std :: remove_const_t <std :: remove_reference_t <decltype(value)>> vtype;
+            new (&(this->_value)) vtype(value);
+        });
+    }
+
+    template <typename... types> base <variant <types...>> :: base(base && that)
+    {
+        this->_typeid = that._typeid;
+
+        that.unwrap <types...> ([&](auto && value)
+        {
+            typedef std :: remove_const_t <std :: remove_reference_t <decltype(value)>> vtype;
+            new (&(this->_value)) vtype(std :: move(value));
+        });
     }
 
     // Getters
