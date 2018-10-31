@@ -134,6 +134,11 @@ namespace drop
 
     public:
 
+        // Operators
+
+        base & operator = (const base &);
+        base & operator = (base &&);
+
         // Casting
 
         operator bool () const;

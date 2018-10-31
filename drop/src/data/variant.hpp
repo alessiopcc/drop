@@ -262,6 +262,58 @@ namespace drop
             return 1 + index <needle, tail...> ();
     }
 
+    // Operators
+
+    template <typename... types> base <variant <types...>> & base <variant <types...>> :: operator = (const base & rho)
+    {
+        if(this->_typeid == rho._typeid)
+        {
+            rho.visit([&](auto && value)
+            {
+                typedef std :: remove_const_t <std :: remove_reference_t <decltype(value)>> vtype;
+                reinterpret_cast <vtype &> (this->_value) = value;
+            });
+        }
+        else
+        {
+            this->~base();
+            this->_typeid = rho._typeid;
+
+            rho.visit([&](auto && value)
+            {
+                typedef std :: remove_const_t <std :: remove_reference_t <decltype(value)>> vtype;
+                new (&(this->_value)) vtype(value);
+            });
+        }
+
+        return (*this);
+    }
+
+    template <typename... types> base <variant <types...>> & base <variant <types...>> :: operator = (base && rho)
+    {
+        if(this->_typeid == rho._typeid)
+        {
+            rho.visit([&](auto && value)
+            {
+                typedef std :: remove_const_t <std :: remove_reference_t <decltype(value)>> vtype;
+                reinterpret_cast <vtype &> (this->_value) = std :: move(value);
+            });
+        }
+        else
+        {
+            this->~base();
+            this->_typeid = rho._typeid;
+
+            rho.visit([&](auto && value)
+            {
+                typedef std :: remove_const_t <std :: remove_reference_t <decltype(value)>> vtype;
+                new (&(this->_value)) vtype(std :: move(value));
+            });
+        }
+
+        return (*this);
+    }
+
     // Casting
 
     template <typename... types> base <variant <types...>> :: operator bool () const
