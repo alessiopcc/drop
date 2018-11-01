@@ -93,7 +93,7 @@ namespace drop
         base(const base &);
         base(base &&);
 
-        // Destructor
+        // Protected destructor
 
         ~base();
 

@@ -92,8 +92,6 @@ namespace drop
         new (&(this->_value)) type(std :: move(value));
     }
 
-    // Constructors
-
     template <typename... types> base <variant <types...>> :: base(const base & that)
     {
         this->_typeid = that._typeid;
@@ -116,7 +114,7 @@ namespace drop
         });
     }
 
-    // Destructor
+    // Protected destructor
 
     template <typename... types> base <variant <types...>> :: ~base()
     {
