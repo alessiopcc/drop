@@ -214,6 +214,12 @@ namespace drop
             });
     }
 
+    template <typename... types> void base <variant <types...>> :: erase()
+    {
+        this->~base();
+        this->_typeid = 0;
+    }
+
     // Private methods
 
     template <typename... types> template <typename type, typename... tail, typename lambda> void base <variant <types...>> :: unwrap(lambda && callback)
