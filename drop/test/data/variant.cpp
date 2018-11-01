@@ -64,6 +64,18 @@ namespace
         }
     };
 
+    class argful
+    {
+    public:
+
+        double i;
+
+        argful(const char *, double i, const int &) : i(i)
+        {
+            lastop = 'P';
+        }
+    };
+
     // Tests
 
     $test("variant/constructors", []
@@ -149,6 +161,27 @@ namespace
         }
         if(lastop != 'D')
             throw "When deleted, `variant <destructible>` does not call `destructible`'s destructor.'";
+    });
+
+    $test("variant/is", []
+    {
+    });
+
+    $test("variant/emplace", []
+    {
+        variant <argful, int> myvariant;
+
+        bool ok = false;
+        lastop = 'X';
+
+        myvariant.emplace <argful> ("ciao", 4, 99);
+        myvariant.match([&](const argful & value)
+        {
+            ok = (value.i == 4.);
+        });
+
+        if(!ok || lastop != 'P')
+            throw "`emplace` method does not correctly set the value.";
     });
 
     $test("variant/match", []

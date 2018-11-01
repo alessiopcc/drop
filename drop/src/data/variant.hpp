@@ -165,6 +165,13 @@ namespace drop
             return (this->_typeid == index <type, types...> ());
     }
 
+    template <typename... types> template <typename type, typename... atypes, std :: enable_if_t <std :: is_constructible <type, atypes...> :: value> *> void base <variant <types...>> :: emplace(atypes && ... arguments)
+    {
+        this->~base();
+        this->_typeid = index <type, types...> ();
+        new (&(this->_value)) type(std :: forward <atypes> (arguments)...);
+    }
+
     template <typename... types> template <typename... lambdas, std :: enable_if_t <base <variant <types...>> :: constraints :: template match <false, lambdas...> ()> *> void base <variant <types...>> :: match(lambdas && ... matchcases)
     {
         if(!(*this))

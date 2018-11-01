@@ -113,6 +113,8 @@ namespace drop
 
         template <typename type, std :: enable_if_t <constraints :: template variant <type> ()> * = nullptr> bool is() const;
 
+        template <typename type, typename... atypes, std :: enable_if_t <std :: is_constructible <type, atypes...> :: value> * = nullptr> void emplace(atypes && ...);
+
         template <typename... lambdas, std :: enable_if_t <constraints :: template match <false, lambdas...> ()> * = nullptr> void match(lambdas && ...);
         template <typename... lambdas, std :: enable_if_t <constraints :: template match <true, lambdas...> ()> * = nullptr> void match(lambdas && ...) const;
 
