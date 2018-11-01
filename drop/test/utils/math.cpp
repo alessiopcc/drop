@@ -16,7 +16,7 @@ namespace
 
     // Methods
 
-    template <int value> size_t identity()
+    template <int value> int identity()
     {
         return value;
     };
