@@ -268,7 +268,7 @@ namespace drop
     {
         if(this->_typeid == rho._typeid)
         {
-            rho.visit([&](auto && value)
+            rho.unwrap <types...> ([&](auto && value)
             {
                 typedef std :: remove_const_t <std :: remove_reference_t <decltype(value)>> vtype;
                 reinterpret_cast <vtype &> (this->_value) = value;
@@ -279,7 +279,7 @@ namespace drop
             this->~base();
             this->_typeid = rho._typeid;
 
-            rho.visit([&](auto && value)
+            rho.unwrap <types...> ([&](auto && value)
             {
                 typedef std :: remove_const_t <std :: remove_reference_t <decltype(value)>> vtype;
                 new (&(this->_value)) vtype(value);
@@ -293,7 +293,7 @@ namespace drop
     {
         if(this->_typeid == rho._typeid)
         {
-            rho.visit([&](auto && value)
+            rho.unwrap <types...> ([&](auto && value)
             {
                 typedef std :: remove_const_t <std :: remove_reference_t <decltype(value)>> vtype;
                 reinterpret_cast <vtype &> (this->_value) = std :: move(value);
@@ -304,7 +304,7 @@ namespace drop
             this->~base();
             this->_typeid = rho._typeid;
 
-            rho.visit([&](auto && value)
+            rho.unwrap <types...> ([&](auto && value)
             {
                 typedef std :: remove_const_t <std :: remove_reference_t <decltype(value)>> vtype;
                 new (&(this->_value)) vtype(std :: move(value));
