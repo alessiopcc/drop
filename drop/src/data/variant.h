@@ -2,6 +2,15 @@
 
 namespace drop
 {
+    // Tags
+
+    class bad_access;
+    class type_mismatch;
+
+    // Classes
+
+    template <typename> class base;
+
     template <typename...> class variant;
     class undefined;
 };
@@ -18,12 +27,13 @@ namespace drop
 
 #include "utils/math.hpp"
 #include "concept/callable.h"
+#include "utils/enablers.h"
 
 namespace drop
 {
     // Classes
 
-    template <typename... types> class variant
+    template <typename... types> class base <variant <types...>>
     {
     public:
 
@@ -33,7 +43,7 @@ namespace drop
         {
             // Friends
 
-            template <typename...> friend class variant;
+            friend class base <variant <types...>>;
 
             // Helpers
 
@@ -51,8 +61,11 @@ namespace drop
             template <typename> static constexpr bool defined();
             template <typename> static constexpr bool variant();
 
-            template <typename> static constexpr bool copyable();
-            template <typename> static constexpr bool movable();
+            template <typename> static constexpr bool copyconstructible();
+            template <typename> static constexpr bool moveconstructible();
+
+            template <typename> static constexpr bool copyassignable();
+            template <typename> static constexpr bool moveassignable();
 
             template <bool, typename...> static constexpr bool match();
         };
@@ -71,16 +84,28 @@ namespace drop
         uint8_t _typeid;
         std :: aligned_storage_t <max({sizeof(types)...}), max({alignof(types)...})> _value;
 
+    protected:
+
+        // Protected constructors
+
+        base();
+
+        template <typename type> base(const type &);
+        template <typename type> base(type &&);
+
+        base(const base &);
+        base(base &&);
+
+        // Protected destructor
+
+        ~base();
+
     public:
 
-        // Constructors
-
-        variant();
-
-        template <typename type, std :: enable_if_t <constraints :: template copyable <type> ()> * = nullptr> variant(const type &);
-        template <typename type, std :: enable_if_t <constraints :: template movable <type> ()> * = nullptr> variant(type &&);
-
         // Getters
+
+        template <typename type, std :: enable_if_t <constraints :: template defined <type> ()> * = nullptr> type & get();
+        template <typename type, std :: enable_if_t <constraints :: template defined <type> ()> * = nullptr> const type & get() const;
 
         template <typename type, std :: enable_if_t <constraints :: template defined <type> ()> * = nullptr> type & reinterpret();
         template <typename type, std :: enable_if_t <constraints :: template defined <type> ()> * = nullptr> const type & reinterpret() const;
@@ -88,6 +113,8 @@ namespace drop
         // Methods
 
         template <typename type, std :: enable_if_t <constraints :: template variant <type> ()> * = nullptr> bool is() const;
+
+        template <typename type, typename... atypes, std :: enable_if_t <std :: is_constructible <type, atypes...> :: value> * = nullptr> void emplace(atypes && ...);
 
         template <typename... lambdas, std :: enable_if_t <constraints :: template match <false, lambdas...> ()> * = nullptr> void match(lambdas && ...);
         template <typename... lambdas, std :: enable_if_t <constraints :: template match <true, lambdas...> ()> * = nullptr> void match(lambdas && ...) const;
@@ -110,9 +137,41 @@ namespace drop
 
     public:
 
+        // Operators
+
+        template <typename type, typename std :: enable_if_t <constraints :: template copyassignable <type> ()> * = nullptr> base & operator = (const type &);
+        template <typename type, typename std :: enable_if_t <constraints :: template moveassignable <type> ()> * = nullptr> base & operator = (type &&);
+
+        base & operator = (const base &);
+        base & operator = (base &&);
+
         // Casting
 
         operator bool () const;
+    };
+
+    template <typename... types> class variant : public base <variant <types...>>,
+                                                 public enablers :: copy_constructible <(... && (std :: is_copy_constructible <types> :: value))>,
+                                                 public enablers :: move_constructible <(... && (std :: is_move_constructible <types> :: value))>,
+                                                 public enablers :: copy_assignable <(... && (std :: is_copy_assignable <types> :: value)) && (... && (std :: is_copy_constructible <types> :: value))>,
+                                                 public enablers :: move_assignable <(... && (std :: is_move_assignable <types> :: value)) && (... && (std :: is_move_constructible <types> :: value))>
+    {
+    public:
+
+        // Constraints
+
+        typedef typename base <variant <types...>> :: constraints constraints;
+
+        // Constructors
+
+        variant();
+
+        template <typename type, std :: enable_if_t <constraints :: template copyconstructible <type> ()> * = nullptr> variant(const type &);
+        template <typename type, std :: enable_if_t <constraints :: template moveconstructible <type> ()> * = nullptr> variant(type &&);
+
+        // Static methods
+
+        template <typename type, typename... atypes, std :: enable_if_t <std :: is_constructible <type, atypes...> :: value> * = nullptr> static variant <types...> construct(atypes && ...);
     };
 };
 
