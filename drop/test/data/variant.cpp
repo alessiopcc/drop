@@ -74,6 +74,11 @@ namespace
         {
             lastop = 'P';
         }
+
+        ~argful()
+        {
+            lastop = 'D';
+        }
     };
 
     // Tests
@@ -182,6 +187,28 @@ namespace
 
         if(!ok || lastop != 'P')
             throw "`emplace` method does not correctly set the value.";
+
+        lastop = 'X';
+        myvariant.emplace <int> (33);
+
+        if(lastop != 'D')
+            throw "`emplace` method does not call the destructor on the old value.";
+    });
+
+    $test("variant/construct", []
+    {
+        bool ok = false;
+        lastop = 'X';
+
+        auto myvariant = variant <argful, int> :: construct <argful> ("ciao", 4, 99);
+
+        myvariant.match([&](const argful & value)
+        {
+            ok = (value.i == 4.);
+        });
+
+        if(!ok || lastop != 'P')
+            throw "`construct` static method does not correctly set the value.";
     });
 
     $test("variant/match", []

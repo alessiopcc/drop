@@ -164,6 +164,10 @@ namespace drop
 
         template <typename type, std :: enable_if_t <constraints :: template copyable <type> ()> * = nullptr> variant(const type &);
         template <typename type, std :: enable_if_t <constraints :: template movable <type> ()> * = nullptr> variant(type &&);
+
+        // Static methods
+
+        template <typename type, typename... atypes, std :: enable_if_t <std :: is_constructible <type, atypes...> :: value> * = nullptr> static variant <types...> construct(atypes && ...);
     };
 };
 

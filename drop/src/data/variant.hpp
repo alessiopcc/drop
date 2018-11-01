@@ -343,6 +343,15 @@ namespace drop
     template <typename... types> template <typename type, std :: enable_if_t <variant <types...> :: constraints :: template movable <type> ()> *> variant <types...> :: variant(type && value) : base <variant <types...>> (std :: move(value))
     {
     }
+
+    // Static methods
+
+    template <typename... types> template <typename type, typename... atypes, std :: enable_if_t <std :: is_constructible <type, atypes...> :: value> *> variant <types...> variant <types...> :: construct(atypes && ... arguments)
+    {
+        variant <types...> variant;
+        variant.template emplace <type> (std :: forward <atypes> (arguments)...);
+        return variant;
+    }
 };
 
 #endif
