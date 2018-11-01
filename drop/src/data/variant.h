@@ -61,8 +61,11 @@ namespace drop
             template <typename> static constexpr bool defined();
             template <typename> static constexpr bool variant();
 
-            template <typename> static constexpr bool copyable();
-            template <typename> static constexpr bool movable();
+            template <typename> static constexpr bool copyconstructible();
+            template <typename> static constexpr bool moveconstructible();
+
+            template <typename> static constexpr bool copyassignable();
+            template <typename> static constexpr bool moveassignable();
 
             template <bool, typename...> static constexpr bool match();
         };
@@ -136,6 +139,9 @@ namespace drop
 
         // Operators
 
+        template <typename type, typename std :: enable_if_t <constraints :: template copyassignable <type> ()> * = nullptr> base & operator = (const type &);
+        template <typename type, typename std :: enable_if_t <constraints :: template moveassignable <type> ()> * = nullptr> base & operator = (type &&);
+
         base & operator = (const base &);
         base & operator = (base &&);
 
@@ -160,8 +166,8 @@ namespace drop
 
         variant();
 
-        template <typename type, std :: enable_if_t <constraints :: template copyable <type> ()> * = nullptr> variant(const type &);
-        template <typename type, std :: enable_if_t <constraints :: template movable <type> ()> * = nullptr> variant(type &&);
+        template <typename type, std :: enable_if_t <constraints :: template copyconstructible <type> ()> * = nullptr> variant(const type &);
+        template <typename type, std :: enable_if_t <constraints :: template moveconstructible <type> ()> * = nullptr> variant(type &&);
 
         // Static methods
 

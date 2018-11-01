@@ -55,7 +55,7 @@ namespace drop
         return (std :: is_same <type, undefined> :: value) || defined <type> ();
     }
 
-    template <typename... types> template <typename type> constexpr bool base <variant <types...>> :: constraints :: copyable()
+    template <typename... types> template <typename type> constexpr bool base <variant <types...>> :: constraints :: copyconstructible()
     {
         if constexpr (defined <type> ())
             return std :: is_copy_constructible <type> :: value;
@@ -63,10 +63,26 @@ namespace drop
             return false;
     }
 
-    template <typename... types> template <typename type> constexpr bool base <variant <types...>> :: constraints :: movable()
+    template <typename... types> template <typename type> constexpr bool base <variant <types...>> :: constraints :: moveconstructible()
     {
         if constexpr (defined <type> ())
             return std :: is_move_constructible <type> :: value;
+        else
+            return false;
+    }
+
+    template <typename... types> template <typename type> constexpr bool base <variant <types...>> :: constraints :: copyassignable()
+    {
+        if constexpr (defined <type> ())
+            return (std :: is_copy_constructible <type> :: value) && (std :: is_copy_assignable <type> :: value);
+        else
+            return false;
+    }
+
+    template <typename... types> template <typename type> constexpr bool base <variant <types...>> :: constraints :: moveassignable()
+    {
+        if constexpr (defined <type> ())
+            return (std :: is_move_constructible <type> :: value) && (std :: is_move_assignable <type> :: value);
         else
             return false;
     }
@@ -269,6 +285,30 @@ namespace drop
 
     // Operators
 
+    template <typename... types> template <typename type, typename std :: enable_if_t <base <variant <types...>> :: constraints :: template copyassignable <type> ()> *> base <variant <types...>> & base <variant <types...>> :: operator = (const type & value)
+    {
+        if(this->_typeid == index <type, types...> ())
+            this->reinterpret <type> () = value;
+        else
+        {
+            this->~base();
+            this->_typeid = index <type, types...> ();
+            new (&(this->_value)) type(value);
+        }
+    }
+
+    template <typename... types> template <typename type, typename std :: enable_if_t <base <variant <types...>> :: constraints :: template moveassignable <type> ()> *> base <variant <types...>> & base <variant <types...>> :: operator = (type && value)
+    {
+        if(this->_typeid == index <type, types...> ())
+            this->reinterpret <type> () = std :: move(value);
+        else
+        {
+            this->~base();
+            this->_typeid = index <type, types...> ();
+            new (&(this->_value)) type(std :: move(value));
+        }
+    }
+
     template <typename... types> base <variant <types...>> & base <variant <types...>> :: operator = (const base & rho)
     {
         if(this->_typeid == rho._typeid)
@@ -334,11 +374,11 @@ namespace drop
     {
     }
 
-    template <typename... types> template <typename type, std :: enable_if_t <variant <types...> :: constraints :: template copyable <type> ()> *> variant <types...> :: variant(const type & value) : base <variant <types...>> (value)
+    template <typename... types> template <typename type, std :: enable_if_t <variant <types...> :: constraints :: template copyconstructible <type> ()> *> variant <types...> :: variant(const type & value) : base <variant <types...>> (value)
     {
     }
 
-    template <typename... types> template <typename type, std :: enable_if_t <variant <types...> :: constraints :: template movable <type> ()> *> variant <types...> :: variant(type && value) : base <variant <types...>> (std :: move(value))
+    template <typename... types> template <typename type, std :: enable_if_t <variant <types...> :: constraints :: template moveconstructible <type> ()> *> variant <types...> :: variant(type && value) : base <variant <types...>> (std :: move(value))
     {
     }
 
