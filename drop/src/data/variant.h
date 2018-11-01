@@ -90,16 +90,14 @@ namespace drop
         template <typename type> base(const type &);
         template <typename type> base(type &&);
 
-    public:
-
-        // Constructors
-
         base(const base &);
         base(base &&);
 
         // Destructor
 
         ~base();
+
+    public:
 
         // Getters
 
