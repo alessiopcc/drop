@@ -32,6 +32,17 @@ namespace drop
 {
     template <typename type> class promise
     {
+    public:
+
+        // Constraints
+
+        struct constraints
+        {
+            template <typename...> static constexpr bool resolve();
+        };
+
+    private:
+
         // Service nested classes
 
         class arc;
@@ -41,6 +52,7 @@ namespace drop
 
         // Coroutine interface
 
+        class promise_base;
         class promise_type;
 
     private:
@@ -63,12 +75,20 @@ namespace drop
 
         // Methods
 
-        template <typename... dummy, std :: enable_if_t <sizeof...(dummy) == 0 && std :: is_same <type, void> :: value> * = nullptr> void resolve(dummy...) const;
-        template <typename vtype, std :: enable_if_t <std :: is_same <vtype, type> :: value && !(std :: is_same <type, void> :: value)> * = nullptr> void resolve(const vtype &) const;
+        template <typename... vtype, std :: enable_if_t <constraints :: template resolve <vtype...> ()> * = nullptr> void resolve(const vtype & ...) const;
+        void reject(const std :: exception_ptr &) const;
+
+    private:
+
+        // Private static methods
+
+        static void flush(const std :: shared_ptr <arc> &);
     };
 
-    template <typename type> class promise <type> :: promise_type
+    template <typename type> class promise <type> :: promise_base
     {
+    protected:
+
         // Members
 
         promise <type> _promise;
@@ -87,11 +107,24 @@ namespace drop
         // Exceptions
 
         inline void unhandled_exception();
+    };
+
+    template <> class promise <void> :: promise_type : public promise <void> :: promise_base
+    {
+    public:
 
         // Returns
 
-        template <typename... dummy, std :: enable_if_t <sizeof...(dummy) == 0 && std :: is_same <type, void> :: value> * = nullptr> inline void return_void(dummy...);
-        template <typename vtype, std :: enable_if_t <std :: is_same <vtype, type> :: value && !(std :: is_same <type, void> :: value)> * = nullptr> inline void return_value(const vtype &);
+        inline void return_void();
+    };
+
+    template <typename type> class promise <type> :: promise_type : public promise <type> :: promise_base
+    {
+    public:
+
+        // Returns
+
+        inline void return_value(const type &);
     };
 
     template <typename type> class promise <type> :: arc

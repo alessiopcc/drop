@@ -9,6 +9,21 @@ namespace drop
 {
     // promise
 
+    // Constraints
+
+    template <typename type> template <typename... dummy> constexpr bool promise <type> :: constraints :: resolve()
+    {
+        if constexpr (std :: is_same <type, void> :: value)
+            return sizeof...(dummy) == 0;
+        else
+        {
+            if constexpr (sizeof...(dummy) == 1)
+                return std :: is_same <dummy..., type> :: value;
+            else
+                return false;
+        }
+    }
+
     // Constructors
 
     template <typename type> promise <type> :: promise() : _arc(std :: make_shared <arc> ())
@@ -60,69 +75,109 @@ namespace drop
 
     // Methods
 
-    template <typename type> template <typename... dummy, std :: enable_if_t <sizeof...(dummy) == 0 && std :: is_same <type, void> :: value> *> void promise <type> :: resolve(dummy...) const
+    template <typename type> template <typename... vtype, std :: enable_if_t <promise <type> :: constraints :: template resolve <vtype...> ()> *> void promise <type> :: resolve(const vtype & ... value) const
     {
-        this->_mutex.lock();
+        std :: shared_ptr <arc> arc = this->_arc;
 
-        if(this->_arc->_status)
+        arc->_mutex.lock();
+
+        if(arc->_status)
         {
-            this->_mutex.unlock();
+            arc->_mutex.unlock();
             exception <bad_access, already_resolved> :: raise(this);
         }
         else
         {
-            this->_arc->_status = null();
-            this->_arc->_handles.match([](std :: experimental :: coroutine_handle <> & handle)
-            {
-                handle.resume();
-            }, [](std :: vector <std :: experimental :: coroutine_handle <>> & handles)
-            {
-                for(auto & handle : handles)
-                    handle.resume();
-            });
+            if constexpr (std :: is_same <type, void> :: value)
+                arc->_status = null();
+            else
+                [&](const type & value)
+                {
+                    arc->_status = value;
+                }(value...);
 
-            this->_arc->_handles.erase();
+            flush(arc);
         }
 
-        this->_mutex.unlock();
+        arc->_mutex.unlock();
     }
 
-    // promise_type
+    template <typename type> void promise <type> :: reject(const std :: exception_ptr & exception) const
+    {
+        std :: shared_ptr <arc> arc = this->_arc;
+
+        arc->_mutex.lock();
+
+        if(arc->_status)
+        {
+            arc->_mutex.unlock();
+            drop :: exception <bad_access, already_resolved> :: raise(this);
+        }
+        else
+        {
+            arc->_status = exception;
+            flush(arc);
+        }
+
+        arc->_mutex.unlock();
+    }
+
+    // Private methods
+
+    template <typename type> void promise <type> :: flush(const std :: shared_ptr <arc> & arc)
+    {
+        arc->_handles.match([](std :: experimental :: coroutine_handle <> & handle)
+        {
+            handle.resume();
+        }, [](std :: vector <std :: experimental :: coroutine_handle <>> & handles)
+        {
+            for(auto & handle : handles)
+                handle.resume();
+        });
+
+        arc->_handles.erase();
+    }
+
+    // promise_base
 
     // Object
 
-    template <typename type> inline auto promise <type> :: promise_type :: get_return_object()
+    template <typename type> inline auto promise <type> :: promise_base :: get_return_object()
     {
         return this->_promise;
     }
 
     // Suspends
 
-    template <typename type> inline auto promise <type> :: promise_type :: initial_suspend()
+    template <typename type> inline auto promise <type> :: promise_base :: initial_suspend()
     {
         return std :: experimental :: suspend_never();
     }
 
-    template <typename type> inline auto promise <type> :: promise_type :: final_suspend()
+    template <typename type> inline auto promise <type> :: promise_base :: final_suspend()
     {
         return std :: experimental :: suspend_never();
     }
 
     // Exceptions
 
-    template <typename type> inline void promise <type> :: promise_type :: unhandled_exception()
+    template <typename type> inline void promise <type> :: promise_base :: unhandled_exception()
     {
         this->_promise.reject(std :: current_exception());
     }
 
+    // promise <void> :: promise_type
+
     // Returns
 
-    template <typename type> template <typename... dummy, std :: enable_if_t <sizeof...(dummy) == 0 && std :: is_same <type, void> :: value> *> inline void promise <type> :: promise_type :: return_void(dummy...)
+    inline void promise <void> :: promise_type :: return_void()
     {
         this->_promise.resolve();
     }
 
-    template <typename type> template <typename vtype, std :: enable_if_t <std :: is_same <vtype, type> :: value && !(std :: is_same <type, void> :: value)> *> inline void promise <type> :: promise_type :: return_value(const vtype & value)
+    // promise <type> :: promise_type
+
+    template <typename type> inline void promise <type> :: promise_type :: return_value(const type & value)
     {
         this->_promise.resolve(value);
     }
