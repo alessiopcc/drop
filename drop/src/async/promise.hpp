@@ -62,6 +62,10 @@ namespace drop
 
     template <typename type> auto promise <type> :: await_resume() const
     {
+        this->_arc->_mutex.lock();
+        this->_arc->_resumed = true;
+        this->_arc->_mutex.unlock();
+
         if(this->_arc->_status.template is <typename arc :: storetype> ())
         {
             if constexpr (std :: is_same <type, void> :: value)
@@ -185,6 +189,44 @@ namespace drop
     template <typename type> inline void promise <type> :: promise_type :: return_value(const type & value)
     {
         this->_promise.resolve(value);
+    }
+
+    // arc
+
+    // Constructors
+
+    template <typename type> promise <type> :: arc :: arc() : _resumed(false)
+    {
+    }
+
+    // Destructor
+
+    template <typename type> promise <type> :: arc :: ~arc()
+    {
+        if(this->_status.template is <std :: exception_ptr> () && !(this->_resumed))
+        {
+            std :: cerr << "Deleting rejected `promise` that was never handled: ";
+
+            try
+            {
+                std :: rethrow_exception(this->_status.template reinterpret <std :: exception_ptr> ());
+            }
+            catch(const std :: exception & exception)
+            {
+                std :: cerr << exception.what();
+            }
+            catch(const char * exception)
+            {
+                std :: cerr << exception;
+            }
+            catch(...)
+            {
+                std :: cerr << "(unknown exception)";
+            }
+
+            std :: cerr << std :: endl;
+            std :: terminate();
+        }
     }
 };
 

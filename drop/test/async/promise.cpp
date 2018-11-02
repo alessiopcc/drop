@@ -153,4 +153,17 @@ namespace
         if(!thrown)
             throw "Resolving a `promise` that was previously rejected does not raise an exception.";
     });
+
+    $test("promise/unhandled-exception", []
+    {
+        {
+            std :: set_terminate([]
+            {
+                std :: exit(0);
+            });
+
+            promise <void> y;
+            y.reject("Ouch!");
+        }
+    });
 };

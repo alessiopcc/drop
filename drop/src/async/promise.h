@@ -143,8 +143,19 @@ namespace drop
 
         variant <storetype, std :: exception_ptr> _status;
         variant <std :: experimental :: coroutine_handle <>, std :: vector <std :: experimental :: coroutine_handle <>>> _handles;
+        bool _resumed;
 
         std :: recursive_mutex _mutex;
+
+    public:
+
+        // Constructors
+
+        arc();
+
+        // Destructor
+
+        ~arc();
     };
 
     template <typename type> class promise <type> :: null
