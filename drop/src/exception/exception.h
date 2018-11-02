@@ -43,15 +43,12 @@ namespace drop
         // Static methods
 
         static void raise();
-
         template <typename stype> static void raise(stype *);
         static void raise(const char *);
         template <typename dtype> static void raise(const dtype &);
-
         template <typename stype> static void raise(stype *, const char *);
         template <typename dtype> static void raise(const char *, const dtype &);
         template <typename stype, typename dtype> static void raise(stype *, const dtype &);
-
         template <typename stype, typename dtype> static void raise(stype *, const char *, const dtype &);
     };
 

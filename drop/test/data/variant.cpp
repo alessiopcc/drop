@@ -250,6 +250,10 @@ namespace
             throw "`myvariant.get <float> ()` does not raise an exception.";
     });
 
+    $test("variant/erase", []
+    {
+    });
+
     $test("variant/assignment", []
     {
         variant <char, double, int> myvariant;
