@@ -115,5 +115,42 @@ namespace
 
         if(!thrown)
             throw "Rejecting a `promise` does not cause the exception to appropriately propagate.";
+
+        thrown = false;
+        x = promise <int> ();
+        x.reject("Ouch!");
+
+        h();
+
+        if(!thrown)
+            throw "Making a coroutine await on an already rejected `promise` does not cause it to pass through.";
+
+        thrown = false;
+
+        try
+        {
+            x.reject(33);
+        }
+        catch(exception <bad_access, already_resolved> &)
+        {
+            thrown = true;
+        }
+
+        if(!thrown)
+            throw "Rejecting a `promise` twice does not raise an exception.";
+
+        thrown = false;
+
+        try
+        {
+            x.resolve(144);
+        }
+        catch(exception <bad_access, already_resolved> &)
+        {
+            thrown = true;
+        }
+
+        if(!thrown)
+            throw "Resolving a `promise` that was previously rejected does not raise an exception.";
     });
 };
