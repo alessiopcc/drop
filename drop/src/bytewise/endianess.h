@@ -1,4 +1,4 @@
-/ Forward declarations
+// Forward declarations
 
 namespace drop
 {
