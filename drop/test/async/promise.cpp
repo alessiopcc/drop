@@ -18,6 +18,7 @@ namespace
 
     int lastval;
     int resumes;
+    bool thrown;
 
     promise <int> x;
 
@@ -38,9 +39,22 @@ namespace
         }
     }
 
+    promise <void> h()
+    {
+        try
+        {
+            co_await f();
+        }
+        catch(const char * exception)
+        {
+            if(!(strcmp(exception, "Ouch!")))
+                thrown = true;
+        }
+    }
+
     // Tests
 
-    $test("promise/develop", []
+    $test("promise/resolve", []
     {
         g();
 
@@ -51,7 +65,7 @@ namespace
                 throw "`promise <int>` did not correctly resume coroutine `f`.";
         }
 
-        bool thrown = false;
+        thrown = false;
 
         try
         {
@@ -90,5 +104,16 @@ namespace
 
         if(resumes != 4)
             throw "Resolving a `promise` on which multiple coroutines are awaiting does not resume all of them.";
+    });
+
+    $test("promise/reject", []
+    {
+        h();
+
+        thrown = false;
+        x.reject("Ouch!");
+
+        if(!thrown)
+            throw "Rejecting a `promise` does not cause the exception to appropriately propagate.";
     });
 };

@@ -122,6 +122,11 @@ namespace drop
         arc->_mutex.unlock();
     }
 
+    template <typename type> template <typename etype> void promise <type> :: reject(const etype & exception) const
+    {
+        this->reject(std :: make_exception_ptr(exception));
+    }
+
     // Private methods
 
     template <typename type> void promise <type> :: flush(const std :: shared_ptr <arc> & arc)

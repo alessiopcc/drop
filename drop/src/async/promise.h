@@ -76,7 +76,9 @@ namespace drop
         // Methods
 
         template <typename... vtype, std :: enable_if_t <constraints :: template resolve <vtype...> ()> * = nullptr> void resolve(const vtype & ...) const;
+
         void reject(const std :: exception_ptr &) const;
+        template <typename etype> void reject(const etype &) const;
 
     private:
 
