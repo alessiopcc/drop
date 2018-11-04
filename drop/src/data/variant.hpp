@@ -156,7 +156,7 @@ namespace drop
         if(index <type, types...> () != this->_typeid)
             exception <bad_access, type_mismatch> :: raise(this);
 
-        return reinterpret_cast <type &> (this->_value);
+        return reinterpret_cast <const type &> (this->_value);
     }
 
     template <typename... types> template <typename type, std :: enable_if_t <base <variant <types...>> :: constraints :: template defined <type> ()> *> type & base <variant <types...>> :: reinterpret()
