@@ -79,12 +79,80 @@ namespace
         $bytewise(q);
     };
 
+    class empty
+    {
+    };
+
+    class nearlyempty
+    {
+        // Members
+
+        empty e;
+
+        // Bytewise
+
+        $bytewise(e);
+    };
+
     // Tests
 
-    $test("bytewise/develop", []
+    $test("bytewise/constraints", []
     {
-        std :: cout << bytewise :: constraints :: fixed <myfixedclass> () << std :: endl;
-        std :: cout << bytewise :: constraints :: readable <myfixedclass, void> () << std :: endl;
-        std :: cout << bytewise :: constraints :: writable <myfixedclass, void> () << std :: endl;
+        if(!(bytewise :: constraints :: readable <myotherclass, void> ()))
+            throw "`myotherclass` is not `void` readable.";
+
+        if(!(bytewise :: constraints :: writable <myotherclass, void> ()))
+            throw "`myotherclass` is not `void` writable.";
+
+        if(!(bytewise :: constraints :: readable <myclass, void> ()))
+            throw "`myclass` is not `void` readable.";
+
+        if(!(bytewise :: constraints :: writable <myclass, void> ()))
+            throw "`myclass` is not `void` writable.";
+
+        if(!(bytewise :: constraints :: readable <myotherfixedclass, void> ()))
+            throw "`myotherfixedclass` is not `void` readable.";
+
+        if(!(bytewise :: constraints :: writable <myotherfixedclass, void> ()))
+            throw "`myotherfixedclass` is not `void` writable.";
+
+        if(!(bytewise :: constraints :: readable <myfixedclass, void> ()))
+            throw "`myfixedclass` is not `void` readable.";
+
+        if(!(bytewise :: constraints :: writable <myfixedclass, void> ()))
+            throw "`myfixedclass` is not `void` writable.";
+
+        if(bytewise :: constraints :: fixed <myotherclass> ())
+            throw "`myotherclass` is fixed.";
+
+        if(bytewise :: constraints :: fixed <myclass> ())
+            throw "`myotherclass` is fixed.";
+
+        if(!(bytewise :: constraints :: fixed <myotherfixedclass> ()))
+            throw "`myotherfixedclass` not is fixed.";
+
+        if(!(bytewise :: constraints :: fixed <myfixedclass> ()))
+            throw "`myfixedclass` is not fixed.";
+
+        if(!(bytewise :: constraints :: fixed <int> ()))
+            throw "`int` is not fixed.";
+
+        if(bytewise :: constraints :: fixed <empty> ())
+            throw "`empty` is fixed.";
+
+        if(bytewise :: constraints :: readable <empty, void> ())
+            throw "`empty` is `void` readable";
+
+        if(bytewise :: constraints :: writable <empty, void> ())
+            throw "`empty` is `void` writable";
+
+        if(bytewise :: constraints :: fixed <nearlyempty> ())
+            throw "`nearlyempty` is fixed.";
+
+        if(bytewise :: constraints :: readable <nearlyempty, void> ())
+            throw "`nearlyempty` is `void` readable";
+
+        if(bytewise :: constraints :: writable <nearlyempty, void> ())
+            throw "`nearlyempty` is `void` writable";
     });
 };
