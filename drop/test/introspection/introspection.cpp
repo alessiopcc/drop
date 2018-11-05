@@ -110,10 +110,16 @@ namespace
             throw "Tag `mytag <2>` found in class `myclass`.";
     });
 
+    $test("introspection/next", []
+    {
+        if(introspection :: next <myclass :: __tag__, mytag, -1> () != 2)
+            throw "Tag `mytag` found by `next` more or less than 2 times in class `myclass`.";
+    });
+
     $test("introspection/count", []
     {
-        if(introspection :: count <myclass :: __tag__, mytag, -1> () != 2)
-            throw "Tag `mytag` found more or less than 2 times in class `myclass`.";
+        if(introspection :: count <myclass, mytag> () != 2)
+            throw "Tag `mytag` found by `count` more or less than 2 times in class `myclass`.";
     });
 
     $test("introspection/get", []
