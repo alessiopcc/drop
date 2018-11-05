@@ -94,6 +94,26 @@ namespace
         $bytewise(e);
     };
 
+    class myreader
+    {
+    public:
+
+        bool update(const uint8_t *, size_t)
+        {
+            return false;
+        }
+    };
+
+    class mywriter
+    {
+    public:
+
+        uint8_t * pop(size_t)
+        {
+            return nullptr;
+        }
+    };
+
     // Tests
 
     $test("bytewise/constraints", []
@@ -154,6 +174,18 @@ namespace
 
         if(bytewise :: constraints :: writable <nearlyempty, void> ())
             throw "`nearlyempty` is `void` writable";
+
+        if(!(bytewise :: constraints :: reader <myreader> ()))
+            throw "`myreader` is not recognized as a reader.";
+
+        if(bytewise :: constraints :: writer <myreader> ())
+            throw "`myreader` is recognized as a writer.";
+
+        if(!(bytewise :: constraints :: writer <mywriter> ()))
+            throw "`mywriter` is not recognized as a writer.";
+
+        if(bytewise :: constraints :: reader <mywriter> ())
+            throw "`mywriter` is recognized as a reader.";
     });
 
     $test("bytewise/traits", []

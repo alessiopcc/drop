@@ -52,7 +52,7 @@ namespace drop
         if constexpr (introspection :: count <type, bytewise> () > 0)
             return readableloop <type, vtype, 0> ();
 
-        if constexpr ($expression($type(const type).accept($type(reader <vtype> &))))
+        if constexpr ($expression($type(const type).accept($type(bytewise :: reader <vtype> &))))
             return true;
 
         if constexpr (stltraits :: array <type> :: value)
@@ -72,7 +72,7 @@ namespace drop
         if constexpr (introspection :: count <type, bytewise> () > 0)
             return writableloop <type, vtype, 0> ();
 
-        if constexpr ($expression($type(type).accept($type(writer <vtype> &))))
+        if constexpr ($expression($type(type).accept($type(bytewise :: writer <vtype> &))))
             return true;
 
         if constexpr (stltraits :: array <type> :: value)
@@ -99,6 +99,16 @@ namespace drop
             return true;
 
         return false;
+    }
+
+    template <typename type> constexpr bool bytewise :: constraints :: reader()
+    {
+        return $expression($type(type).update($type(const uint8_t *), $type(const size_t &)));
+    }
+
+    template <typename type> constexpr bool bytewise :: constraints :: writer()
+    {
+        return $expression($type(type).pop($type(const size_t &))).template casts <const uint8_t *> ();
     }
 
     // Traits
