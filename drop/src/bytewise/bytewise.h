@@ -19,6 +19,7 @@ namespace drop
 #include "bytewise/endianess.h"
 #include "introspection/introspection.h"
 #include "concept/expression.h"
+#include "concept/stltraits.h"
 
 // Macros
 
@@ -62,7 +63,7 @@ namespace drop
     };
 
     template <typename> class bytewise :: writer
-    {    
+    {
     };
 };
 
