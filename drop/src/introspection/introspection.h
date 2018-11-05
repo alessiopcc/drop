@@ -56,6 +56,7 @@ namespace drop
 
         struct sfinae
         {
+            template <typename, typename> class tagged;
             template <template <typename, size_t, std :: nullptr_t> typename, typename, size_t, ssize_t> class exists;
         };
 
@@ -94,6 +95,20 @@ namespace drop
 
         template <typename tag, size_t index, typename type, std :: enable_if_t <introspection :: exists <std :: decay_t <type> :: template __tag__, tag, index, -1> ()> * = nullptr> static inline auto & get(type &&);
         template <typename tag, typename type, typename lambda, std :: enable_if_t <constraints :: visitor <lambda, type, tag> ()> * = nullptr> static inline void visit(type &&, lambda &&);
+    };
+
+    template <typename type, typename tag> class introspection :: sfinae :: tagged
+    {
+        // SFINAE
+
+        template <typename stype> static std :: true_type sfinae(typename stype :: template __tag__ <tag, 0, nullptr> *);
+        template <typename stype> static std :: false_type sfinae(...);
+
+    public:
+
+        // Static members
+
+        static constexpr bool value = std :: is_same <decltype(sfinae <type> (nullptr)), std :: true_type> :: value;
     };
 
     template <template <typename, size_t, std :: nullptr_t> typename progressive, typename tag, size_t index, ssize_t shuffle> class introspection :: sfinae :: exists

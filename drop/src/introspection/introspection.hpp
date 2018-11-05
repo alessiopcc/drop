@@ -65,7 +65,10 @@ namespace drop
 
     template <typename type, typename tag> constexpr size_t introspection :: count()
     {
-        return next <type :: template __tag__, tag, -1> ();
+        if constexpr (sfinae :: tagged <type, tag> :: value)
+            return next <type :: template __tag__, tag, -1> ();
+        else
+            return 0;
     }
 
     template <typename tag, size_t index, typename type, std :: enable_if_t <introspection :: exists <std :: decay_t <type> :: template __tag__, tag, index, -1> ()> *> inline auto & introspection :: get(type && instance)

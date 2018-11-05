@@ -118,8 +118,19 @@ namespace
 
     $test("introspection/count", []
     {
+        class empty {};
+
         if(introspection :: count <myclass, mytag> () != 2)
             throw "Tag `mytag` found by `count` more or less than 2 times in class `myclass`.";
+
+        if(introspection :: count <myclass, myothertag> () != 0)
+            throw "Tag `myothertag` found by `count` more than 0 times in class `myclass`.";
+
+        if(introspection :: count <empty, mytag> () != 0)
+            throw "Tag `mytag` found by `count` more than 0 times in class `empty`.";
+
+        if(introspection :: count <int, mytag> () != 0)
+            throw "Tag `mytag` found by `count` more than 0 times in `int`.";
     });
 
     $test("introspection/get", []
