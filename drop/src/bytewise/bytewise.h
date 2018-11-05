@@ -18,6 +18,7 @@ namespace drop
 
 #include "bytewise/endianess.h"
 #include "introspection/introspection.h"
+#include "concept/expression.h"
 
 // Macros
 
@@ -28,6 +29,39 @@ namespace drop
     // Classes
 
     class bytewise
+    {
+    public:
+
+        // Constraints
+
+        class constraints
+        {
+            // Constraint helpers
+
+            template <typename, typename, size_t> static constexpr bool readableloop();
+            template <typename, typename, size_t> static constexpr bool writableloop();
+
+        public:
+
+            // Constraints
+
+            template <typename, typename> static constexpr bool readable();
+            template <typename, typename> static constexpr bool writable();
+
+            template <typename> static constexpr bool fixed();
+        };
+
+        // Nested classes
+
+        template <typename> class reader;
+        template <typename> class writer;
+    };
+
+    template <typename> class bytewise :: reader
+    {
+    };
+
+    template <typename> class bytewise :: writer
     {    
     };
 };
