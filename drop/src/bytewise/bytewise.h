@@ -42,6 +42,8 @@ namespace drop
             template <typename, typename, size_t> static constexpr bool readableloop();
             template <typename, typename, size_t> static constexpr bool writableloop();
 
+            template <typename, size_t> static constexpr bool fixedloop();
+
         public:
 
             // Constraints

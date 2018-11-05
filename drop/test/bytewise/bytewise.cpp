@@ -42,19 +42,49 @@ namespace
         myotherclass m;
 
         std :: array <uint8_t, 16> q;
+        std :: array <std :: vector <std :: array <int32_t, 33>>, 2> h;
 
         // Bytewise
 
         $bytewise(i);
         $bytewise(k);
         $bytewise(m);
+        $bytewise(q);
+        $bytewise(h);
+    };
+
+    class myotherfixedclass
+    {
+        // Members
+
+        std :: array <int, 99> a;
+
+        // Bytewise
+
+        $bytewise(a);
+    };
+
+    class myfixedclass
+    {
+        // Members
+
+        int i;
+        char k;
+        std :: array <myotherfixedclass, 4> q;
+
+        // Bytewise
+
+        $bytewise(i);
+        $bytewise(k);
+        $bytewise(q);
     };
 
     // Tests
 
     $test("bytewise/develop", []
     {
-        std :: cout << bytewise :: constraints :: readable <myclass, void> () << std :: endl;
-        std :: cout << bytewise :: constraints :: writable <myclass, void> () << std :: endl;
+        std :: cout << bytewise :: constraints :: fixed <myfixedclass> () << std :: endl;
+        std :: cout << bytewise :: constraints :: readable <myfixedclass, void> () << std :: endl;
+        std :: cout << bytewise :: constraints :: writable <myfixedclass, void> () << std :: endl;
     });
 };
