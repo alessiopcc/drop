@@ -155,4 +155,25 @@ namespace
         if(bytewise :: constraints :: writable <nearlyempty, void> ())
             throw "`nearlyempty` is `void` writable";
     });
+
+    $test("bytewise/traits", []
+    {
+        if(bytewise :: traits :: size <myotherclass> () != 0)
+            throw "`myotherclass` has non-zero `bytewise` size.";
+
+        if(bytewise :: traits :: size <myclass> () != 0)
+            throw "`myclass` has non-zero `bytewise` size.";
+
+        if(bytewise :: traits :: size <uint32_t> () != 4)
+            throw "The `bytewise` size of `uint32_t` is not 4.'";
+
+        if(bytewise :: traits :: size <std :: array <std :: array <uint64_t, 4>, 13>> () != 416)
+            throw "The `bytewise` size of `std :: array <std :: array <uint64_t, 4>, 13>` is not 416.";
+
+        if(bytewise :: traits :: size <myotherfixedclass> () != 396)
+            throw "The `bytewise` size of `myotherfixedclass` is not 396.";
+
+        if(bytewise :: traits :: size <myfixedclass> () != 1589)
+            throw "The `bytewise` size of `myclass` is not 1589.";
+    });
 };

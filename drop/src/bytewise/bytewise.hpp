@@ -100,6 +100,36 @@ namespace drop
 
         return false;
     }
+
+    // Traits
+
+    template <typename type, size_t index> constexpr size_t bytewise :: traits :: sizeloop()
+    {
+        if constexpr (index < introspection :: count <type, bytewise> ())
+        {
+            typedef std :: remove_reference_t <decltype(introspection :: template get <bytewise, index> (std :: declval <type &> ()))> mtype;
+            return size <mtype> () + sizeloop <type, index + 1> ();
+        }
+        else
+            return 0;
+    }
+
+    template <typename type> constexpr size_t bytewise :: traits :: size()
+    {
+        if constexpr (constraints :: fixed <type> ())
+        {
+            if constexpr (introspection :: count <type, bytewise> () > 0)
+                return sizeloop <type, 0> ();
+
+            if constexpr (stltraits :: array <type> :: value)
+                return stltraits :: array <type> :: size * size <typename stltraits :: array <type> :: type> ();
+
+            if constexpr (std :: is_integral <type> :: value)
+                return sizeof(type);
+        }
+        else
+            return 0;
+    }
 };
 
 #endif

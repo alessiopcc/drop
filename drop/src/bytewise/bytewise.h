@@ -54,6 +54,21 @@ namespace drop
             template <typename> static constexpr bool fixed();
         };
 
+        // Traits
+
+        class traits
+        {
+            // Trait helpers
+
+            template <typename, size_t> static constexpr size_t sizeloop();
+
+        public:
+
+            // Traits
+
+            template <typename> static constexpr size_t size();
+        };
+
         // Nested classes
 
         template <typename> class reader;
