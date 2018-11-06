@@ -7,6 +7,7 @@
 #include "bytewise/endianess.hpp"
 #include "introspection/introspection.hpp"
 #include "concept/expression.hpp"
+#include "data/varint.hpp"
 
 namespace drop
 {
@@ -195,8 +196,8 @@ namespace drop
         if constexpr (stltraits :: vector <type> :: value)
         {
             typedef typename stltraits :: vector <type> :: type itype;
-
-            // TODO: First serialize the size of the vector. Needs varints.
+            
+            visit(reader, varint(item.size()));
 
             if constexpr (std :: is_integral <itype> :: value && ((sizeof(itype) == 1) || (endianess :: local == endianess :: network)))
                 reader._visitor.update((const uint8_t *) item.data(), sizeof(itype) * item.size());
