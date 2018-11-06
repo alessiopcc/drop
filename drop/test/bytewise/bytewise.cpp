@@ -23,8 +23,10 @@ namespace
 
         // Bytewise interface
 
-        template <typename vtype> void accept(bytewise :: reader <vtype> &) const
+        template <typename vtype> void accept(bytewise :: reader <vtype> & reader) const
         {
+            for(int32_t j = 0; j < 5; j++)
+                reader.visit(j);
         }
 
         template <typename vtype> void accept(bytewise :: writer <vtype> &)
@@ -118,29 +120,29 @@ namespace
 
     $test("bytewise/constraints", []
     {
-        if(!(bytewise :: constraints :: readable <myotherclass, void> ()))
-            throw "`myotherclass` is not `void` readable.";
+        if(!(bytewise :: constraints :: readable <myotherclass, myreader> ()))
+            throw "`myotherclass` is not `myreader` readable.";
 
-        if(!(bytewise :: constraints :: writable <myotherclass, void> ()))
-            throw "`myotherclass` is not `void` writable.";
+        if(!(bytewise :: constraints :: writable <myotherclass, mywriter> ()))
+            throw "`myotherclass` is not `mywriter` writable.";
 
-        if(!(bytewise :: constraints :: readable <myclass, void> ()))
-            throw "`myclass` is not `void` readable.";
+        if(!(bytewise :: constraints :: readable <myclass, myreader> ()))
+            throw "`myclass` is not `myreader` readable.";
 
-        if(!(bytewise :: constraints :: writable <myclass, void> ()))
-            throw "`myclass` is not `void` writable.";
+        if(!(bytewise :: constraints :: writable <myclass, mywriter> ()))
+            throw "`myclass` is not `mywriter` writable.";
 
-        if(!(bytewise :: constraints :: readable <myotherfixedclass, void> ()))
-            throw "`myotherfixedclass` is not `void` readable.";
+        if(!(bytewise :: constraints :: readable <myotherfixedclass, myreader> ()))
+            throw "`myotherfixedclass` is not `myreader` readable.";
 
-        if(!(bytewise :: constraints :: writable <myotherfixedclass, void> ()))
-            throw "`myotherfixedclass` is not `void` writable.";
+        if(!(bytewise :: constraints :: writable <myotherfixedclass, mywriter> ()))
+            throw "`myotherfixedclass` is not `mywriter` writable.";
 
-        if(!(bytewise :: constraints :: readable <myfixedclass, void> ()))
-            throw "`myfixedclass` is not `void` readable.";
+        if(!(bytewise :: constraints :: readable <myfixedclass, myreader> ()))
+            throw "`myfixedclass` is not `myreader` readable.";
 
-        if(!(bytewise :: constraints :: writable <myfixedclass, void> ()))
-            throw "`myfixedclass` is not `void` writable.";
+        if(!(bytewise :: constraints :: writable <myfixedclass, mywriter> ()))
+            throw "`myfixedclass` is not `mywriter` writable.";
 
         if(bytewise :: constraints :: fixed <myotherclass> ())
             throw "`myotherclass` is fixed.";
@@ -160,20 +162,20 @@ namespace
         if(bytewise :: constraints :: fixed <empty> ())
             throw "`empty` is fixed.";
 
-        if(bytewise :: constraints :: readable <empty, void> ())
-            throw "`empty` is `void` readable";
+        if(bytewise :: constraints :: readable <empty, myreader> ())
+            throw "`empty` is `myreader` readable";
 
-        if(bytewise :: constraints :: writable <empty, void> ())
-            throw "`empty` is `void` writable";
+        if(bytewise :: constraints :: writable <empty, mywriter> ())
+            throw "`empty` is `mywriter` writable";
 
         if(bytewise :: constraints :: fixed <nearlyempty> ())
             throw "`nearlyempty` is fixed.";
 
-        if(bytewise :: constraints :: readable <nearlyempty, void> ())
-            throw "`nearlyempty` is `void` readable";
+        if(bytewise :: constraints :: readable <nearlyempty, myreader> ())
+            throw "`nearlyempty` is `myreader` readable";
 
-        if(bytewise :: constraints :: writable <nearlyempty, void> ())
-            throw "`nearlyempty` is `void` writable";
+        if(bytewise :: constraints :: writable <nearlyempty, mywriter> ())
+            throw "`nearlyempty` is `mywriter` writable";
 
         if(!(bytewise :: constraints :: reader <myreader> ()))
             throw "`myreader` is not recognized as a reader.";
@@ -207,5 +209,13 @@ namespace
 
         if(bytewise :: traits :: size <myfixedclass> () != 1589)
             throw "The `bytewise` size of `myclass` is not 1589.";
+    });
+
+    $test("bytewise/develop", []
+    {
+        myclass item;
+        myreader reader;
+
+        bytewise :: read(reader, item);
     });
 };

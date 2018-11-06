@@ -10,6 +10,8 @@
 
 namespace drop
 {
+    // bytewise
+
     // Constraint helpers
 
     template <typename type, typename vtype, size_t index> constexpr bool bytewise :: constraints :: readableloop()
@@ -139,6 +141,107 @@ namespace drop
         }
         else
             return 0;
+    }
+
+    // Static methods
+
+    template <typename vtype, typename type, std :: enable_if_t <bytewise :: constraints :: readable <type, vtype> ()> *> void bytewise :: read(vtype & visitor, const type & item)
+    {
+        reader <vtype> reader(visitor);
+        visit(reader, item);
+    }
+
+    template <typename vtype, typename type, std :: enable_if_t <bytewise :: constraints :: writable <type, vtype> ()> *> void bytewise :: write(vtype & visitor, type & item)
+    {
+        writer <vtype> writer(visitor);
+        visit(writer, item);
+    }
+
+    // Private static methods
+
+    template <typename vtype, typename type> void bytewise :: visit(reader <vtype> & reader, const type & item)
+    {
+        std :: cout << __PRETTY_FUNCTION__ << std :: endl;
+
+        if constexpr (introspection :: count <type, bytewise> () > 0)
+        {
+            introspection :: visit <bytewise> (item, [&](const auto & element)
+            {
+                visit(reader, element);
+            });
+
+            return;
+        }
+
+        if constexpr ($expression($type(const type).accept($type(bytewise :: reader <vtype> &))))
+        {
+            item.accept(reader);
+            return;
+        }
+
+        if constexpr (stltraits :: array <type> :: value)
+        {
+            typedef typename stltraits :: array <type> :: type itype;
+
+            if constexpr (std :: is_integral <itype> :: value && ((sizeof(itype) == 1) || (endianess :: local == endianess :: network)))
+                reader._visitor.update((const uint8_t *) item.data(), sizeof(itype) * item.size());
+            else
+                for(const itype & element : item)
+                    visit(reader, element);
+
+            return;
+        }
+
+        if constexpr (stltraits :: vector <type> :: value)
+        {
+            typedef typename stltraits :: vector <type> :: type itype;
+
+            // TODO: First serialize the size of the vector. Needs varints.
+
+            if constexpr (std :: is_integral <itype> :: value && ((sizeof(itype) == 1) || (endianess :: local == endianess :: network)))
+                reader._visitor.update((const uint8_t *) item.data(), sizeof(itype) * item.size());
+            else
+                for(const itype & element : item)
+                    visit(reader, element);
+
+            return;
+        }
+
+        if constexpr (std :: is_integral <type> :: value)
+        {
+            auto swap = endianess :: translate(item);
+            reader._visitor.update((const uint8_t *) &swap, sizeof(type));
+        }
+    }
+
+    // reader
+
+    // Private constructors
+
+    template <typename vtype> bytewise :: reader <vtype> :: reader(vtype & visitor) : _visitor(visitor)
+    {
+    }
+
+    // Methods
+
+    template <typename vtype> template <typename type, std :: enable_if_t <bytewise :: constraints :: readable <type, vtype> ()> *> void bytewise :: reader <vtype> :: visit(const type & item)
+    {
+        bytewise :: visit(*this, item);
+    }
+
+    // writer
+
+    // Private constructors
+
+    template <typename vtype> bytewise :: writer <vtype> :: writer(vtype & visitor) : _visitor(visitor)
+    {
+    }
+
+    // Methods
+
+    template <typename vtype> template <typename type, std :: enable_if_t <bytewise :: constraints :: writable <type, vtype> ()> *> void bytewise :: writer <vtype> :: visit(type & item)
+    {
+        bytewise :: visit(*this, item);
     }
 };
 
