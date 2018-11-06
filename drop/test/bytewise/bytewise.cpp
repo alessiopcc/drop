@@ -213,9 +213,9 @@ namespace
 
     $test("bytewise/develop", []
     {
-        myclass item;
-        myreader reader;
-
-        bytewise :: read(reader, item);
+        // myclass item;
+        // myreader reader;
+        //
+        // bytewise :: read(reader, item);
     });
 };

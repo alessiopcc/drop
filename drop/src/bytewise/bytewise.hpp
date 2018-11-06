@@ -50,6 +50,11 @@ namespace drop
 
     // Constraints
 
+    template <typename type> constexpr bool bytewise :: constraints :: constructible()
+    {
+        return std :: is_default_constructible <type> :: value || std :: is_constructible <type, bytewise> :: value;
+    }
+
     template <typename type, typename vtype> constexpr bool bytewise :: constraints :: readable()
     {
         if constexpr (introspection :: count <type, bytewise> () > 0)
@@ -82,7 +87,7 @@ namespace drop
             return writable <typename stltraits :: array <type> :: type, vtype> ();
 
         if constexpr (stltraits :: vector <type> :: value)
-            return writable <typename stltraits :: vector <type> :: type, vtype> ();
+            return constructible <typename stltraits :: vector <type> :: type> () && writable <typename stltraits :: vector <type> :: type, vtype> ();
 
         if constexpr (std :: is_integral <type> :: value)
             return true;
@@ -114,7 +119,7 @@ namespace drop
         return $expression($type(type).pop($type(const size_t &))).template casts <const uint8_t *> ();
     }
 
-    // Traits
+    // Trait helpers
 
     template <typename type, size_t index> constexpr size_t bytewise :: traits :: sizeloop()
     {
@@ -126,6 +131,8 @@ namespace drop
         else
             return 0;
     }
+
+    // Traits
 
     template <typename type> constexpr size_t bytewise :: traits :: size()
     {
@@ -196,7 +203,7 @@ namespace drop
         if constexpr (stltraits :: vector <type> :: value)
         {
             typedef typename stltraits :: vector <type> :: type itype;
-            
+
             visit(reader, varint(item.size()));
 
             if constexpr (std :: is_integral <itype> :: value && ((sizeof(itype) == 1) || (endianess :: local == endianess :: network)))

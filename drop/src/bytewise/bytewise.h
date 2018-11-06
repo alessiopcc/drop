@@ -49,6 +49,8 @@ namespace drop
 
             // Constraints
 
+            template <typename> static constexpr bool constructible();
+
             template <typename, typename> static constexpr bool readable();
             template <typename, typename> static constexpr bool writable();
 
