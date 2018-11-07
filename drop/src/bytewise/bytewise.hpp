@@ -222,6 +222,64 @@ namespace drop
         }
     }
 
+    template <typename vtype, typename type> void bytewise :: visit(writer <vtype> & writer, type & item)
+    {
+        std :: cout << __PRETTY_FUNCTION__ << std :: endl;
+
+        if constexpr (introspection :: count <type, bytewise> () > 0)
+        {
+            introspection :: visit <bytewise> (item, [&](auto & element)
+            {
+                visit(writer, element);
+            });
+
+            return;
+        }
+
+        if constexpr ($expression($type(type).accept($type(bytewise :: writer <vtype> &))))
+        {
+            item.accept(writer);
+            return;
+        }
+
+        if constexpr (stltraits :: array <type> :: value)
+        {
+            typedef typename stltraits :: array <type> :: type itype;
+
+            if constexpr (std :: is_integral <itype> :: value && ((sizeof(itype) == 1) || (endianess :: local == endianess :: network)))
+                memcpy((const uint8_t *) item.data(), writer._visitor.pop(sizeof(itype) * item.size()), sizeof(itype) * item.size());
+            else
+                for(const itype & element : item)
+                    visit(writer, element);
+
+            return;
+        }
+
+        if constexpr (stltraits :: vector <type> :: value)
+        {
+            typedef typename stltraits :: vector <type> :: type itype;
+
+            varint size;
+            visit(writer, size);
+
+            if constexpr (std :: is_constructible <itype, bytewise> :: value)
+                item.resize(size, bytewise());
+            else
+                item.resize(size);
+
+            if constexpr (std :: is_integral <itype> :: value && ((sizeof(itype) == 1) || (endianess :: local == endianess :: network)))
+                memcpy((const uint8_t *) item.data(), writer._visitor.pop(sizeof(itype) * size), sizeof(itype) * size);
+            else
+                for(const itype & element : item)
+                    visit(writer, element);
+
+            return;
+        }
+
+        if constexpr (std :: is_integral <type> :: value)
+            item = endianess :: translate(*((const type *) writer._visitor.pop(sizeof(type))));
+    }
+
     // reader
 
     // Private constructors
