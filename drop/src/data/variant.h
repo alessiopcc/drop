@@ -137,12 +137,16 @@ namespace drop
 
         template <typename, typename, typename...> static constexpr uint8_t index();
 
+    protected:
+
+        // Protected operators
+
+        template <typename type> base & operator = (const type &);
+        template <typename type> base & operator = (type &&);
+
     public:
 
         // Operators
-
-        template <typename type, typename std :: enable_if_t <constraints :: template copyassignable <type> ()> * = nullptr> base & operator = (const type &);
-        template <typename type, typename std :: enable_if_t <constraints :: template moveassignable <type> ()> * = nullptr> base & operator = (type &&);
 
         base & operator = (const base &);
         base & operator = (base &&);
@@ -170,6 +174,11 @@ namespace drop
 
         template <typename type, std :: enable_if_t <constraints :: template copyconstructible <type> ()> * = nullptr> variant(const type &);
         template <typename type, std :: enable_if_t <constraints :: template moveconstructible <type> ()> * = nullptr> variant(type &&);
+
+        // Operators
+
+        template <typename type, typename std :: enable_if_t <constraints :: template copyassignable <type> ()> * = nullptr> variant & operator = (const type &);
+        template <typename type, typename std :: enable_if_t <!(std :: is_lvalue_reference <type> :: value) && (constraints :: template moveassignable <std :: remove_const_t <std :: remove_reference_t <type>>> ())> * = nullptr> variant & operator = (type &&);
 
         // Static methods
 
