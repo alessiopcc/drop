@@ -13,7 +13,6 @@ namespace drop
 #include <array>
 #include <vector>
 #include <stdint.h>
-#include <iostream> // REMOVE ME
 
 // Includes
 

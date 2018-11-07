@@ -169,8 +169,6 @@ namespace drop
 
     template <typename vtype, typename type> void bytewise :: visit(reader <vtype> & reader, const type & item)
     {
-        std :: cout << __PRETTY_FUNCTION__ << std :: endl;
-
         if constexpr (introspection :: count <type, bytewise> () > 0)
         {
             introspection :: visit <bytewise> (item, [&](const auto & element)
@@ -224,8 +222,6 @@ namespace drop
 
     template <typename vtype, typename type> void bytewise :: visit(writer <vtype> & writer, type & item)
     {
-        std :: cout << __PRETTY_FUNCTION__ << std :: endl;
-
         if constexpr (introspection :: count <type, bytewise> () > 0)
         {
             introspection :: visit <bytewise> (item, [&](auto & element)
@@ -247,9 +243,9 @@ namespace drop
             typedef typename stltraits :: array <type> :: type itype;
 
             if constexpr (std :: is_integral <itype> :: value && ((sizeof(itype) == 1) || (endianess :: local == endianess :: network)))
-                memcpy((const uint8_t *) item.data(), writer._visitor.pop(sizeof(itype) * item.size()), sizeof(itype) * item.size());
+                memcpy((uint8_t *) item.data(), writer._visitor.pop(sizeof(itype) * item.size()), sizeof(itype) * item.size());
             else
-                for(const itype & element : item)
+                for(itype & element : item)
                     visit(writer, element);
 
             return;
@@ -270,7 +266,7 @@ namespace drop
             if constexpr (std :: is_integral <itype> :: value && ((sizeof(itype) == 1) || (endianess :: local == endianess :: network)))
                 memcpy((const uint8_t *) item.data(), writer._visitor.pop(sizeof(itype) * size), sizeof(itype) * size);
             else
-                for(const itype & element : item)
+                for(itype & element : item)
                     visit(writer, element);
 
             return;

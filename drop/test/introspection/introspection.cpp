@@ -92,7 +92,6 @@ namespace
 
         template <typename type, std :: enable_if_t <!(std :: is_const <type> :: value)> * = nullptr> void operator () (type &)
         {
-            std :: cout << __PRETTY_FUNCTION__ << std :: endl;
         }
     };
 

@@ -22,7 +22,6 @@ namespace
 
         void g(const double & value)
         {
-            std :: cout << "Called with value " << value << std :: endl;
         }
 
         const int & q();
