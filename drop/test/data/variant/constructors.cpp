@@ -54,14 +54,12 @@ namespace
         movable & operator = (const movable &)
         {
             lastassign = 'c';
-            std :: cout << "move copy" << std :: endl;
             return (*this);
         }
 
         movable & operator = (movable &&)
         {
             lastassign = 'm';
-            std :: cout << "move move" << std :: endl;
             return (*this);
         }
 
@@ -88,7 +86,6 @@ namespace
         copyable & operator = (const copyable &)
         {
             lastassign = 'c';
-            std :: cout << "copy copy" << std :: endl;
             return (*this);
         }
 
