@@ -14,7 +14,7 @@ namespace drop
 
     template <typename lambda, typename type, typename tag, size_t index> constexpr bool introspection :: constraints :: visitorloop()
     {
-        if constexpr (index < introspection :: count <std :: decay_t <type> :: template __tag__, tag, -1> ())
+        if constexpr (index < introspection :: count <std :: decay_t <type>, tag> ())
         {
             if constexpr (!($expression($type(lambda)(introspection :: get <tag, index> ($type(type))))))
                 return false;
@@ -34,17 +34,17 @@ namespace drop
 
     // Private static methods
 
-    template <template <typename, size_t, std :: nullptr_t> typename progressive, typename tag, ssize_t shuffle, size_t index> constexpr size_t introspection :: countloop()
+    template <template <typename, size_t, std :: nullptr_t> typename progressive, typename tag, ssize_t shuffle, size_t index> constexpr size_t introspection :: nextloop()
     {
         if constexpr ((exists <progressive, tag, index, shuffle> ()))
-            return introspection :: countloop <progressive, tag, shuffle, index + 1> ();
+            return introspection :: nextloop <progressive, tag, shuffle, index + 1> ();
         else
             return index;
     }
 
     template <typename tag, size_t index, typename type, typename lambda> void inline introspection :: visitloop(type && instance, lambda && callback)
     {
-        if constexpr (index < introspection :: count <std :: decay_t <type> :: template __tag__, tag, -1> ())
+        if constexpr (index < introspection :: count <std :: decay_t <type>, tag> ())
         {
             callback(introspection :: get <tag, index> (instance));
             introspection :: visitloop <tag, index + 1> (instance, callback);
@@ -58,9 +58,17 @@ namespace drop
         return sfinae :: template exists <progressive, tag, index, shuffle> :: value;
     }
 
-    template <template <typename, size_t, std :: nullptr_t> typename progressive, typename tag, ssize_t shuffle> constexpr size_t introspection :: count()
+    template <template <typename, size_t, std :: nullptr_t> typename progressive, typename tag, ssize_t shuffle> constexpr size_t introspection :: next()
     {
-        return countloop <progressive, tag, shuffle, 0> ();
+        return nextloop <progressive, tag, shuffle, 0> ();
+    }
+
+    template <typename type, typename tag> constexpr size_t introspection :: count()
+    {
+        if constexpr (sfinae :: tagged <type, tag> :: value)
+            return next <type :: template __tag__, tag, -1> ();
+        else
+            return 0;
     }
 
     template <typename tag, size_t index, typename type, std :: enable_if_t <introspection :: exists <std :: decay_t <type> :: template __tag__, tag, index, -1> ()> *> inline auto & introspection :: get(type && instance)
