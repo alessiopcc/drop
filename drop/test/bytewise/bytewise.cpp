@@ -445,25 +445,39 @@ namespace
         if(lastop != 'B')
             throw "`deserialize` does not call the `bytewise` constructor of `myclass` even if it is available.";
 
-            if(
-                otheritem.i != 9 ||
-                otheritem.k != 'q' ||
-                otheritem.q != std :: array <uint8_t, 16> {15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0} ||
-                otheritem.h != std :: array <std :: vector <std :: array <int32_t, 4>>, 2>
+        if(
+            otheritem.i != 9 ||
+            otheritem.k != 'q' ||
+            otheritem.q != std :: array <uint8_t, 16> {15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0} ||
+            otheritem.h != std :: array <std :: vector <std :: array <int32_t, 4>>, 2>
+            {
+                std :: vector <std :: array <int32_t, 4>>
                 {
-                    std :: vector <std :: array <int32_t, 4>>
-                    {
-                        {1, 2, 3, 4},
-                        {5, 6, 7, 8},
-                        {9, 10, 11, 12}
-                    },
-                    std :: vector <std :: array <int32_t, 4>>
-                    {
-                        {13, 14, 15, 16},
-                        {17, 18, 19, 20}
-                    }
+                    {1, 2, 3, 4},
+                    {5, 6, 7, 8},
+                    {9, 10, 11, 12}
+                },
+                std :: vector <std :: array <int32_t, 4>>
+                {
+                    {13, 14, 15, 16},
+                    {17, 18, 19, 20}
                 }
-            )
-                throw "`deserialize` method does not return a `myclass` object consistent with what provided to `serialize`.";
+            }
+        )
+            throw "`deserialize` method does not return a `myclass` object consistent with what provided to `serialize`.";
+
+        bool thrown = false;
+
+        try
+        {
+            bytewise :: deserialize <myclass> (std :: vector <uint8_t> {});
+        }
+        catch(exception <buffer_error, out_of_range> &)
+        {
+            thrown = true;
+        }
+
+        if(!thrown)
+            throw "Providing `deserialize` with an empty data buffer does not yield an exception.";
     });
 };
