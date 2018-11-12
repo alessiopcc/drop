@@ -79,6 +79,18 @@ namespace
         $bytewise(m);
         $bytewise(q);
         $bytewise(h);
+
+        // Constructors
+
+        myclass()
+        {
+            lastop = 'C';
+        }
+
+        myclass(bytewise) : i(0), k(0), q{}, h{}
+        {
+            lastop = 'B';
+        }
     };
 
     class myotherfixedclass
@@ -317,7 +329,7 @@ namespace
         if((reader.size != reference.size()) || memcmp(reader.data, reference.data(), reference.size()))
             throw "`read` method does not provide the correct sequence of bytes when serializing `myclass`.";
 
-        myclass otheritem{.i = 0, .k = 0, .q = {}, .h = {}};
+        myclass otheritem(bytewise{});
         mywriter writer(reader.data);
 
         bytewise :: write(writer, otheritem);
@@ -382,7 +394,7 @@ namespace
             otheritem.q[2].a[0] != 11 || otheritem.q[2].a[1] != 22 || otheritem.q[2].a[2] != 33 ||
             otheritem.q[3].a[0] != 11 || otheritem.q[3].a[1] != 22 || otheritem.q[3].a[2] != 33
         )
-            throw "`deserialize` method does not return an object consistent with what provided to `serialize`.";
+            throw "`deserialize` method does not return a `myfixedclass` object consistent with what provided to `serialize`.";
     });
 
     $test("bytewise/serialize-deserialize-nonfixed", []
@@ -426,5 +438,32 @@ namespace
 
         if(data != reference)
             throw "`serialize` does not produce the correct sequence of bytes when serializing `myclass`.";
+
+        lastop = 'X';
+        myclass otheritem = bytewise :: deserialize <myclass> (data);
+
+        if(lastop != 'B')
+            throw "`deserialize` does not call the `bytewise` constructor of `myclass` even if it is available.";
+
+            if(
+                otheritem.i != 9 ||
+                otheritem.k != 'q' ||
+                otheritem.q != std :: array <uint8_t, 16> {15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0} ||
+                otheritem.h != std :: array <std :: vector <std :: array <int32_t, 4>>, 2>
+                {
+                    std :: vector <std :: array <int32_t, 4>>
+                    {
+                        {1, 2, 3, 4},
+                        {5, 6, 7, 8},
+                        {9, 10, 11, 12}
+                    },
+                    std :: vector <std :: array <int32_t, 4>>
+                    {
+                        {13, 14, 15, 16},
+                        {17, 18, 19, 20}
+                    }
+                }
+            )
+                throw "`deserialize` method does not return a `myclass` object consistent with what provided to `serialize`.";
     });
 };

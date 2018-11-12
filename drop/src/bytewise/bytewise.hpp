@@ -221,6 +221,28 @@ namespace drop
         }
     }
 
+    template <typename type, std :: enable_if_t <bytewise :: constraints :: deserializable <type> () && !(bytewise :: constraints :: fixed <type> ())> *> type bytewise :: deserialize(const std :: vector <uint8_t> & data)
+    {
+        if constexpr (std :: is_constructible <type, bytewise> :: value)
+        {
+            type item(bytewise{});
+
+            deserializer <0> deserializer(data);
+            write(deserializer, item);
+
+            return item;
+        }
+        else
+        {
+            type item;
+
+            deserializer <0> deserializer(data);
+            write(deserializer, item);
+
+            return item;
+        }
+    }
+
     // Private static methods
 
     template <typename vtype, typename type> void bytewise :: visit(reader <vtype> & reader, const type & item)
