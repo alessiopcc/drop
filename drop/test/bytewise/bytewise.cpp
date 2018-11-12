@@ -347,7 +347,7 @@ namespace
             throw "`write` method does not produce an object consistent with what provided to `read`.";
     });
 
-    $test("bytewise/serialize-deserialize", []
+    $test("bytewise/serialize-deserialize-fixed", []
     {
         myfixedclass item;
         auto data = bytewise :: serialize(item);
@@ -383,5 +383,48 @@ namespace
             otheritem.q[3].a[0] != 11 || otheritem.q[3].a[1] != 22 || otheritem.q[3].a[2] != 33
         )
             throw "`deserialize` method does not return an object consistent with what provided to `serialize`.";
+    });
+
+    $test("bytewise/serialize-deserialize-nonfixed", []
+    {
+        myclass item;
+        std :: vector <uint8_t> data = bytewise :: serialize(item);
+
+        std :: vector <uint8_t> reference =
+        {
+            9, 0, 0, 0,
+            113,
+                0, 0, 0, 0,
+                1, 0, 0, 0,
+                2, 0, 0, 0,
+                3, 0, 0, 0,
+                4, 0, 0, 0,
+            15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0,
+            3,
+                1, 0, 0, 0,
+                2, 0, 0, 0,
+                3, 0, 0, 0,
+                4, 0, 0, 0,
+                5, 0, 0, 0,
+                6, 0, 0, 0,
+                7, 0, 0, 0,
+                8, 0, 0, 0,
+                9, 0, 0, 0,
+                10, 0, 0, 0,
+                11, 0, 0, 0,
+                12, 0, 0, 0,
+            2,
+                13, 0, 0, 0,
+                14, 0, 0, 0,
+                15, 0, 0, 0,
+                16, 0, 0, 0,
+                17, 0, 0, 0,
+                18, 0, 0, 0,
+                19, 0, 0, 0,
+                20, 0, 0, 0
+        };
+
+        if(data != reference)
+            throw "`serialize` does not produce the correct sequence of bytes when serializing `myclass`.";
     });
 };

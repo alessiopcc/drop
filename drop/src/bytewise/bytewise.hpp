@@ -186,6 +186,19 @@ namespace drop
         return data;
     }
 
+    template <typename type, std :: enable_if_t <bytewise :: constraints :: serializable <type> () && !(bytewise :: constraints :: fixed <type> ())> *> std :: vector <uint8_t> bytewise :: serialize(const type & item)
+    {
+        sizer sizer;
+        read(sizer, item);
+
+        std :: vector <uint8_t> data(sizer);
+
+        serializer <0> serializer(data);
+        read(serializer, item);
+
+        return data;
+    }
+
     template <typename type, std :: enable_if_t <bytewise :: constraints :: fixed <type> ()> *> type bytewise :: deserialize(const std :: array <uint8_t, bytewise :: traits :: size <type> ()> & data)
     {
         if constexpr (std :: is_constructible <type, bytewise> :: value)
