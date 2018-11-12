@@ -1,0 +1,3 @@
+[repositories]
+  jedisct1.libsodium = buckaroo/official/jedisct1/libsodium
+
