@@ -156,7 +156,7 @@ namespace drop
         if(index <type, types...> () != this->_typeid)
             exception <bad_access, type_mismatch> :: raise(this);
 
-        return reinterpret_cast <type &> (this->_value);
+        return reinterpret_cast <const type &> (this->_value);
     }
 
     template <typename... types> template <typename type, std :: enable_if_t <base <variant <types...>> :: constraints :: template defined <type> ()> *> type & base <variant <types...>> :: reinterpret()
@@ -289,9 +289,9 @@ namespace drop
             return 1 + index <needle, tail...> ();
     }
 
-    // Operators
+    // Protected operators
 
-    template <typename... types> template <typename type, typename std :: enable_if_t <base <variant <types...>> :: constraints :: template copyassignable <type> ()> *> base <variant <types...>> & base <variant <types...>> :: operator = (const type & value)
+    template <typename... types> template <typename type> base <variant <types...>> & base <variant <types...>> :: operator = (const type & value)
     {
         if(this->_typeid == index <type, types...> ())
             this->reinterpret <type> () = value;
@@ -301,9 +301,11 @@ namespace drop
             this->_typeid = index <type, types...> ();
             new (&(this->_value)) type(value);
         }
+
+        return (*this);
     }
 
-    template <typename... types> template <typename type, typename std :: enable_if_t <base <variant <types...>> :: constraints :: template moveassignable <type> ()> *> base <variant <types...>> & base <variant <types...>> :: operator = (type && value)
+    template <typename... types> template <typename type> base <variant <types...>> & base <variant <types...>> :: operator = (type && value)
     {
         if(this->_typeid == index <type, types...> ())
             this->reinterpret <type> () = std :: move(value);
@@ -313,7 +315,11 @@ namespace drop
             this->_typeid = index <type, types...> ();
             new (&(this->_value)) type(std :: move(value));
         }
+
+        return (*this);
     }
+
+    // Operators
 
     template <typename... types> base <variant <types...>> & base <variant <types...>> :: operator = (const base & rho)
     {
@@ -386,6 +392,20 @@ namespace drop
 
     template <typename... types> template <typename type, std :: enable_if_t <variant <types...> :: constraints :: template moveconstructible <type> ()> *> variant <types...> :: variant(type && value) : base <variant <types...>> (std :: move(value))
     {
+    }
+
+    // Operators
+
+    template <typename... types> template <typename type, typename std :: enable_if_t <variant <types...> :: constraints :: template copyassignable <type> ()> *> variant <types...> & variant <types...> :: operator = (const type & rho)
+    {
+        base <variant <types...>> :: operator = (rho);
+        return (*this);
+    }
+
+    template <typename... types> template <typename type, typename std :: enable_if_t <!(std :: is_lvalue_reference <type> :: value) && (variant <types...> :: constraints :: template moveassignable <std :: remove_const_t <std :: remove_reference_t <type>>> ())> *> variant <types...> & variant <types...> :: operator = (type && rho)
+    {
+        base <variant <types...>> :: operator = (std :: move(rho));
+        return (*this);
     }
 
     // Static methods
