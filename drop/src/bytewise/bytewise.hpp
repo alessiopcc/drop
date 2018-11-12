@@ -7,6 +7,7 @@
 #include "bytewise/endianess.hpp"
 #include "introspection/introspection.hpp"
 #include "concept/expression.hpp"
+#include "data/variant.hpp"
 #include "data/varint.hpp"
 
 namespace drop
@@ -119,6 +120,16 @@ namespace drop
         return $expression($type(type).pop($type(const size_t &))).template casts <const uint8_t *> ();
     }
 
+    template <typename type> constexpr bool bytewise :: constraints :: serializable()
+    {
+        return readable <type, bytewise :: sizer> () && readable <type, bytewise :: serializer <0>> ();
+    }
+
+    template <typename type> constexpr bool bytewise :: constraints :: deserializable()
+    {
+        return constructible <type> () && writable <type, bytewise :: deserializer <0>> ();
+    }
+
     // Trait helpers
 
     template <typename type, size_t index> constexpr size_t bytewise :: traits :: sizeloop()
@@ -163,6 +174,38 @@ namespace drop
     {
         writer <vtype> writer(visitor);
         visit(writer, item);
+    }
+
+    template <typename type, std :: enable_if_t <bytewise :: constraints :: fixed <type> ()> *> std :: array <uint8_t, bytewise :: traits :: size <type> ()> bytewise :: serialize(const type & item)
+    {
+        std :: array <uint8_t, traits :: size <type> ()> data;
+
+        serializer <traits :: size <type> ()> serializer(data);
+        read(serializer, item);
+
+        return data;
+    }
+
+    template <typename type, std :: enable_if_t <bytewise :: constraints :: fixed <type> ()> *> type bytewise :: deserialize(const std :: array <uint8_t, bytewise :: traits :: size <type> ()> & data)
+    {
+        if constexpr (std :: is_constructible <type, bytewise> :: value)
+        {
+            type item(bytewise{});
+
+            deserializer <traits :: size <type> ()> deserializer(data);
+            write(deserializer, item);
+
+            return item;
+        }
+        else
+        {
+            type item;
+
+            deserializer <traits :: size <type> ()> deserializer(data);
+            write(deserializer, item);
+
+            return item;
+        }
     }
 
     // Private static methods
@@ -304,6 +347,46 @@ namespace drop
     template <typename vtype> template <typename type, std :: enable_if_t <bytewise :: constraints :: writable <type, vtype> ()> *> void bytewise :: writer <vtype> :: visit(type & item)
     {
         bytewise :: visit(*this, item);
+    }
+
+    // serializer
+
+    // Private constructors
+
+    template <size_t size> bytewise :: serializer <size> :: serializer(dtype & data) : _data(data), _cursor(0)
+    {
+    }
+
+    // Methods
+
+    template <size_t size> void bytewise :: serializer <size> :: update(const uint8_t * chunk, const size_t & csize)
+    {
+        memcpy(this->_data.data() + this->_cursor, chunk, csize);
+        this->_cursor += csize;
+    }
+
+    // deserializer
+
+    // Private constructors
+
+    template <size_t size> bytewise :: deserializer <size> :: deserializer(const dtype & data) : _data(data), _cursor(0)
+    {
+    }
+
+    // Methods
+
+    template <size_t size> const uint8_t * bytewise :: deserializer <size> :: pop(const size_t & csize)
+    {
+        size_t cursor = this->_cursor;
+        this->_cursor += csize;
+
+        if constexpr (size == 0)
+        {
+            if(this->_cursor > this->_data.size())
+                exception <buffer_error, out_of_range> :: raise(this);
+        }
+
+        return (this->_data.data() + cursor);
     }
 };
 

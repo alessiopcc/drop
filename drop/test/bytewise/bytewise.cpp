@@ -16,6 +16,10 @@ namespace
 
     using namespace drop;
 
+    // Variables
+
+    char lastop;
+
     // Classes
 
     class myotherclass
@@ -79,9 +83,11 @@ namespace
 
     class myotherfixedclass
     {
+    public:
+
         // Members
 
-        std :: array <int, 99> a;
+        std :: array <int32_t, 3> a = {11, 22, 33};
 
         // Bytewise
 
@@ -90,10 +96,12 @@ namespace
 
     class myfixedclass
     {
+    public:
+
         // Members
 
-        int i;
-        char k;
+        int32_t i = 4;
+        int8_t k = '4';
         std :: array <myotherfixedclass, 4> q;
 
         // Bytewise
@@ -101,6 +109,18 @@ namespace
         $bytewise(i);
         $bytewise(k);
         $bytewise(q);
+
+        // Constructors
+
+        myfixedclass()
+        {
+            lastop = 'C';
+        }
+
+        myfixedclass(bytewise) : i(0), k(0), q{myotherfixedclass{.a = {}}, myotherfixedclass{.a = {}}, myotherfixedclass{.a = {}}, myotherfixedclass{.a = {}}}
+        {
+            lastop = 'B';
+        }
     };
 
     class empty
@@ -325,5 +345,43 @@ namespace
             }
         )
             throw "`write` method does not produce an object consistent with what provided to `read`.";
+    });
+
+    $test("bytewise/serialize-deserialize", []
+    {
+        myfixedclass item;
+        auto data = bytewise :: serialize(item);
+
+        if(!(std :: is_same <decltype(data), std :: array <uint8_t, 53>> :: value))
+            throw "`serialize` on `myfixedclass` object does not return a properly sized `std :: array`.";
+
+        std :: array <uint8_t, 53> reference =
+        {
+            4, 0, 0, 0,
+            52,
+            11, 0, 0, 0, 22, 0, 0, 0, 33, 0, 0, 0,
+            11, 0, 0, 0, 22, 0, 0, 0, 33, 0, 0, 0,
+            11, 0, 0, 0, 22, 0, 0, 0, 33, 0, 0, 0,
+            11, 0, 0, 0, 22, 0, 0, 0, 33, 0, 0, 0
+        };
+
+        if(data != reference)
+            throw "`serialize` does not produce the correct sequence of bytes when serializing `myfixedclass`";
+
+        lastop = 'X';
+        myfixedclass otheritem = bytewise :: deserialize <myfixedclass> (data);
+
+        if(lastop != 'B')
+            throw "`deserialize` does not call the `bytewise` constructor of `myfixedclass` even if it is available.";
+
+        if(
+            otheritem.i != 4 ||
+            otheritem.k != 52 ||
+            otheritem.q[0].a[0] != 11 || otheritem.q[0].a[1] != 22 || otheritem.q[0].a[2] != 33 ||
+            otheritem.q[1].a[0] != 11 || otheritem.q[1].a[1] != 22 || otheritem.q[1].a[2] != 33 ||
+            otheritem.q[2].a[0] != 11 || otheritem.q[2].a[1] != 22 || otheritem.q[2].a[2] != 33 ||
+            otheritem.q[3].a[0] != 11 || otheritem.q[3].a[1] != 22 || otheritem.q[3].a[2] != 33
+        )
+            throw "`deserialize` method does not return an object consistent with what provided to `serialize`.";
     });
 };
