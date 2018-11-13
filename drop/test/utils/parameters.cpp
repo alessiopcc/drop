@@ -83,5 +83,7 @@ namespace
             if((&a != &b) || (&b != &c))
                 throw "`repeat` does not provide references to the same object to the callback provided (pointer test).";
         });
+
+        parameters :: repeat <0> (i, []{});
     });
 };
