@@ -26,3 +26,20 @@ namespace drop
         return this->_size;
     }
 };
+
+// Ostream integration
+
+std :: ostream & operator << (std :: ostream & out, const std :: vector <uint8_t> & data)
+{
+    out << "[";
+
+    for(size_t i = 0; i < data.size(); i++)
+    {
+        if(data[i] >= 32 && data[i] < 127)
+            out << (char)(data[i]);
+        else
+            out << "(" << std :: setfill('0') << std :: setw(2) << std :: hex << (unsigned int)(data[i]) << ")" << std :: dec;
+    }
+
+    return out << "]";
+}

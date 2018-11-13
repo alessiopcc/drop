@@ -425,4 +425,18 @@ namespace drop
     }
 };
 
+// Ostream integration
+
+template <size_t size> std :: ostream & operator << (std :: ostream & out, const std :: array <uint8_t, size> & data)
+{
+    out << std :: hex << "<";
+
+    for(size_t i = 0; i < size; i++)
+        out << std :: setw(2) << std :: setfill('0') << (unsigned int)(data[i]);
+
+    out << ">" << std :: dec;
+
+    return out;
+}
+
 #endif
