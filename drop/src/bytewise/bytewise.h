@@ -127,7 +127,7 @@ namespace drop
     {
         // Asserts
 
-        static_assert(bytewise :: constraints :: reader <vtype> (), "A `reader` must expose a `void update(const char *, const size_t &)` method (or anything compatible).");
+        static_assert(bytewise :: constraints :: reader <vtype> (), "A `reader` must expose a `void update(const uint8_t *, const size_t &)` method (or anything compatible).");
 
         // Friends
 
@@ -152,7 +152,7 @@ namespace drop
     {
         // Asserts
 
-        static_assert(bytewise :: constraints :: writer <vtype> (), "A `writer` must expose a `const char * pop(const size_t &)` method (or anything compatible).");
+        static_assert(bytewise :: constraints :: writer <vtype> (), "A `writer` must expose a `const uint8_t * pop(const size_t &)` method (or anything compatible).");
 
         // Friends
 
