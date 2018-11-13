@@ -201,38 +201,22 @@ namespace drop
 
     template <typename type, std :: enable_if_t <bytewise :: constraints :: fixed <type> ()> *> type bytewise :: deserialize(const std :: array <uint8_t, bytewise :: traits :: size <type> ()> & data)
     {
-        auto execute = [&](const auto & ... constrargs)
-        {
-            type item(constrargs...);
+        type item = constructor();
 
-            deserializer <traits :: size <type> ()> deserializer(data);
-            write(deserializer, item);
+        deserializer <traits :: size <type> ()> deserializer(data);
+        write(deserializer, item);
 
-            return item;
-        };
-
-        if constexpr (std :: is_constructible <type, bytewise> :: value)
-            return execute(bytewise{});
-        else
-            return execute();
+        return item;
     }
 
     template <typename type, std :: enable_if_t <bytewise :: constraints :: deserializable <type> () && !(bytewise :: constraints :: fixed <type> ())> *> type bytewise :: deserialize(const std :: vector <uint8_t> & data)
     {
-        auto execute = [&](const auto & ... constrargs)
-        {
-            type item(constrargs...);
+        type item = constructor();
 
-            deserializer <0> deserializer(data);
-            write(deserializer, item);
+        deserializer <0> deserializer(data);
+        write(deserializer, item);
 
-            return item;
-        };
-
-        if constexpr (std :: is_constructible <type, bytewise> :: value)
-            return execute(bytewise{});
-        else
-            return execute();
+        return item;
     }
 
     // Private static methods
@@ -414,6 +398,16 @@ namespace drop
         }
 
         return (this->_data.data() + cursor);
+    }
+
+    // constructor
+
+    template <typename type> bytewise :: constructor :: operator type () const
+    {
+        if constexpr (std :: is_constructible <type, bytewise> :: value)
+            return type(bytewise{});
+        else
+            return type();
     }
 };
 

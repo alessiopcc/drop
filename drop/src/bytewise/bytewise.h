@@ -98,6 +98,12 @@ namespace drop
         template <size_t> class serializer;
         template <size_t> class deserializer;
 
+    private:
+
+        // Service nested classes
+
+        class constructor;
+
         // Friends
 
         template <typename> friend class reader;
@@ -247,6 +253,15 @@ namespace drop
         // Methods
 
         const uint8_t * pop(const size_t &);
+    };
+
+    class bytewise :: constructor
+    {
+    public:
+
+        // Casting
+
+        template <typename type> operator type () const;
     };
 };
 
