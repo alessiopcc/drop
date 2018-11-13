@@ -18,10 +18,11 @@ namespace drop
 // Libraries
 
 #include <iostream>
+#include <iomanip>
 #include <array>
 #include <vector>
+#include <tuple>
 #include <stdint.h>
-#include <iomanip>
 
 // Includes
 
