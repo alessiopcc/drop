@@ -16,10 +16,6 @@ namespace drop
 
 #include <sodium.h>
 
-// Includes
-
-#include "exception/exception.h"
-
 namespace drop
 {
     class sodium

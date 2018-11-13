@@ -17,9 +17,11 @@ namespace drop
 
 // Libraries
 
+#include <iostream>
 #include <array>
 #include <vector>
 #include <stdint.h>
+#include <iomanip>
 
 // Includes
 
@@ -246,5 +248,10 @@ namespace drop
         const uint8_t * pop(const size_t &);
     };
 };
+
+// Ostream integration
+
+template <size_t size> std :: ostream & operator << (std :: ostream &, const std :: array <uint8_t, size> &);
+std :: ostream & operator << (std :: ostream &, const std :: vector <uint8_t> &);
 
 #endif
