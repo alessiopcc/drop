@@ -109,8 +109,8 @@ namespace drop
         template <typename vtype, typename type, std :: enable_if_t <constraints :: readable <type, vtype> ()> * = nullptr> static void read(vtype &, const type &);
         template <typename vtype, typename type, std :: enable_if_t <constraints :: writable <type, vtype> ()> * = nullptr> static void write(vtype &, type &);
 
-        template <typename type, std :: enable_if_t <constraints :: fixed <type> ()> * = nullptr> static std :: array <uint8_t, traits :: size <type> ()> serialize(const type &);
-        template <typename type, std :: enable_if_t <constraints :: serializable <type> () && !(constraints :: fixed <type> ())> * = nullptr> static std :: vector <uint8_t> serialize(const type &);
+        template <typename... types, std :: enable_if_t <(sizeof...(types) > 0) && (... && constraints :: fixed <types> ())> * = nullptr> static std :: array <uint8_t, (... + traits :: size <types> ())> serialize(const types & ...);
+        template <typename... types, std :: enable_if_t <(sizeof...(types) > 0) && (... && constraints :: serializable <types> ()) && !(... && constraints :: fixed <types> ())> * = nullptr> static std :: vector <uint8_t> serialize(const types & ...);
 
         template <typename type, std :: enable_if_t <constraints :: fixed <type> ()> * = nullptr> static type deserialize(const std :: array <uint8_t, traits :: size <type> ()> &);
         template <typename type, std :: enable_if_t <constraints :: deserializable <type> () && !(constraints :: fixed <type> ())> * = nullptr> static type deserialize(const std :: vector <uint8_t> &);

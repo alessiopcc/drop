@@ -176,25 +176,25 @@ namespace drop
         visit(writer, item);
     }
 
-    template <typename type, std :: enable_if_t <bytewise :: constraints :: fixed <type> ()> *> std :: array <uint8_t, bytewise :: traits :: size <type> ()> bytewise :: serialize(const type & item)
+    template <typename... types, std :: enable_if_t <(sizeof...(types) > 0) && (... && bytewise :: constraints :: fixed <types> ())> *> std :: array <uint8_t, (... + bytewise :: traits :: size <types> ())> bytewise :: serialize(const types & ... items)
     {
-        std :: array <uint8_t, traits :: size <type> ()> data;
+        std :: array <uint8_t, (... + traits :: size <types> ())> data;
 
-        serializer <traits :: size <type> ()> serializer(data);
-        read(serializer, item);
+        serializer <(... + traits :: size <types> ())> serializer(data);
+        (read(serializer, items), ...);
 
         return data;
     }
 
-    template <typename type, std :: enable_if_t <bytewise :: constraints :: serializable <type> () && !(bytewise :: constraints :: fixed <type> ())> *> std :: vector <uint8_t> bytewise :: serialize(const type & item)
+    template <typename... types, std :: enable_if_t <(sizeof...(types) > 0) && (... && bytewise :: constraints :: serializable <types> ()) && !(... && bytewise :: constraints :: fixed <types> ())> *> std :: vector <uint8_t> bytewise :: serialize(const types & ... items)
     {
         sizer sizer;
-        read(sizer, item);
+        (read(sizer, items), ...);
 
         std :: vector <uint8_t> data(sizer);
 
         serializer <0> serializer(data);
-        read(serializer, item);
+        (read(serializer, items), ...);
 
         return data;
     }
