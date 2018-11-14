@@ -157,7 +157,7 @@ namespace drop
 
         // Methods
 
-        template <typename type, std :: enable_if_t <bytewise :: constraints :: readable <type, vtype> ()> * = nullptr> void visit(const type &);
+        template <typename type, std :: enable_if_t <bytewise :: constraints :: readable <type, vtype> ()> * = nullptr> reader & visit(const type &);
     };
 
     template <typename vtype> class bytewise :: writer
@@ -182,7 +182,7 @@ namespace drop
 
         // Methods
 
-        template <typename type, std :: enable_if_t <bytewise :: constraints :: writable <type, vtype> ()> * = nullptr> void visit(type &);
+        template <typename type, std :: enable_if_t <bytewise :: constraints :: writable <type, vtype> ()> * = nullptr> writer & visit(type &);
     };
 
     class bytewise :: sizer

@@ -374,9 +374,10 @@ namespace drop
 
     // Methods
 
-    template <typename vtype> template <typename type, std :: enable_if_t <bytewise :: constraints :: readable <type, vtype> ()> *> void bytewise :: reader <vtype> :: visit(const type & item)
+    template <typename vtype> template <typename type, std :: enable_if_t <bytewise :: constraints :: readable <type, vtype> ()> *> bytewise :: reader <vtype> & bytewise :: reader <vtype> :: visit(const type & item)
     {
         bytewise :: visit(*this, item);
+        return (*this);
     }
 
     // writer
@@ -389,9 +390,10 @@ namespace drop
 
     // Methods
 
-    template <typename vtype> template <typename type, std :: enable_if_t <bytewise :: constraints :: writable <type, vtype> ()> *> void bytewise :: writer <vtype> :: visit(type & item)
+    template <typename vtype> template <typename type, std :: enable_if_t <bytewise :: constraints :: writable <type, vtype> ()> *> bytewise :: writer <vtype> & bytewise :: writer <vtype> :: visit(type & item)
     {
         bytewise :: visit(*this, item);
+        return (*this);
     }
 
     // serializer
