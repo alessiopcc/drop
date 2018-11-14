@@ -459,17 +459,17 @@ namespace
         if(data != reference)
             throw "`serialize` does not produce the correct sequence of bytes when serializing `myotherclass, myclass, uint32_t`.";
 
-        /*lastop = 'X';
-        myclass otheritem = bytewise :: deserialize <myclass> (data);
+        lastop = 'X';
+        auto [otheralpha, otherbeta, othergamma] = bytewise :: deserialize <myotherclass, myclass, uint32_t> (data);
 
         if(lastop != 'B')
             throw "`deserialize` does not call the `bytewise` constructor of `myclass` even if it is available.";
 
         if(
-            otheritem.i != 9 ||
-            otheritem.k != 'q' ||
-            otheritem.q != std :: array <uint8_t, 16> {15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0} ||
-            otheritem.h != std :: array <std :: vector <std :: array <int32_t, 4>>, 2>
+            otherbeta.i != 9 ||
+            otherbeta.k != 'q' ||
+            otherbeta.q != std :: array <uint8_t, 16> {15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0} ||
+            otherbeta.h != std :: array <std :: vector <std :: array <int32_t, 4>>, 2>
             {
                 std :: vector <std :: array <int32_t, 4>>
                 {
@@ -486,6 +486,9 @@ namespace
         )
             throw "`deserialize` method does not return a `myclass` object consistent with what provided to `serialize`.";
 
+        if(othergamma != 88)
+            throw "`deserialize` method does not return a `uint32_t` object consistent with what provided to `serialize`.";
+
         bool thrown = false;
 
         try
@@ -498,6 +501,6 @@ namespace
         }
 
         if(!thrown)
-            throw "Providing `deserialize` with an empty data buffer does not yield an exception.";*/
+            throw "Providing `deserialize` with an empty data buffer does not yield an exception.";
     });
 };

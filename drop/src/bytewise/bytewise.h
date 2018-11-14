@@ -125,6 +125,7 @@ namespace drop
         template <typename... types, std :: enable_if_t <(sizeof...(types) > 1) && (... && constraints :: fixed <types> ())> * = nullptr> static std :: tuple <types...> deserialize(const std :: array <uint8_t, (... + traits :: size <types> ())> &);
 
         template <typename type, std :: enable_if_t <constraints :: deserializable <type> () && !(constraints :: fixed <type> ())> * = nullptr> static type deserialize(const std :: vector <uint8_t> &);
+        template <typename... types, std :: enable_if_t <(sizeof...(types) > 1) && (... && constraints :: deserializable <types> ()) && !(... && constraints :: fixed <types> ())> * = nullptr> static std :: tuple <types...> deserialize(const std :: vector <uint8_t> &);
 
     private:
 

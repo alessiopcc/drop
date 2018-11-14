@@ -237,6 +237,22 @@ namespace drop
         return item;
     }
 
+    template <typename... types, std :: enable_if_t <(sizeof...(types) > 1) && (... && bytewise :: constraints :: deserializable <types> ()) && !(... && bytewise :: constraints :: fixed <types> ())> *> std :: tuple <types...> bytewise :: deserialize(const std :: vector <uint8_t> & data)
+    {
+        return parameters :: repeat <sizeof...(types)> (constructor{}, [&](const auto & ... constructors)
+        {
+            std :: tuple <types...> items = {constructors...};
+
+            deserializer <0> deserializer(data);
+            iterators :: each(items, [&](auto & item)
+            {
+                write(deserializer, item);
+            });
+
+            return items;
+        });
+    }
+
     // Private static methods
 
     template <typename vtype, typename type> void bytewise :: visit(reader <vtype> & reader, const type & item)
