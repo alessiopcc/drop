@@ -47,8 +47,7 @@ namespace drop
 
             if(buffer[0] & 0x40)
             {
-                writer.visit(buffer[2]);
-                writer.visit(buffer[3]);
+                writer.visit(buffer[2]).visit(buffer[3]);
 
                 this->_value = ((uint32_t)(buffer[0] & 0x3f) << 24) | ((uint32_t)(buffer[1]) << 16) | ((uint32_t)(buffer[2]) << 8) | (uint32_t)(buffer[3]);
             }

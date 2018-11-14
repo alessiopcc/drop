@@ -6,7 +6,7 @@
 
 // Includes
 
-#include "utils/parameters.h"
+#include "utils/parameters.hpp"
 #include "data/variant.hpp"
 
 namespace
@@ -61,5 +61,29 @@ namespace
 
         if(!std :: is_same <parameters :: backstrip_t <pack <int, double, char>>, pack <int, double>> :: value)
             throw "`frontstrip_t` does not remove last type from `pack <int, double, char>`.";
+    });
+
+    $test("utils/parameters-repeat", []
+    {
+        int i = 4;
+
+        parameters :: repeat <4> (i, [](int & a, int & b, int & c, int & d)
+        {
+            a *= 2;
+            b *= 3;
+            c++;
+            d += 4;
+        });
+
+        if(i != 29)
+            throw "`repeat` does not provide references to the same object to the callback provided (manipulation test).";
+
+        parameters :: repeat <3> (i, [](const int & a, const int & b, const int & c)
+        {
+            if((&a != &b) || (&b != &c))
+                throw "`repeat` does not provide references to the same object to the callback provided (pointer test).";
+        });
+
+        parameters :: repeat <0> (i, []{});
     });
 };

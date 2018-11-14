@@ -9,6 +9,8 @@
 #include "concept/expression.hpp"
 #include "data/variant.hpp"
 #include "data/varint.hpp"
+#include "utils/parameters.hpp"
+#include "utils/iterators.hpp"
 
 namespace drop
 {
@@ -176,71 +178,79 @@ namespace drop
         visit(writer, item);
     }
 
-    template <typename type, std :: enable_if_t <bytewise :: constraints :: fixed <type> ()> *> std :: array <uint8_t, bytewise :: traits :: size <type> ()> bytewise :: serialize(const type & item)
+    template <typename... types, std :: enable_if_t <(sizeof...(types) > 0) && (... && bytewise :: constraints :: fixed <types> ())> *> std :: array <uint8_t, (... + bytewise :: traits :: size <types> ())> bytewise :: serialize(const types & ... items)
     {
-        std :: array <uint8_t, traits :: size <type> ()> data;
+        std :: array <uint8_t, (... + traits :: size <types> ())> data;
 
-        serializer <traits :: size <type> ()> serializer(data);
-        read(serializer, item);
+        serializer <(... + traits :: size <types> ())> serializer(data);
+        (read(serializer, items), ...);
 
         return data;
     }
 
-    template <typename type, std :: enable_if_t <bytewise :: constraints :: serializable <type> () && !(bytewise :: constraints :: fixed <type> ())> *> std :: vector <uint8_t> bytewise :: serialize(const type & item)
+    template <typename... types, std :: enable_if_t <(sizeof...(types) > 0) && (... && bytewise :: constraints :: serializable <types> ()) && !(... && bytewise :: constraints :: fixed <types> ())> *> std :: vector <uint8_t> bytewise :: serialize(const types & ... items)
     {
         sizer sizer;
-        read(sizer, item);
+        (read(sizer, items), ...);
 
         std :: vector <uint8_t> data(sizer);
 
         serializer <0> serializer(data);
-        read(serializer, item);
+        (read(serializer, items), ...);
 
         return data;
     }
 
-    template <typename type, std :: enable_if_t <bytewise :: constraints :: fixed <type> ()> *> type bytewise :: deserialize(const std :: array <uint8_t, bytewise :: traits :: size <type> ()> & data)
+    template <typename type, std :: enable_if_t <bytewise :: constraints :: fixed <type> ()> *> type bytewise :: deserialize(const std :: array <uint8_t, traits :: size <type> ()> & data)
     {
-        if constexpr (std :: is_constructible <type, bytewise> :: value)
+        type item = constructor();
+
+        deserializer <traits :: size <type> ()> deserializer(data);
+        write(deserializer, item);
+
+        return item;
+    }
+
+    template <typename... types, std :: enable_if_t <(sizeof...(types) > 1) && (... && bytewise :: constraints :: fixed <types> ())> *> std :: tuple <types...> bytewise :: deserialize(const std :: array <uint8_t, (... + traits :: size <types> ())> & data)
+    {
+        return parameters :: repeat <sizeof...(types)> (constructor{}, [&](const auto & ... constructors)
         {
-            type item(bytewise{});
+            std :: tuple <types...> items = {constructors...};
 
-            deserializer <traits :: size <type> ()> deserializer(data);
-            write(deserializer, item);
+            deserializer <(... + traits :: size <types> ())> deserializer(data);
+            iterators :: each(items, [&](auto & item)
+            {
+                write(deserializer, item);
+            });
 
-            return item;
-        }
-        else
-        {
-            type item;
-
-            deserializer <traits :: size <type> ()> deserializer(data);
-            write(deserializer, item);
-
-            return item;
-        }
+            return items;
+        });
     }
 
     template <typename type, std :: enable_if_t <bytewise :: constraints :: deserializable <type> () && !(bytewise :: constraints :: fixed <type> ())> *> type bytewise :: deserialize(const std :: vector <uint8_t> & data)
     {
-        if constexpr (std :: is_constructible <type, bytewise> :: value)
+        type item = constructor();
+
+        deserializer <0> deserializer(data);
+        write(deserializer, item);
+
+        return item;
+    }
+
+    template <typename... types, std :: enable_if_t <(sizeof...(types) > 1) && (... && bytewise :: constraints :: deserializable <types> ()) && !(... && bytewise :: constraints :: fixed <types> ())> *> std :: tuple <types...> bytewise :: deserialize(const std :: vector <uint8_t> & data)
+    {
+        return parameters :: repeat <sizeof...(types)> (constructor{}, [&](const auto & ... constructors)
         {
-            type item(bytewise{});
+            std :: tuple <types...> items = {constructors...};
 
             deserializer <0> deserializer(data);
-            write(deserializer, item);
+            iterators :: each(items, [&](auto & item)
+            {
+                write(deserializer, item);
+            });
 
-            return item;
-        }
-        else
-        {
-            type item;
-
-            deserializer <0> deserializer(data);
-            write(deserializer, item);
-
-            return item;
-        }
+            return items;
+        });
     }
 
     // Private static methods
@@ -364,9 +374,10 @@ namespace drop
 
     // Methods
 
-    template <typename vtype> template <typename type, std :: enable_if_t <bytewise :: constraints :: readable <type, vtype> ()> *> void bytewise :: reader <vtype> :: visit(const type & item)
+    template <typename vtype> template <typename type, std :: enable_if_t <bytewise :: constraints :: readable <type, vtype> ()> *> bytewise :: reader <vtype> & bytewise :: reader <vtype> :: visit(const type & item)
     {
         bytewise :: visit(*this, item);
+        return (*this);
     }
 
     // writer
@@ -379,9 +390,10 @@ namespace drop
 
     // Methods
 
-    template <typename vtype> template <typename type, std :: enable_if_t <bytewise :: constraints :: writable <type, vtype> ()> *> void bytewise :: writer <vtype> :: visit(type & item)
+    template <typename vtype> template <typename type, std :: enable_if_t <bytewise :: constraints :: writable <type, vtype> ()> *> bytewise :: writer <vtype> & bytewise :: writer <vtype> :: visit(type & item)
     {
         bytewise :: visit(*this, item);
+        return (*this);
     }
 
     // serializer
@@ -422,6 +434,16 @@ namespace drop
         }
 
         return (this->_data.data() + cursor);
+    }
+
+    // constructor
+
+    template <typename type> bytewise :: constructor :: operator type () const
+    {
+        if constexpr (std :: is_constructible <type, bytewise> :: value)
+            return type(bytewise{});
+        else
+            return type();
     }
 };
 

@@ -18,10 +18,11 @@ namespace drop
 // Libraries
 
 #include <iostream>
+#include <iomanip>
 #include <array>
 #include <vector>
+#include <tuple>
 #include <stdint.h>
-#include <iomanip>
 
 // Includes
 
@@ -30,6 +31,8 @@ namespace drop
 #include "concept/expression.h"
 #include "concept/stltraits.h"
 #include "data/variant.h"
+#include "utils/parameters.h"
+#include "utils/iterators.h"
 
 // Macros
 
@@ -97,6 +100,12 @@ namespace drop
         template <size_t> class serializer;
         template <size_t> class deserializer;
 
+    private:
+
+        // Service nested classes
+
+        class constructor;
+
         // Friends
 
         template <typename> friend class reader;
@@ -109,11 +118,14 @@ namespace drop
         template <typename vtype, typename type, std :: enable_if_t <constraints :: readable <type, vtype> ()> * = nullptr> static void read(vtype &, const type &);
         template <typename vtype, typename type, std :: enable_if_t <constraints :: writable <type, vtype> ()> * = nullptr> static void write(vtype &, type &);
 
-        template <typename type, std :: enable_if_t <constraints :: fixed <type> ()> * = nullptr> static std :: array <uint8_t, traits :: size <type> ()> serialize(const type &);
-        template <typename type, std :: enable_if_t <constraints :: serializable <type> () && !(constraints :: fixed <type> ())> * = nullptr> static std :: vector <uint8_t> serialize(const type &);
+        template <typename... types, std :: enable_if_t <(sizeof...(types) > 0) && (... && constraints :: fixed <types> ())> * = nullptr> static std :: array <uint8_t, (... + traits :: size <types> ())> serialize(const types & ...);
+        template <typename... types, std :: enable_if_t <(sizeof...(types) > 0) && (... && constraints :: serializable <types> ()) && !(... && constraints :: fixed <types> ())> * = nullptr> static std :: vector <uint8_t> serialize(const types & ...);
 
         template <typename type, std :: enable_if_t <constraints :: fixed <type> ()> * = nullptr> static type deserialize(const std :: array <uint8_t, traits :: size <type> ()> &);
+        template <typename... types, std :: enable_if_t <(sizeof...(types) > 1) && (... && constraints :: fixed <types> ())> * = nullptr> static std :: tuple <types...> deserialize(const std :: array <uint8_t, (... + traits :: size <types> ())> &);
+
         template <typename type, std :: enable_if_t <constraints :: deserializable <type> () && !(constraints :: fixed <type> ())> * = nullptr> static type deserialize(const std :: vector <uint8_t> &);
+        template <typename... types, std :: enable_if_t <(sizeof...(types) > 1) && (... && constraints :: deserializable <types> ()) && !(... && constraints :: fixed <types> ())> * = nullptr> static std :: tuple <types...> deserialize(const std :: vector <uint8_t> &);
 
     private:
 
@@ -145,7 +157,7 @@ namespace drop
 
         // Methods
 
-        template <typename type, std :: enable_if_t <bytewise :: constraints :: readable <type, vtype> ()> * = nullptr> void visit(const type &);
+        template <typename type, std :: enable_if_t <bytewise :: constraints :: readable <type, vtype> ()> * = nullptr> reader & visit(const type &);
     };
 
     template <typename vtype> class bytewise :: writer
@@ -170,7 +182,7 @@ namespace drop
 
         // Methods
 
-        template <typename type, std :: enable_if_t <bytewise :: constraints :: writable <type, vtype> ()> * = nullptr> void visit(type &);
+        template <typename type, std :: enable_if_t <bytewise :: constraints :: writable <type, vtype> ()> * = nullptr> writer & visit(type &);
     };
 
     class bytewise :: sizer
@@ -246,6 +258,15 @@ namespace drop
         // Methods
 
         const uint8_t * pop(const size_t &);
+    };
+
+    class bytewise :: constructor
+    {
+    public:
+
+        // Casting
+
+        template <typename type> operator type () const;
     };
 };
 

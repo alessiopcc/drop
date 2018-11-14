@@ -25,6 +25,8 @@ namespace drop
 {
     namespace parameters
     {
+        // Classes
+
         template <template <typename...> typename pack, typename... left, typename... right> struct concat <pack <left...>, pack <right...>>
         {
             typedef pack <left..., right...> type;
@@ -49,6 +51,10 @@ namespace drop
         {
             typedef reverse_t <frontstrip_t <reverse_t <pack <arg, args...>>>> type;
         };
+
+        // Functions
+
+        template <size_t times, typename type, typename lambda> auto repeat(type &&, lambda &&);
     };
 };
 
