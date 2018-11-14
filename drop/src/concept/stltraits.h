@@ -6,6 +6,7 @@ namespace drop
     {
         template <typename> struct array;
         template <typename> struct vector;
+        template <typename> struct tuple;
     };
 };
 
@@ -15,6 +16,7 @@ namespace drop
 #include <type_traits>
 #include <array>
 #include <vector>
+#include <tuple>
 
 namespace drop
 {
@@ -51,6 +53,25 @@ namespace drop
         };
 
         template <typename> struct vector
+        {
+            // Static members
+
+            static constexpr bool value = false;
+        };
+
+        template <typename... types> struct tuple <std :: tuple <types...>>
+        {
+            // Typedefs
+
+            template <size_t index> using type = std :: remove_reference_t <decltype(std :: get <index> (std :: declval <std :: tuple <types...> &> ()))>;
+
+            // Static members
+
+            static constexpr bool value = true;
+            static constexpr size_t size = sizeof...(types);
+        };
+
+        template <typename> struct tuple
         {
             // Static members
 

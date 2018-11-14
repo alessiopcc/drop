@@ -7,27 +7,39 @@
 
 namespace drop
 {
+    // Constraint helpers
+
+    template <bool consttup, typename ttype, size_t index, typename lambda> constexpr bool iterators :: constraints :: eachloop()
+    {
+        if constexpr (index < stltraits :: tuple <ttype> :: size)
+        {
+            if constexpr (consttup)
+                return $expression($type(lambda)($type(const typename stltraits :: tuple <ttype> :: template type <index> &))) && eachloop <consttup, ttype, index + 1, lambda> ();
+            else
+                return $expression($type(lambda)($type(typename stltraits :: tuple <ttype> :: template type <index> &))) && eachloop <consttup, ttype, index + 1, lambda> ();
+        }
+        else
+            return true;
+    };
+
     // Constraints
 
-    template <typename lambda, bool consttup, typename... types> constexpr bool iterators :: constraints :: each()
+    template <typename ttype, typename lambda> constexpr bool iterators :: constraints :: each()
     {
-        if constexpr (consttup)
-            return (... && ($expression($type(lambda)($type(const types &)))));
+        if constexpr (stltraits :: tuple <std :: decay_t <ttype>> :: value)
+            return eachloop <std :: is_const <std :: remove_reference_t <ttype>> :: value, std :: decay_t <ttype>, 0, lambda> ();
         else
-            return (... && ($expression($type(lambda)($type(types &)))));
+            return false;
     }
 
     // Static methods
 
-    template <typename... types, typename lambda, std :: enable_if_t <iterators :: constraints :: each <lambda, false, types...> ()> *> void iterators :: each(std :: tuple <types...> & tuple, lambda && callback)
+    template <typename ttype, typename lambda, std :: enable_if_t <iterators :: constraints :: each <ttype, lambda> ()> *> void iterators :: each(ttype && tuple, lambda && callback)
     {
         eachloop <0> (tuple, callback);
     }
 
-    template <typename... types, typename lambda, std :: enable_if_t <iterators :: constraints :: each <lambda, true, types...> ()> *> void iterators :: each(const std :: tuple <types...> & tuple, lambda && callback)
-    {
-        eachloop <0> (tuple, callback);
-    }
+    // Private static methods
 
     template <size_t index, typename ttype, typename lambda> void iterators :: eachloop(ttype && tuple, lambda && callback)
     {

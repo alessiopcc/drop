@@ -15,6 +15,7 @@ namespace drop
 // Includes
 
 #include "concept/expression.hpp"
+#include "concept/stltraits.h"
 
 namespace drop
 {
@@ -24,15 +25,22 @@ namespace drop
 
         // Constraints
 
-        struct constraints
+        class constraints
         {
-            template <typename, bool, typename...> static constexpr bool each();
+            // Constraint helpers
+
+            template <bool, typename, size_t, typename> static constexpr bool eachloop();
+
+        public:
+
+            // Constraints
+
+            template <typename, typename> static constexpr bool each();
         };
 
         // Static methods
 
-        template <typename... types, typename lambda, std :: enable_if_t <constraints :: each <lambda, false, types...> ()> * = nullptr> static void each(std :: tuple <types...> &, lambda &&);
-        template <typename... types, typename lambda, std :: enable_if_t <constraints :: each <lambda, true, types...> ()> * = nullptr> static void each(const std :: tuple <types...> &, lambda &&);
+        template <typename ttype, typename lambda, std :: enable_if_t <constraints :: each <ttype, lambda> ()> * = nullptr> static void each(ttype &&, lambda &&);
 
     private:
 
