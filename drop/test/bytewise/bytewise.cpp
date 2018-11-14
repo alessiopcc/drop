@@ -385,21 +385,27 @@ namespace
         if(data != reference)
             throw "`serialize` does not produce the correct sequence of bytes when serializing `uint32_t, myfixedclass, uint8_t`";
 
-        /*lastop = 'X';
-        myfixedclass otheritem = bytewise :: deserialize <myfixedclass> (data);
+        lastop = 'X';
+        auto [otheralpha, otherbeta, othergamma] = bytewise :: deserialize <uint32_t, myfixedclass, uint8_t> (data);
 
         if(lastop != 'B')
             throw "`deserialize` does not call the `bytewise` constructor of `myfixedclass` even if it is available.";
 
+        if(otheralpha != 99)
+            throw "`deserialize` does not return a `uint32_t` object consistent with what provided to `serialize`.";
+
         if(
-            otheritem.i != 4 ||
-            otheritem.k != 52 ||
-            otheritem.q[0].a[0] != 11 || otheritem.q[0].a[1] != 22 || otheritem.q[0].a[2] != 33 ||
-            otheritem.q[1].a[0] != 11 || otheritem.q[1].a[1] != 22 || otheritem.q[1].a[2] != 33 ||
-            otheritem.q[2].a[0] != 11 || otheritem.q[2].a[1] != 22 || otheritem.q[2].a[2] != 33 ||
-            otheritem.q[3].a[0] != 11 || otheritem.q[3].a[1] != 22 || otheritem.q[3].a[2] != 33
+            otherbeta.i != 4 ||
+            otherbeta.k != 52 ||
+            otherbeta.q[0].a[0] != 11 || otherbeta.q[0].a[1] != 22 || otherbeta.q[0].a[2] != 33 ||
+            otherbeta.q[1].a[0] != 11 || otherbeta.q[1].a[1] != 22 || otherbeta.q[1].a[2] != 33 ||
+            otherbeta.q[2].a[0] != 11 || otherbeta.q[2].a[1] != 22 || otherbeta.q[2].a[2] != 33 ||
+            otherbeta.q[3].a[0] != 11 || otherbeta.q[3].a[1] != 22 || otherbeta.q[3].a[2] != 33
         )
-            throw "`deserialize` method does not return a `myfixedclass` object consistent with what provided to `serialize`.";*/
+            throw "`deserialize` does not return a `myfixedclass` object consistent with what provided to `serialize`.";
+
+        if(othergamma != 'x')
+            throw "`deserialize` does not return a `uint8_t` object consistent with what provided to `serialize`.";
     });
 
     $test("bytewise/serialize-deserialize-nonfixed", []

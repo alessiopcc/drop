@@ -54,7 +54,7 @@ namespace drop
 
         // Functions
 
-        template <size_t times, typename type, typename lambda> void repeat(type &&, lambda &&);
+        template <size_t times, typename type, typename lambda> auto repeat(type &&, lambda &&);
     };
 };
 

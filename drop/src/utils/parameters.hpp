@@ -11,12 +11,12 @@ namespace drop
     {
         // Helper functions
 
-        template <size_t times, typename type, typename lambda, typename... types> void repeatloop(type && original, lambda && callback, types && ... copies)
+        template <size_t times, typename type, typename lambda, typename... types> auto repeatloop(type && original, lambda && callback, types && ... copies)
         {
             if constexpr (sizeof...(copies) == times)
-                callback(std :: forward <types> (copies)...);
+                return callback(std :: forward <types> (copies)...);
             else
-                repeatloop <times> (std :: forward <type> (original), std :: forward <lambda> (callback), std :: forward <type> (original), std :: forward <types> (copies)...);
+                return repeatloop <times> (std :: forward <type> (original), std :: forward <lambda> (callback), std :: forward <type> (original), std :: forward <types> (copies)...);
         }
     };
 
@@ -24,10 +24,10 @@ namespace drop
     {
         // Functions
 
-        template <size_t times, typename type, typename lambda> void repeat(type && original, lambda && callback)
+        template <size_t times, typename type, typename lambda> auto repeat(type && original, lambda && callback)
         {
-            repeatloop <times> (std :: forward <type> (original), std :: forward <lambda> (callback));
-        }    
+            return repeatloop <times> (std :: forward <type> (original), std :: forward <lambda> (callback));
+        }
     }
 };
 

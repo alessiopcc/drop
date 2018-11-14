@@ -31,6 +31,8 @@ namespace drop
 #include "concept/expression.h"
 #include "concept/stltraits.h"
 #include "data/variant.h"
+#include "utils/parameters.h"
+#include "utils/iterators.h"
 
 // Macros
 
@@ -120,6 +122,8 @@ namespace drop
         template <typename... types, std :: enable_if_t <(sizeof...(types) > 0) && (... && constraints :: serializable <types> ()) && !(... && constraints :: fixed <types> ())> * = nullptr> static std :: vector <uint8_t> serialize(const types & ...);
 
         template <typename type, std :: enable_if_t <constraints :: fixed <type> ()> * = nullptr> static type deserialize(const std :: array <uint8_t, traits :: size <type> ()> &);
+        template <typename... types, std :: enable_if_t <(sizeof...(types) > 1) && (... && constraints :: fixed <types> ())> * = nullptr> static std :: tuple <types...> deserialize(const std :: array <uint8_t, (... + traits :: size <types> ())> &);
+
         template <typename type, std :: enable_if_t <constraints :: deserializable <type> () && !(constraints :: fixed <type> ())> * = nullptr> static type deserialize(const std :: vector <uint8_t> &);
 
     private:

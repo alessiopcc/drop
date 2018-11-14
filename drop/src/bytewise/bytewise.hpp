@@ -9,6 +9,8 @@
 #include "concept/expression.hpp"
 #include "data/variant.hpp"
 #include "data/varint.hpp"
+#include "utils/parameters.hpp"
+#include "utils/iterators.hpp"
 
 namespace drop
 {
@@ -199,7 +201,7 @@ namespace drop
         return data;
     }
 
-    template <typename type, std :: enable_if_t <bytewise :: constraints :: fixed <type> ()> *> type bytewise :: deserialize(const std :: array <uint8_t, bytewise :: traits :: size <type> ()> & data)
+    template <typename type, std :: enable_if_t <bytewise :: constraints :: fixed <type> ()> *> type bytewise :: deserialize(const std :: array <uint8_t, traits :: size <type> ()> & data)
     {
         type item = constructor();
 
@@ -207,6 +209,22 @@ namespace drop
         write(deserializer, item);
 
         return item;
+    }
+
+    template <typename... types, std :: enable_if_t <(sizeof...(types) > 1) && (... && bytewise :: constraints :: fixed <types> ())> *> std :: tuple <types...> bytewise :: deserialize(const std :: array <uint8_t, (... + traits :: size <types> ())> & data)
+    {
+        return parameters :: repeat <sizeof...(types)> (constructor{}, [&](const auto & ... constructors)
+        {
+            std :: tuple <types...> items = {constructors...};
+
+            deserializer <(... + traits :: size <types> ())> deserializer(data);
+            iterators :: each(items, [&](auto & item)
+            {
+                write(deserializer, item);
+            });
+
+            return items;
+        });
     }
 
     template <typename type, std :: enable_if_t <bytewise :: constraints :: deserializable <type> () && !(bytewise :: constraints :: fixed <type> ())> *> type bytewise :: deserialize(const std :: vector <uint8_t> & data)
