@@ -72,6 +72,16 @@ namespace drop
 
     // nonce
 
+    // Methods
+
+    class channel :: nonce channel :: nonce :: specular() const
+    {
+        nonce specular = (*this);
+        specular[crypto_secretbox_NONCEBYTES - 1] ^= 0x80;
+
+        return specular;
+    }
+
     // Operators
 
     class channel :: nonce & channel :: nonce :: operator ++ ()

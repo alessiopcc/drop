@@ -45,6 +45,10 @@ namespace drop
         {
         public:
 
+            // Methods
+
+            nonce specular() const;
+
             // Operators
 
             nonce & operator ++ ();
