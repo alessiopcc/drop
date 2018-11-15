@@ -65,8 +65,13 @@ namespace drop
         template <size_t size> std :: array <uint8_t, size + crypto_box_NONCEBYTES + crypto_box_MACBYTES> encrypt(const class publickey &, const std :: array <uint8_t, size> &);
         std :: vector <uint8_t> encrypt(const class publickey &, const std :: vector <uint8_t> &);
 
+        template <typename... types, std :: enable_if_t <(sizeof...(types) > 0) && (... && bytewise :: constraints :: serializable <types> ())> * = nullptr> auto encrypt(const class publickey &, const types & ...);
+
         template <size_t size, std :: enable_if_t <(size > crypto_box_NONCEBYTES + crypto_box_MACBYTES)> * = nullptr> std :: array <uint8_t, size - (crypto_box_NONCEBYTES + crypto_box_MACBYTES)> decrypt(const class publickey &, const std :: array <uint8_t, size> &);
         std :: vector <uint8_t> decrypt(const class publickey &, const std :: vector <uint8_t> &);
+
+        template <typename... types, std :: enable_if_t <(sizeof...(types) > 0) && (... && bytewise :: constraints :: fixed <types> ())> * = nullptr> auto decrypt(const class publickey &, const std :: array <uint8_t, (... + bytewise :: traits :: size <types> ()) + crypto_box_NONCEBYTES + crypto_box_MACBYTES> &);
+        template <typename... types, std :: enable_if_t <(sizeof...(types) > 0) && (... && bytewise :: constraints :: deserializable <types> ()) && !(... && bytewise :: constraints :: fixed <types> ())> * = nullptr> auto decrypt(const class publickey &, const std :: vector <uint8_t> &);
 
     };
 };

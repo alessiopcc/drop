@@ -21,6 +21,11 @@ namespace drop
         return ciphertext;
     }
 
+    template <typename... types, std :: enable_if_t <(sizeof...(types) > 0) && (... && bytewise :: constraints :: serializable <types> ())> *> auto box :: encrypt(const class publickey & to, const types & ... items)
+    {
+        return this->encrypt(to, bytewise :: serialize(items...));
+    }
+
     template <size_t size, std :: enable_if_t <(size > crypto_box_NONCEBYTES + crypto_box_MACBYTES)> *> std :: array <uint8_t, size - (crypto_box_NONCEBYTES + crypto_box_MACBYTES)> box :: decrypt(const class publickey & from, const std :: array <uint8_t, size> & ciphertext)
     {
         std :: array <uint8_t, size - (crypto_box_NONCEBYTES + crypto_box_MACBYTES)> plaintext;
@@ -29,6 +34,16 @@ namespace drop
             exception <decryption_failed> :: raise(this);
 
         return plaintext;
+    }
+
+    template <typename... types, std :: enable_if_t <(sizeof...(types) > 0) && (... && bytewise :: constraints :: fixed <types> ())> *> auto box :: decrypt(const class publickey & from, const std :: array <uint8_t, (... + bytewise :: traits :: size <types> ()) + crypto_box_NONCEBYTES + crypto_box_MACBYTES> & ciphertext)
+    {
+        return bytewise :: deserialize <types...> (this->decrypt(from, ciphertext));
+    }
+
+    template <typename... types, std :: enable_if_t <(sizeof...(types) > 0) && (... && bytewise :: constraints :: deserializable <types> ()) && !(... && bytewise :: constraints :: fixed <types> ())> *> auto box :: decrypt(const class publickey & from, const std :: vector <uint8_t> & ciphertext)
+    {
+        return bytewise :: deserialize <types...> (this->decrypt(from, ciphertext));
     }
 };
 
