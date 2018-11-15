@@ -352,7 +352,7 @@ namespace drop
                 item.resize(size);
 
             if constexpr (std :: is_integral <itype> :: value && ((sizeof(itype) == 1) || (endianess :: local == endianess :: network)))
-                memcpy((const uint8_t *) item.data(), writer._visitor.pop(sizeof(itype) * size), sizeof(itype) * size);
+                memcpy((uint8_t *) item.data(), writer._visitor.pop(sizeof(itype) * size), sizeof(itype) * size);
             else
                 for(itype & element : item)
                     visit(writer, element);
