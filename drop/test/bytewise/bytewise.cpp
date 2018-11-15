@@ -365,47 +365,91 @@ namespace
         myfixedclass beta;
         uint8_t gamma = 'x';
 
-        auto data = bytewise :: serialize(alpha, beta, gamma);
+        // Single type
 
-        if(!(std :: is_same <decltype(data), std :: array <uint8_t, 58>> :: value))
-            throw "`serialize` on `uint32_t, myfixedclass, uint8_t` does not return a properly sized `std :: array`.";
-
-        std :: array <uint8_t, 58> reference =
         {
-            99, 0, 0, 0,
-            4, 0, 0, 0,
-            52,
-            11, 0, 0, 0, 22, 0, 0, 0, 33, 0, 0, 0,
-            11, 0, 0, 0, 22, 0, 0, 0, 33, 0, 0, 0,
-            11, 0, 0, 0, 22, 0, 0, 0, 33, 0, 0, 0,
-            11, 0, 0, 0, 22, 0, 0, 0, 33, 0, 0, 0,
-            120
-        };
+            auto data = bytewise :: serialize(beta);
 
-        if(data != reference)
-            throw "`serialize` does not produce the correct sequence of bytes when serializing `uint32_t, myfixedclass, uint8_t`";
+            std :: cout << data << std :: endl;
 
-        lastop = 'X';
-        auto [otheralpha, otherbeta, othergamma] = bytewise :: deserialize <uint32_t, myfixedclass, uint8_t> (data);
+            if(!(std :: is_same <decltype(data), std :: array <uint8_t, 53>> :: value))
+                throw "`serialize` on `myfixedclass` does not return a properly sized `std :: array`.";
 
-        if(lastop != 'B')
-            throw "`deserialize` does not call the `bytewise` constructor of `myfixedclass` even if it is available.";
+            std :: array <uint8_t, 53> reference =
+            {
+                4, 0, 0, 0,
+                52,
+                11, 0, 0, 0, 22, 0, 0, 0, 33, 0, 0, 0,
+                11, 0, 0, 0, 22, 0, 0, 0, 33, 0, 0, 0,
+                11, 0, 0, 0, 22, 0, 0, 0, 33, 0, 0, 0,
+                11, 0, 0, 0, 22, 0, 0, 0, 33, 0, 0, 0
+            };
 
-        if(otheralpha != 99)
-            throw "`deserialize` does not return a `uint32_t` object consistent with what provided to `serialize`.";
+            if(data != reference)
+                throw "`serialize` does not produce the correct sequence of bytes when serializing `myfixedclass`";
 
-        if(
-            otherbeta.i != 4 ||
-            otherbeta.k != 52 ||
-            otherbeta.q[0].a[0] != 11 || otherbeta.q[0].a[1] != 22 || otherbeta.q[0].a[2] != 33 ||
-            otherbeta.q[1].a[0] != 11 || otherbeta.q[1].a[1] != 22 || otherbeta.q[1].a[2] != 33 ||
-            otherbeta.q[2].a[0] != 11 || otherbeta.q[2].a[1] != 22 || otherbeta.q[2].a[2] != 33 ||
-            otherbeta.q[3].a[0] != 11 || otherbeta.q[3].a[1] != 22 || otherbeta.q[3].a[2] != 33
-        )
-            throw "`deserialize` does not return a `myfixedclass` object consistent with what provided to `serialize`.";
+            lastop = 'X';
+            auto otherbeta = bytewise :: deserialize <myfixedclass> (data);
 
-        if(othergamma != 'x')
-            throw "`deserialize` does not return a `uint8_t` object consistent with what provided to `serialize`.";
+            if(lastop != 'B')
+                throw "`deserialize` does not call the `bytewise` constructor of `myfixedclass` even if it is available.";
+
+            if(
+                otherbeta.i != 4 ||
+                otherbeta.k != 52 ||
+                otherbeta.q[0].a[0] != 11 || otherbeta.q[0].a[1] != 22 || otherbeta.q[0].a[2] != 33 ||
+                otherbeta.q[1].a[0] != 11 || otherbeta.q[1].a[1] != 22 || otherbeta.q[1].a[2] != 33 ||
+                otherbeta.q[2].a[0] != 11 || otherbeta.q[2].a[1] != 22 || otherbeta.q[2].a[2] != 33 ||
+                otherbeta.q[3].a[0] != 11 || otherbeta.q[3].a[1] != 22 || otherbeta.q[3].a[2] != 33
+            )
+                throw "`deserialize` does not return a `myfixedclass` object consistent with what provided to `serialize`.";
+        }
+
+        // Variadic
+
+        {
+            auto data = bytewise :: serialize(alpha, beta, gamma);
+
+            if(!(std :: is_same <decltype(data), std :: array <uint8_t, 58>> :: value))
+                throw "`serialize` on `uint32_t, myfixedclass, uint8_t` does not return a properly sized `std :: array`.";
+
+            std :: array <uint8_t, 58> reference =
+            {
+                99, 0, 0, 0,
+                4, 0, 0, 0,
+                52,
+                11, 0, 0, 0, 22, 0, 0, 0, 33, 0, 0, 0,
+                11, 0, 0, 0, 22, 0, 0, 0, 33, 0, 0, 0,
+                11, 0, 0, 0, 22, 0, 0, 0, 33, 0, 0, 0,
+                11, 0, 0, 0, 22, 0, 0, 0, 33, 0, 0, 0,
+                120
+            };
+
+            if(data != reference)
+                throw "`serialize` does not produce the correct sequence of bytes when serializing `uint32_t, myfixedclass, uint8_t`";
+
+            lastop = 'X';
+            auto [otheralpha, otherbeta, othergamma] = bytewise :: deserialize <uint32_t, myfixedclass, uint8_t> (data);
+
+            if(lastop != 'B')
+                throw "`deserialize` does not call the `bytewise` constructor of `myfixedclass` even if it is available.";
+
+            if(otheralpha != 99)
+                throw "`deserialize` does not return a `uint32_t` object consistent with what provided to `serialize`.";
+
+            if(
+                otherbeta.i != 4 ||
+                otherbeta.k != 52 ||
+                otherbeta.q[0].a[0] != 11 || otherbeta.q[0].a[1] != 22 || otherbeta.q[0].a[2] != 33 ||
+                otherbeta.q[1].a[0] != 11 || otherbeta.q[1].a[1] != 22 || otherbeta.q[1].a[2] != 33 ||
+                otherbeta.q[2].a[0] != 11 || otherbeta.q[2].a[1] != 22 || otherbeta.q[2].a[2] != 33 ||
+                otherbeta.q[3].a[0] != 11 || otherbeta.q[3].a[1] != 22 || otherbeta.q[3].a[2] != 33
+            )
+                throw "`deserialize` does not return a `myfixedclass` object consistent with what provided to `serialize`.";
+
+            if(othergamma != 'x')
+                throw "`deserialize` does not return a `uint8_t` object consistent with what provided to `serialize`.";
+        }
     });
 
     $test("bytewise/serialize-deserialize-nonfixed", []
@@ -414,93 +458,173 @@ namespace
         myclass beta;
         uint32_t gamma = 88;
 
-        std :: vector <uint8_t> data = bytewise :: serialize(alpha, beta, gamma);
+        // Single type
 
-        std :: vector <uint8_t> reference =
         {
-            0, 0, 0, 0,
-            1, 0, 0, 0,
-            2, 0, 0, 0,
-            3, 0, 0, 0,
-            4, 0, 0, 0,
-            9, 0, 0, 0,
-            113,
+            std :: vector <uint8_t> data = bytewise :: serialize(beta);
+
+            std :: vector <uint8_t> reference =
+            {
+                9, 0, 0, 0,
+                113,
+                    0, 0, 0, 0,
+                    1, 0, 0, 0,
+                    2, 0, 0, 0,
+                    3, 0, 0, 0,
+                    4, 0, 0, 0,
+                15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0,
+                3,
+                    1, 0, 0, 0,
+                    2, 0, 0, 0,
+                    3, 0, 0, 0,
+                    4, 0, 0, 0,
+                    5, 0, 0, 0,
+                    6, 0, 0, 0,
+                    7, 0, 0, 0,
+                    8, 0, 0, 0,
+                    9, 0, 0, 0,
+                    10, 0, 0, 0,
+                    11, 0, 0, 0,
+                    12, 0, 0, 0,
+                2,
+                    13, 0, 0, 0,
+                    14, 0, 0, 0,
+                    15, 0, 0, 0,
+                    16, 0, 0, 0,
+                    17, 0, 0, 0,
+                    18, 0, 0, 0,
+                    19, 0, 0, 0,
+                    20, 0, 0, 0
+            };
+
+            if(data != reference)
+                throw "`serialize` does not produce the correct sequence of bytes when serializing `myclass`.";
+
+            lastop = 'X';
+            auto otherbeta = bytewise :: deserialize <myclass> (data);
+
+            if(lastop != 'B')
+                throw "`deserialize` does not call the `bytewise` constructor of `myclass` even if it is available.";
+
+            if(
+                otherbeta.i != 9 ||
+                otherbeta.k != 'q' ||
+                otherbeta.q != std :: array <uint8_t, 16> {15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0} ||
+                otherbeta.h != std :: array <std :: vector <std :: array <int32_t, 4>>, 2>
+                {
+                    std :: vector <std :: array <int32_t, 4>>
+                    {
+                        {1, 2, 3, 4},
+                        {5, 6, 7, 8},
+                        {9, 10, 11, 12}
+                    },
+                    std :: vector <std :: array <int32_t, 4>>
+                    {
+                        {13, 14, 15, 16},
+                        {17, 18, 19, 20}
+                    }
+                }
+            )
+                throw "`deserialize` does not return a `myclass` object consistent with what provided to `serialize`.";
+
+        }
+
+        // Variadic
+
+        {
+            std :: vector <uint8_t> data = bytewise :: serialize(alpha, beta, gamma);
+
+            std :: vector <uint8_t> reference =
+            {
                 0, 0, 0, 0,
                 1, 0, 0, 0,
                 2, 0, 0, 0,
                 3, 0, 0, 0,
                 4, 0, 0, 0,
-            15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0,
-            3,
-                1, 0, 0, 0,
-                2, 0, 0, 0,
-                3, 0, 0, 0,
-                4, 0, 0, 0,
-                5, 0, 0, 0,
-                6, 0, 0, 0,
-                7, 0, 0, 0,
-                8, 0, 0, 0,
                 9, 0, 0, 0,
-                10, 0, 0, 0,
-                11, 0, 0, 0,
-                12, 0, 0, 0,
-            2,
-                13, 0, 0, 0,
-                14, 0, 0, 0,
-                15, 0, 0, 0,
-                16, 0, 0, 0,
-                17, 0, 0, 0,
-                18, 0, 0, 0,
-                19, 0, 0, 0,
-                20, 0, 0, 0,
-            88, 0, 0, 0
-        };
+                113,
+                    0, 0, 0, 0,
+                    1, 0, 0, 0,
+                    2, 0, 0, 0,
+                    3, 0, 0, 0,
+                    4, 0, 0, 0,
+                15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0,
+                3,
+                    1, 0, 0, 0,
+                    2, 0, 0, 0,
+                    3, 0, 0, 0,
+                    4, 0, 0, 0,
+                    5, 0, 0, 0,
+                    6, 0, 0, 0,
+                    7, 0, 0, 0,
+                    8, 0, 0, 0,
+                    9, 0, 0, 0,
+                    10, 0, 0, 0,
+                    11, 0, 0, 0,
+                    12, 0, 0, 0,
+                2,
+                    13, 0, 0, 0,
+                    14, 0, 0, 0,
+                    15, 0, 0, 0,
+                    16, 0, 0, 0,
+                    17, 0, 0, 0,
+                    18, 0, 0, 0,
+                    19, 0, 0, 0,
+                    20, 0, 0, 0,
+                88, 0, 0, 0
+            };
 
-        if(data != reference)
-            throw "`serialize` does not produce the correct sequence of bytes when serializing `myotherclass, myclass, uint32_t`.";
+            if(data != reference)
+                throw "`serialize` does not produce the correct sequence of bytes when serializing `myotherclass, myclass, uint32_t`.";
 
-        lastop = 'X';
-        auto [otheralpha, otherbeta, othergamma] = bytewise :: deserialize <myotherclass, myclass, uint32_t> (data);
+            lastop = 'X';
+            auto [otheralpha, otherbeta, othergamma] = bytewise :: deserialize <myotherclass, myclass, uint32_t> (data);
 
-        if(lastop != 'B')
-            throw "`deserialize` does not call the `bytewise` constructor of `myclass` even if it is available.";
+            if(lastop != 'B')
+                throw "`deserialize` does not call the `bytewise` constructor of `myclass` even if it is available.";
 
-        if(
-            otherbeta.i != 9 ||
-            otherbeta.k != 'q' ||
-            otherbeta.q != std :: array <uint8_t, 16> {15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0} ||
-            otherbeta.h != std :: array <std :: vector <std :: array <int32_t, 4>>, 2>
-            {
-                std :: vector <std :: array <int32_t, 4>>
+            if(
+                otherbeta.i != 9 ||
+                otherbeta.k != 'q' ||
+                otherbeta.q != std :: array <uint8_t, 16> {15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0} ||
+                otherbeta.h != std :: array <std :: vector <std :: array <int32_t, 4>>, 2>
                 {
-                    {1, 2, 3, 4},
-                    {5, 6, 7, 8},
-                    {9, 10, 11, 12}
-                },
-                std :: vector <std :: array <int32_t, 4>>
-                {
-                    {13, 14, 15, 16},
-                    {17, 18, 19, 20}
+                    std :: vector <std :: array <int32_t, 4>>
+                    {
+                        {1, 2, 3, 4},
+                        {5, 6, 7, 8},
+                        {9, 10, 11, 12}
+                    },
+                    std :: vector <std :: array <int32_t, 4>>
+                    {
+                        {13, 14, 15, 16},
+                        {17, 18, 19, 20}
+                    }
                 }
+            )
+                throw "`deserialize` method does not return a `myclass` object consistent with what provided to `serialize`.";
+
+            if(othergamma != 88)
+                throw "`deserialize` method does not return a `uint32_t` object consistent with what provided to `serialize`.";
+        }
+
+        // Exception
+
+        {
+
+            bool thrown = false;
+
+            try
+            {
+                bytewise :: deserialize <myclass> (std :: vector <uint8_t> {});
             }
-        )
-            throw "`deserialize` method does not return a `myclass` object consistent with what provided to `serialize`.";
+            catch(exception <buffer_error, out_of_range> &)
+            {
+                thrown = true;
+            }
 
-        if(othergamma != 88)
-            throw "`deserialize` method does not return a `uint32_t` object consistent with what provided to `serialize`.";
-
-        bool thrown = false;
-
-        try
-        {
-            bytewise :: deserialize <myclass> (std :: vector <uint8_t> {});
+            if(!thrown)
+                throw "Providing `deserialize` with an empty data buffer does not yield an exception.";
         }
-        catch(exception <buffer_error, out_of_range> &)
-        {
-            thrown = true;
-        }
-
-        if(!thrown)
-            throw "Providing `deserialize` with an empty data buffer does not yield an exception.";
     });
 };
