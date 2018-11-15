@@ -29,7 +29,7 @@ namespace drop
         std :: array <uint8_t, size - crypto_secretbox_MACBYTES> plaintext;
 
         if(crypto_secretbox_open_easy(plaintext.data(), ciphertext.data(), size, this->_nonce.data(), this->_key.data()))
-            exception <sodium, decryption_failed> :: raise(this);
+            exception <decryption_failed, mac_mismatch> :: raise(this);
 
         return plaintext;
     }

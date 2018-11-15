@@ -5,6 +5,8 @@ namespace drop
     // Tags
 
     class decryption_failed;
+    class message_too_short;
+    class mac_mismatch;
 
     // Classes
 
@@ -17,12 +19,6 @@ namespace drop
 // Library
 
 #include <sodium.h>
-
-// Forward includes
-
-#define __forward__
-#include "crypto/sodium.h"
-#undef __forward__
 
 // Includes
 
@@ -85,7 +81,10 @@ namespace drop
         // Methods
 
         template <size_t size> std :: array <uint8_t, size + crypto_secretbox_MACBYTES> encrypt(const std :: array <uint8_t, size> &);
+        std :: vector <uint8_t> encrypt(const std :: vector <uint8_t> &);
+
         template <size_t size, std :: enable_if_t <(size >= crypto_secretbox_MACBYTES)> * = nullptr> std :: array <uint8_t, size - crypto_secretbox_MACBYTES> decrypt(const std :: array <uint8_t, size> &);
+        std :: vector <uint8_t> decrypt(const std :: vector <uint8_t> &);
 
         // Operators
 
