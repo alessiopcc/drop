@@ -14,6 +14,11 @@ namespace
 
     using namespace drop;
 
+    template <typename type> void printtype(const type &)
+    {
+        std :: cout << __PRETTY_FUNCTION__ << std :: endl;
+    }
+
     // Tests
 
     $test("channel/develop", []
@@ -21,23 +26,19 @@ namespace
         channel alice;
         channel bob(alice.key(), alice.nonce());
 
-        std :: vector <uint32_t> original = {1, 2, 3, 4, 5};
+        uint32_t alpha = 99;
+        uint32_t beta = 14;
+        uint32_t gamma = 6;
+        std :: vector <uint32_t> delta = {1, 2};
 
-        auto plaintext = bytewise :: serialize(original);
-        auto ciphertext = alice.encrypt(plaintext);
+        auto ciphertext = alice.encrypt(alpha, beta, gamma, delta);
+        auto [otheralpha, otherbeta, othergamma, otherdelta] = bob.decrypt <uint32_t, uint32_t, uint32_t, std :: vector <uint32_t>> (ciphertext);
 
-        auto recovered = bob.decrypt(ciphertext);
-        auto delivered = bytewise :: deserialize <std :: vector <uint32_t>> (recovered);
+        std :: cout << otheralpha << std :: endl;
+        std :: cout << otherbeta << std :: endl;
+        std :: cout << othergamma << std :: endl;
 
-        std :: cout << alice.key() << std :: endl;
-        std :: cout << plaintext << std :: endl;
-        std :: cout << ciphertext << std :: endl;
-        std :: cout << recovered << std :: endl;
-
-        std :: cout << delivered[0] << std :: endl;
-        std :: cout << delivered[1] << std :: endl;
-        std :: cout << delivered[2] << std :: endl;
-        std :: cout << delivered[3] << std :: endl;
-        std :: cout << delivered[4] << std :: endl;
+        std :: cout << otherdelta[0] << std :: endl;
+        std :: cout << otherdelta[1] << std :: endl;
     });
 };
