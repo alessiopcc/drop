@@ -72,6 +72,9 @@ namespace drop
         if constexpr (stltraits :: vector <type> :: value)
             return readable <typename stltraits :: vector <type> :: type, vtype> ();
 
+        if constexpr (std :: is_same <type, std :: string> :: value)
+            return true;
+
         if constexpr (std :: is_integral <type> :: value)
             return true;
 
@@ -91,6 +94,9 @@ namespace drop
 
         if constexpr (stltraits :: vector <type> :: value)
             return constructible <typename stltraits :: vector <type> :: type> () && writable <typename stltraits :: vector <type> :: type, vtype> ();
+
+        if constexpr (std :: is_same <type, std :: string> :: value)
+            return true;
 
         if constexpr (std :: is_integral <type> :: value)
             return true;
@@ -301,6 +307,14 @@ namespace drop
             return;
         }
 
+        if constexpr (std :: is_same <type, std :: string> :: value)
+        {
+            visit(reader, varint(item.size()));
+            reader._visitor.update((const uint8_t *) item.c_str(), item.size());
+
+            return;
+        }
+
         if constexpr (std :: is_integral <type> :: value)
         {
             auto swap = endianess :: translate(item);
@@ -356,6 +370,17 @@ namespace drop
             else
                 for(itype & element : item)
                     visit(writer, element);
+
+            return;
+        }
+
+        if constexpr (std :: is_same <type, std :: string> :: value)
+        {
+            varint size;
+            visit(writer, size);
+
+            item.resize(size);
+            memcpy((uint8_t *) item.c_str(), writer._visitor.pop(size), size);
 
             return;
         }

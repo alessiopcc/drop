@@ -72,6 +72,8 @@ namespace
             }
         };
 
+        std :: string s = "RAIN rules!";
+
         // Bytewise
 
         $bytewise(i);
@@ -79,6 +81,7 @@ namespace
         $bytewise(m);
         $bytewise(q);
         $bytewise(h);
+        $bytewise(s);
 
         // Constructors
 
@@ -87,7 +90,7 @@ namespace
             lastop = 'C';
         }
 
-        myclass(bytewise) : i(0), k(0), q{}, h{}
+        myclass(bytewise) : i(0), k(0), q{}, h{}, s("")
         {
             lastop = 'B';
         }
@@ -323,7 +326,9 @@ namespace
                 17, 0, 0, 0,
                 18, 0, 0, 0,
                 19, 0, 0, 0,
-                20, 0, 0, 0
+                20, 0, 0, 0,
+            11,
+                'R', 'A', 'I', 'N', ' ', 'r', 'u', 'l', 'e', 's', '!'
         };
 
         if((reader.size != reference.size()) || memcmp(reader.data, reference.data(), reference.size()))
@@ -354,7 +359,8 @@ namespace
                     {13, 14, 15, 16},
                     {17, 18, 19, 20}
                 }
-            }
+            } ||
+            otheritem.s != "RAIN rules!"
         )
             throw "`write` method does not produce an object consistent with what provided to `read`.";
     });
@@ -369,8 +375,6 @@ namespace
 
         {
             auto data = bytewise :: serialize(beta);
-
-            std :: cout << data << std :: endl;
 
             if(!(std :: is_same <decltype(data), std :: array <uint8_t, 53>> :: value))
                 throw "`serialize` on `myfixedclass` does not return a properly sized `std :: array`.";
@@ -494,7 +498,9 @@ namespace
                     17, 0, 0, 0,
                     18, 0, 0, 0,
                     19, 0, 0, 0,
-                    20, 0, 0, 0
+                    20, 0, 0, 0,
+                11,
+                    'R', 'A', 'I', 'N', ' ', 'r', 'u', 'l', 'e', 's', '!'
             };
 
             if(data != reference)
@@ -523,7 +529,8 @@ namespace
                         {13, 14, 15, 16},
                         {17, 18, 19, 20}
                     }
-                }
+                } ||
+                otherbeta.s != "RAIN rules!"
             )
                 throw "`deserialize` does not return a `myclass` object consistent with what provided to `serialize`.";
 
@@ -571,6 +578,8 @@ namespace
                     18, 0, 0, 0,
                     19, 0, 0, 0,
                     20, 0, 0, 0,
+                11,
+                    'R', 'A', 'I', 'N', ' ', 'r', 'u', 'l', 'e', 's', '!',
                 88, 0, 0, 0
             };
 
@@ -600,7 +609,8 @@ namespace
                         {13, 14, 15, 16},
                         {17, 18, 19, 20}
                     }
-                }
+                } ||
+                otherbeta.s != "RAIN rules!"
             )
                 throw "`deserialize` method does not return a `myclass` object consistent with what provided to `serialize`.";
 

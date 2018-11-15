@@ -23,6 +23,7 @@ namespace drop
 #include <vector>
 #include <tuple>
 #include <stdint.h>
+#include <string.h>
 
 // Includes
 
