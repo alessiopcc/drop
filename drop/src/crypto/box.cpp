@@ -29,7 +29,7 @@ namespace drop
 
     // Methods
 
-    std :: vector <uint8_t> box :: encrypt(const class publickey & to, const std :: vector <uint8_t> & plaintext)
+    std :: vector <uint8_t> box :: encrypt(const class publickey & to, const std :: vector <uint8_t> & plaintext) const
     {
         std :: vector <uint8_t> ciphertext(plaintext.size() + crypto_secretbox_NONCEBYTES + crypto_secretbox_MACBYTES);
 
@@ -41,7 +41,7 @@ namespace drop
         return ciphertext;
     }
 
-    std :: vector <uint8_t> box :: decrypt(const class publickey & from, const std :: vector <uint8_t> & ciphertext)
+    std :: vector <uint8_t> box :: decrypt(const class publickey & from, const std :: vector <uint8_t> & ciphertext) const
     {
         if(ciphertext.size() < crypto_secretbox_NONCEBYTES + crypto_secretbox_MACBYTES)
             exception <decryption_failed, message_too_short> :: raise(this);
