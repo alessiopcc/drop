@@ -129,9 +129,6 @@ namespace drop
         if constexpr (stltraits :: array <type> :: value)
             return std :: is_integral <typename stltraits :: array <type> :: type> :: value;
 
-        if constexpr (std :: is_same <type, std :: string> :: value)
-            return true;
-
         if constexpr (std :: is_integral <type> :: value)
             return true;
 
