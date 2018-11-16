@@ -276,8 +276,8 @@ namespace
         if(!(bytewise :: constraints :: oneshot <std :: array <uint8_t, 44>> ()))
             throw "`std :: array <uint8_t, 44>` is not oneshot.";
 
-        if(!(bytewise :: constraints :: oneshot <std :: vector <uint64_t>> ()))
-            throw "`uint64_t` is not oneshot.";
+        if(bytewise :: constraints :: oneshot <std :: vector <uint64_t>> ())
+            throw "`std :: vector <uint64_t>` is oneshot.";
 
         if(bytewise :: constraints :: readable <empty, myreader> ())
             throw "`empty` is `myreader` readable";
