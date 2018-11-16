@@ -68,6 +68,7 @@ namespace drop
             template <typename, typename> static constexpr bool writable();
 
             template <typename> static constexpr bool fixed();
+            template <typename> static constexpr bool oneshot();
 
             template <typename> static constexpr bool reader();
             template <typename> static constexpr bool writer();

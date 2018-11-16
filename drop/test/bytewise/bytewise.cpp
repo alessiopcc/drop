@@ -153,6 +153,28 @@ namespace
         $bytewise(e);
     };
 
+    class otheroneshot
+    {
+        // Members
+
+        std :: array <uint8_t, 32> a;
+
+        // Bytewise
+
+        $bytewise(a);
+    };
+
+    class oneshot
+    {
+        // Members
+
+        otheroneshot x;
+
+        // Bytewise
+
+        $bytewise(x);
+    };
+
     class myreader
     {
     public:
@@ -238,6 +260,24 @@ namespace
 
         if(bytewise :: constraints :: fixed <empty> ())
             throw "`empty` is fixed.";
+
+        if(!(bytewise :: constraints :: oneshot <oneshot> ()))
+            throw "`oneshot` is not oneshot.";
+
+        if(!(bytewise :: constraints :: oneshot <otheroneshot> ()))
+            throw "`otheroneshot` is not oneshot.";
+
+        if(!(bytewise :: constraints :: oneshot <std :: string> ()))
+            throw "`std :: string` is not oneshot.";
+
+        if(!(bytewise :: constraints :: oneshot <uint32_t> ()))
+            throw "`uint32_t` is not oneshot.";
+
+        if(!(bytewise :: constraints :: oneshot <std :: array <uint8_t, 44>> ()))
+            throw "`std :: array <uint8_t, 44>` is not oneshot.";
+
+        if(!(bytewise :: constraints :: oneshot <std :: vector <uint64_t>> ()))
+            throw "`uint64_t` is not oneshot.";
 
         if(bytewise :: constraints :: readable <empty, myreader> ())
             throw "`empty` is `myreader` readable";

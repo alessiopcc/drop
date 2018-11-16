@@ -118,6 +118,29 @@ namespace drop
         return false;
     }
 
+    template <typename type> constexpr bool bytewise :: constraints :: oneshot()
+    {
+        if constexpr (introspection :: count <type, bytewise> () == 1)
+        {
+            typedef std :: remove_reference_t <decltype(introspection :: template get <bytewise, 0> (std :: declval <type &> ()))> mtype;
+            return oneshot <mtype> ();
+        }
+
+        if constexpr (stltraits :: array <type> :: value)
+            return std :: is_integral <typename stltraits :: array <type> :: type> :: value;
+
+        if constexpr (stltraits :: vector <type> :: value)
+            return std :: is_integral <typename stltraits :: vector <type> :: type> :: value;
+
+        if constexpr (std :: is_same <type, std :: string> :: value)
+            return true;
+
+        if constexpr (std :: is_integral <type> :: value)
+            return true;
+
+        return false;
+    }
+
     template <typename type> constexpr bool bytewise :: constraints :: reader()
     {
         return $expression($type(type).update($type(const uint8_t *), $type(const size_t &)));
