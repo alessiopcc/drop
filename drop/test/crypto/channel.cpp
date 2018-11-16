@@ -14,11 +14,6 @@ namespace
 
     using namespace drop;
 
-    template <typename type> void printtype(const type &)
-    {
-        std :: cout << __PRETTY_FUNCTION__ << std :: endl;
-    }
-
     // Tests
 
     $test("channel/develop", []
