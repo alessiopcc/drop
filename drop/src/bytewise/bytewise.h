@@ -31,7 +31,6 @@ namespace drop
 #include "introspection/introspection.h"
 #include "concept/expression.h"
 #include "concept/stltraits.h"
-#include "data/variant.h"
 #include "utils/parameters.h"
 #include "utils/iterators.h"
 

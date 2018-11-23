@@ -7,10 +7,10 @@
 #include "bytewise/endianess.hpp"
 #include "introspection/introspection.hpp"
 #include "concept/expression.hpp"
-#include "data/variant.hpp"
 #include "data/varint.hpp"
 #include "utils/parameters.hpp"
 #include "utils/iterators.hpp"
+#include "exception/exception.hpp"
 
 namespace drop
 {

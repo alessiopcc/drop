@@ -5,7 +5,9 @@ namespace drop
     // Tags
 
     class bad_access;
+    class write_failed;
     class type_mismatch;
+    class malformed_type;
 
     // Classes
 
@@ -28,6 +30,7 @@ namespace drop
 #include "utils/math.hpp"
 #include "concept/callable.h"
 #include "utils/enablers.h"
+#include "bytewise/bytewise.hpp"
 
 namespace drop
 {
@@ -102,6 +105,11 @@ namespace drop
 
     public:
 
+        // Bytewise
+
+        template <typename atype, std :: enable_if_t <(sizeof(atype) >= 0) && (... && bytewise :: constraints :: readable <types, atype> ())> * = nullptr> void accept(bytewise :: reader <atype> &) const;
+        template <typename atype, std :: enable_if_t <(sizeof(atype) >= 0) && (... && bytewise :: constraints :: constructible <types> ()) && (... && bytewise :: constraints :: writable <types, atype> ())> * = nullptr> void accept(bytewise :: writer <atype> &);
+
         // Getters
 
         template <typename type, std :: enable_if_t <constraints :: template defined <type> ()> * = nullptr> type & get();
@@ -124,6 +132,8 @@ namespace drop
     private:
 
         // Private methods
+
+        template <typename type, typename... tail, typename lambda> void scaffold(const uint8_t &, lambda &&);
 
         template <typename type, typename... tail, typename lambda> void unwrap(lambda &&);
         template <typename type, typename... tail, typename lambda> void unwrap(lambda &&) const;

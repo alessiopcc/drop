@@ -141,6 +141,45 @@ namespace drop
        });
     }
 
+    // Bytewise
+
+    template <typename... types> template <typename atype, std :: enable_if_t <(sizeof(atype) >= 0) && (... && bytewise :: constraints :: readable <types, atype> ())> *> void base <variant <types...>> :: accept(bytewise :: reader <atype> & reader) const
+    {
+        reader.visit(this->_typeid);
+
+        this->unwrap <types...> ([&](const auto & value)
+        {
+            reader.visit(value);
+        });
+    }
+
+    template <typename... types> template <typename atype, std :: enable_if_t <(sizeof(atype) >= 0) && (... && bytewise :: constraints :: constructible <types> ()) && (... && bytewise :: constraints :: writable <types, atype> ())> *> void base <variant <types...>> :: accept(bytewise :: writer <atype> & writer)
+    {
+        uint8_t tid;
+        writer.visit(tid);
+
+        if(tid > sizeof...(types))
+            exception <write_failed, malformed_type> :: raise(this);
+
+        if(this->_typeid != tid)
+        {
+            this->~base();
+
+            if(tid)
+                this->scaffold <types...> (tid, [&](auto & value)
+                {
+                    writer.visit(value);
+                });
+            else
+                this->_typeid = 0;
+        }
+        else
+            this->unwrap <types...> ([&](auto & value)
+            {
+                writer.visit(value);
+            });
+    }
+
     // Getters
 
     template <typename... types> template <typename type, std :: enable_if_t <base <variant <types...>> :: constraints :: template defined <type> ()> *> type & base <variant <types...>> :: get()
@@ -221,6 +260,26 @@ namespace drop
     }
 
     // Private methods
+
+    template <typename... types> template <typename type, typename... tail, typename lambda> void base <variant <types...>> :: scaffold(const uint8_t & tid, lambda && callback)
+    {
+        if(tid == 1)
+        {
+            this->_typeid = index <type, types...> ();
+
+            if constexpr (std :: is_constructible <type, bytewise> :: value)
+                new (&(this->_value)) type(bytewise{});
+            else
+                new (&(this->_value)) type();
+
+            callback(this->reinterpret <type> ());
+
+            return;
+        }
+
+        if constexpr (sizeof...(tail) > 0)
+            this->scaffold <tail...> (tid - 1, callback);
+    }
 
     template <typename... types> template <typename type, typename... tail, typename lambda> void base <variant <types...>> :: unwrap(lambda && callback)
     {

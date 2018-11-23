@@ -20,7 +20,7 @@ namespace
     {
     public:
 
-        // Methods
+        // Bytewise
 
         template <typename vtype> void accept(bytewise :: reader <vtype> & reader) const
         {

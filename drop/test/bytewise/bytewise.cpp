@@ -26,7 +26,7 @@ namespace
     {
     public:
 
-        // Bytewise interface
+        // Bytewise
 
         template <typename vtype> void accept(bytewise :: reader <vtype> & reader) const
         {

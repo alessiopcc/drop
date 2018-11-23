@@ -31,7 +31,7 @@ namespace drop
         varint() = default;
         varint(const uint32_t &);
 
-        // Methods
+        // Bytewise
 
         template <typename vtype> void accept(bytewise :: reader <vtype> &) const;
         template <typename vtype> void accept(bytewise :: writer <vtype> &);
