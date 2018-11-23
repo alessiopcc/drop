@@ -24,7 +24,7 @@ pipeline {
     }
     post { 
         always {
-            telegramSend '*' + JOB_NAME + ' ' + currentBuild.currentResult + '*\n' +  BUILD_URL
+            telegramSend '*' + JOB_NAME.replaceAll('%2F', '/') + ' ' + currentBuild.currentResult + '*\n' +  BUILD_URL
         }
     }
 }
