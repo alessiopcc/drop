@@ -22,4 +22,9 @@ pipeline {
             }
         }
     }
+    post { 
+        always {
+            telegramSend '*' + JOB_NAME + ' ' + currentBuild.currentResult + '*\n' +  BUILD_URL
+        }
+    }
 }
