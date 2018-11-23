@@ -267,8 +267,8 @@ namespace
         if(!(bytewise :: constraints :: oneshot <otheroneshot> ()))
             throw "`otheroneshot` is not oneshot.";
 
-        if(!(bytewise :: constraints :: oneshot <std :: string> ()))
-            throw "`std :: string` is not oneshot.";
+        if((bytewise :: constraints :: oneshot <std :: string> ()))
+            throw "`std :: string` is oneshot.";
 
         if(!(bytewise :: constraints :: oneshot <uint32_t> ()))
             throw "`uint32_t` is not oneshot.";
