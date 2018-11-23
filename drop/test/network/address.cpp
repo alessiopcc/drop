@@ -18,5 +18,7 @@ namespace
 
     $test("address/develop", []
     {
+        address my_address("127.0.0.1", 1234);
+        std :: cout << my_address.ip() << std :: endl;
     });
 };
