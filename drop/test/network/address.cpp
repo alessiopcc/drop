@@ -18,5 +18,7 @@ namespace
 
     $test("address/develop", []
     {
+        for(auto ip : address :: ip :: local())
+            std :: cout << ip << std :: endl;
     });
 };

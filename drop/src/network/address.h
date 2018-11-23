@@ -21,7 +21,10 @@ namespace drop
 #include <netdb.h>
 #include <sys/param.h>
 #include <netinet/in.h>
+#include <ifaddrs.h>
+#include <net/if.h>
 #include <iostream>
+#include <vector>
 
 // Includes
 
@@ -62,6 +65,11 @@ namespace drop
 
         class ip ip() const;
         class port port() const;
+
+        // Methods
+
+        template <typename... lambdas, std :: enable_if_t <variant <sockaddr_in, sockaddr_in6> :: constraints :: match <false, lambdas...> ()> * = nullptr> void match(lambdas && ...);
+        template <typename... lambdas, std :: enable_if_t <variant <sockaddr_in, sockaddr_in6> :: constraints :: match <true, lambdas...> ()> * = nullptr> void match(lambdas && ...) const;
     };
 
     class address :: ip
@@ -69,11 +77,10 @@ namespace drop
         // Friends
 
         friend class address;
-        friend std :: ostream & operator << (std :: ostream &, const ip &);
 
         // Members
 
-        variant <in_addr, in6_addr> _ip;
+        variant <in_addr, in6_addr> _addr;
 
     public:
 
@@ -82,6 +89,18 @@ namespace drop
         ip();
         ip(const char *);
         ip(const address &);
+
+        ip(const in_addr &);
+        ip(const in6_addr &);
+
+        // Methods
+
+        template <typename... lambdas, std :: enable_if_t <variant <in_addr, in6_addr> :: constraints :: match <false, lambdas...> ()> * = nullptr> void match(lambdas && ...);
+        template <typename... lambdas, std :: enable_if_t <variant <in_addr, in6_addr> :: constraints :: match <true, lambdas...> ()> * = nullptr> void match(lambdas && ...) const;
+
+        // Static methods
+
+        static std :: vector <ip> local(const uint32_t & = 0);
 
     private:
 
@@ -96,7 +115,6 @@ namespace drop
         // Friends
 
         friend class address;
-        friend std :: ostream & operator << (std :: ostream &, const port &);
 
         // Members
 
@@ -109,6 +127,10 @@ namespace drop
         port();
         port(const uint16_t &);
         port(const address &);
+
+        // Casting
+
+        explicit operator uint16_t () const;
     };
 
     // Ostream integration

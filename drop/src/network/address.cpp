@@ -23,7 +23,7 @@ namespace drop
 
     address :: address(const class ip & ip, const class port & port, const uint32_t & scope)
     {
-        ip._ip.match([&](const in_addr & ip)
+        ip._addr.match([&](const in_addr & ip)
         {
             sockaddr_in sockaddr;
             sockaddr.sin_family = AF_INET;
@@ -76,20 +76,51 @@ namespace drop
     address :: ip :: ip(const char * presentation)
     {
         if(version(presentation) == AF_INET)
-            this->_ip = pton <in_addr> (presentation);
+            this->_addr = pton <in_addr> (presentation);
         else
-            this->_ip = pton <in6_addr> (presentation);
+            this->_addr = pton <in6_addr> (presentation);
     }
 
     address :: ip :: ip(const address & address)
     {
         address._sockaddr.match([&](const sockaddr_in & sockaddr)
         {
-            this->_ip = sockaddr.sin_addr;
+            this->_addr = sockaddr.sin_addr;
         }, [&](const sockaddr_in6 & sockaddr)
         {
-            this->_ip = sockaddr.sin6_addr;
+            this->_addr = sockaddr.sin6_addr;
         });
+    }
+
+    address :: ip :: ip(const in_addr & addr) : _addr(addr)
+    {
+    }
+
+    address :: ip :: ip(const in6_addr & addr) : _addr(addr)
+    {
+    }
+
+    // Static methods
+
+    std :: vector <class address :: ip> address :: ip :: local(const uint32_t & scope)
+    {
+        std :: vector <ip> addresses;
+
+        struct ifaddrs * interfaces;
+        getifaddrs(&interfaces);
+
+        for(struct ifaddrs * interface = interfaces; interface; interface = interface->ifa_next)
+            if((interface->ifa_flags & IFF_UP) && !(interface->ifa_flags & IFF_LOOPBACK) && !(interface->ifa_flags & IFF_POINTOPOINT))
+            {
+                if(interface->ifa_addr->sa_family == AF_INET)
+                    addresses.push_back(((sockaddr_in *) (interface->ifa_addr))->sin_addr);
+                else if((interface->ifa_addr->sa_family == AF_INET6) && ((sockaddr_in6 *) (interface->ifa_addr))->sin6_scope_id == scope)
+                    addresses.push_back(((sockaddr_in6 *) (interface->ifa_addr))->sin6_addr);
+            }
+
+        freeifaddrs(interfaces);
+
+        return addresses;
     }
 
     // Private static methods
@@ -146,18 +177,37 @@ namespace drop
         });
     }
 
+    // Casting
+
+    address :: port :: operator uint16_t () const
+    {
+        return ntohs(this->_port);
+    }
+
     // Ostream integration
 
     std :: ostream & operator << (std :: ostream & out, const address & address)
     {
-        return out << "([" << address.ip() << "]:" << address.port() << ")";
+        char presentation[INET6_ADDRSTRLEN];
+
+        address.match([&](const sockaddr_in & sockaddr)
+        {
+            inet_ntop(AF_INET, &(sockaddr.sin_addr), presentation, INET6_ADDRSTRLEN);
+            out << "(" << presentation << ":" << ntohs(sockaddr.sin_port) << ")";
+        }, [&](const sockaddr_in6 & sockaddr)
+        {
+            inet_ntop(AF_INET6, &(sockaddr.sin6_addr), presentation, INET6_ADDRSTRLEN);
+            out << "([" << presentation << "]:" << ntohs(sockaddr.sin6_port) << ")";
+        });
+
+        return out;
     }
 
     std :: ostream & operator << (std :: ostream & out, const class address :: ip & ip)
     {
         char presentation[INET6_ADDRSTRLEN];
 
-        ip._ip.match([&](const in_addr & ip)
+        ip.match([&](const in_addr & ip)
         {
             inet_ntop(AF_INET, &ip, presentation, INET6_ADDRSTRLEN);
         }, [&](const in6_addr & ip)
@@ -165,11 +215,11 @@ namespace drop
             inet_ntop(AF_INET6, &ip, presentation, INET6_ADDRSTRLEN);
         });
 
-        return (out << presentation);
+        return (out << "(" << presentation << ")");
     }
 
     std :: ostream & operator << (std :: ostream & out, const class address :: port & port)
     {
-        return out << ntohs(port._port);
+        return out << ((uint16_t) port);
     }
 };
