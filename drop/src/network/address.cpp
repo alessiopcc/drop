@@ -92,6 +92,37 @@ namespace drop
         });
     }
 
+    address :: ip :: ip(const in_addr & addr) : _addr(addr)
+    {
+    }
+
+    address :: ip :: ip(const in6_addr & addr) : _addr(addr)
+    {
+    }
+
+    // Static methods
+
+    std :: vector <class address :: ip> address :: ip :: local(const uint32_t & scope)
+    {
+        std :: vector <ip> addresses;
+
+        struct ifaddrs * interfaces;
+        getifaddrs(&interfaces);
+
+        for(struct ifaddrs * interface = interfaces; interface; interface = interface->ifa_next)
+            if((interface->ifa_flags & IFF_UP) && !(interface->ifa_flags & IFF_LOOPBACK) && !(interface->ifa_flags & IFF_POINTOPOINT))
+            {
+                if(interface->ifa_addr->sa_family == AF_INET)
+                    addresses.push_back(((sockaddr_in *) (interface->ifa_addr))->sin_addr);
+                else if((interface->ifa_addr->sa_family == AF_INET6) && ((sockaddr_in6 *) (interface->ifa_addr))->sin6_scope_id == scope)
+                    addresses.push_back(((sockaddr_in6 *) (interface->ifa_addr))->sin6_addr);
+            }
+
+        freeifaddrs(interfaces);
+
+        return addresses;
+    }
+
     // Private static methods
 
     int address :: ip :: version(const char * presentation)

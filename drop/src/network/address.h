@@ -21,7 +21,10 @@ namespace drop
 #include <netdb.h>
 #include <sys/param.h>
 #include <netinet/in.h>
+#include <ifaddrs.h>
+#include <net/if.h>
 #include <iostream>
+#include <vector>
 
 // Includes
 
@@ -87,12 +90,17 @@ namespace drop
         ip(const char *);
         ip(const address &);
 
-        // Methods
+        ip(const in_addr &);
+        ip(const in6_addr &);
 
         // Methods
 
         template <typename... lambdas, std :: enable_if_t <variant <in_addr, in6_addr> :: constraints :: match <false, lambdas...> ()> * = nullptr> void match(lambdas && ...);
         template <typename... lambdas, std :: enable_if_t <variant <in_addr, in6_addr> :: constraints :: match <true, lambdas...> ()> * = nullptr> void match(lambdas && ...) const;
+
+        // Static methods
+
+        static std :: vector <ip> local(const uint32_t & = 0);
 
     private:
 
