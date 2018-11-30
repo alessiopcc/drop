@@ -16,21 +16,23 @@ namespace
 
     // Tests
 
-    $test("keyexchanger/develop", []
+    $test("keyexchanger", []
     {
         keyexchanger alice;
         keyexchanger bob;
+        keyexchanger charlie(alice.publickey(), alice.secretkey());
 
-        std :: cout << "Alice pubkey: " << alice.publickey() << std :: endl;
-        std :: cout << "Bob pubkey: " << bob.publickey() << std :: endl << std :: endl;
+        if(alice.publickey() == bob.publickey() || alice.secretkey() == bob.secretkey())
+            throw "`keyexchanger` generates same keys twice in a row.";
+        if(alice.publickey() != charlie.publickey() || alice.secretkey() != charlie.secretkey())
+            throw "`keyexchanger` initilaized with the wrong keys.";
 
         auto alicekp = alice.exchange(bob.publickey());
         auto bobkp = bob.exchange(alice.publickey());
 
-        std :: cout << "Alice RX: " << alicekp.receive << std :: endl;
-        std :: cout << "Alice TX: " << alicekp.transmit << std :: endl << std :: endl;
-
-        std :: cout << "Bob RX: " << bobkp.receive << std :: endl;
-        std :: cout << "Bob TX: " << bobkp.transmit << std :: endl << std :: endl;
+        if(alicekp.receive != bobkp.transmit)
+            throw "Alice received something different than what Bob transmitted.";
+        if(alicekp.transmit != bobkp.receive)
+            throw "Bob received something different than what Alice transmitted.";
     });
 };
