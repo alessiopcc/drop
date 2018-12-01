@@ -90,11 +90,6 @@ namespace
 
     // Tests
 
-    /* TODO
-
-    exception <decryption_failed, message_too_short>
-    */
-
     $test("channel/key", []
     {
         auto mykey = channel :: key :: random();
@@ -255,7 +250,7 @@ namespace
                 thrown = true;
             }
             if(!thrown)
-                throw "Decrypting does not throw an exception in case an invalid (too short) ciphertext.";
+            throw "Decrypting with the wrong non-sinchronized nonce does not throw an exception.";
 
             auto wrongkey = channel(channel :: key :: random (), alice.nonce());
             thrown = false;
@@ -281,7 +276,7 @@ namespace
                 thrown = true;
             }
             if(!thrown)
-                throw "Decrypting with the wrong key does not throw an exception.";
+                throw "Decrypting with the wrong nonce does not throw an exception.";
 
             auto tooshort = std :: vector <uint8_t> {0, 0, 0};
             thrown = false;
