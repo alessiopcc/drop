@@ -188,9 +188,9 @@ namespace
             auto b = samekey.encrypt(1);
             auto c = copy.encrypt(1);
             if(a == b)
-                throw "`encrypt` the same value with the same key but different nonce gives the same output.";
+                throw "Encrypting the same value with the same key but different nonce gives the same output.";
             if(a != c)
-                throw "`encrypt` the same value with the same key and nonce gives different output.";
+                throw "Encrypting the same value with the same key and nonce gives different output.";
 
             b = base.encrypt(1);
             c = copy.encrypt(2);
@@ -209,9 +209,9 @@ namespace
             auto b = samekey.encrypt(std::vector <char> {'r', 'a', 'i', 'n'}, myclass());
             auto c = copy.encrypt(std::vector <char> {'r', 'a', 'i', 'n'}, myclass());
             if(a == b)
-                throw "`encrypt` same objects with the same key but different nonce gives the same output.";
+                throw "Encrypting the same objects with the same key but different nonce gives the same output.";
             if(a != c)
-                throw "`encrypt` same objects with the same key and nonce gives different output.";
+                throw "Encrypting the same objects with the same key and nonce gives different output.";
 
             b = base.encrypt(std::vector <char> {'r', 'a', 'i', 'n'}, myclass());
             c = copy.encrypt(std::vector <char> {'R', 'a', 'i', 'n'}, myclass());
@@ -230,7 +230,7 @@ namespace
         {
             auto ciphertext = alice.encrypt(3);
             if(bob.decrypt <int> (ciphertext) != 3)
-                throw "`decrypt` does not output the correct value when using correct key and nonce.";
+                throw "Decrypting does not output the correct value when using correct key and nonce.";
         }
 
         {
@@ -239,7 +239,7 @@ namespace
             auto ciphertext = alice.encrypt(a, b);
             auto [deca, decb] = bob.decrypt <std :: vector <uint32_t>, myclass> (ciphertext);
             if(deca != a || decb.i != b.i || decb.j != b.j || decb.k != b.k || decb.q != b.q || decb.h != b.h || decb.s != b.s)
-                throw "`decrypt` does not output the correct objects when using correct key and nonce.";
+                throw "Decrypting does not output the correct objects when using correct key and nonce.";
         }
 
         {
@@ -255,7 +255,7 @@ namespace
                 thrown = true;
             }
             if(!thrown)
-                throw "`decrypt` does not throw an exception in case an invalid (too short) ciphertext.";
+                throw "Decrypting does not throw an exception in case an invalid (too short) ciphertext.";
 
             auto wrongkey = channel(channel :: key :: random (), alice.nonce());
             thrown = false;
@@ -268,7 +268,7 @@ namespace
                 thrown = true;
             }
             if(!thrown)
-                throw "`decrypt` with the wrong key does not throw an exception.";
+                throw "Decrypting with the wrong key does not throw an exception.";
 
             auto wrongnonce = channel(alice.key());
             thrown = false;
@@ -281,7 +281,20 @@ namespace
                 thrown = true;
             }
             if(!thrown)
-                throw "`decrypt` with the wrong key does not throw an exception.";
+                throw "Decrypting with the wrong key does not throw an exception.";
+
+            auto tooshort = std :: vector <uint8_t> {0, 0, 0};
+            thrown = false;
+            try
+            {
+                bob.decrypt(tooshort);
+            }
+            catch(exception <decryption_failed, message_too_short>)
+            {
+                thrown = true;
+            }
+            if(!thrown)
+                throw "Trying to decrypt too short message does not throw an exception.";
         }
     });
 };
