@@ -113,7 +113,7 @@ namespace
         }
     });
 
-    $test("channel/encrypt", []
+    $test("box/encrypt", []
     {
         {
             box alice;
@@ -133,8 +133,8 @@ namespace
 
             b = bob.encrypt(alice.publickey(), 1);
             auto c = bob.encrypt(eve.publickey(), 1);
-            if(a != b || a != c)
-                throw "Encrypting the same value with the same keys does not give the same output.";
+            if(a == b || a == c)
+                throw "Encrypting the same value with the same keys gives the same output.";
 
             b = bob.encrypt(alice.publickey(), 2);
             c = bob.encrypt(eve.publickey(), 2);
@@ -148,38 +148,41 @@ namespace
             box charlie;
             box eve(alice.publickey(), alice.secretkey());
 
-            auto a = alice.encrypt(bob.publickey(), std::vector <char> {'r', 'a', 'i', 'n'}, myclass());
-            auto b = alice.encrypt(charlie.publickey(), std::vector <char> {'r', 'a', 'i', 'n'}, myclass());
+            auto a = alice.encrypt(bob.publickey(), std :: vector <char> {'r', 'a', 'i', 'n'}, myclass());
+            auto b = alice.encrypt(charlie.publickey(), std :: vector <char> {'r', 'a', 'i', 'n'}, myclass());
             if(a == b)
                 throw "Encrypting the same objects with different public keys gives the same output.";
 
-            b = bob.encrypt(alice.publickey(), std::vector <char> {'r', 'a', 'i', 'n'}, myclass());
-            b = charlie.encrypt(alice.publickey(), std::vector <char> {'r', 'a', 'i', 'n'}, myclass());
+            b = bob.encrypt(alice.publickey(), std :: vector <char> {'r', 'a', 'i', 'n'}, myclass());
+            b = charlie.encrypt(alice.publickey(), std :: vector <char> {'r', 'a', 'i', 'n'}, myclass());
             if(a == b)
                 throw "Encrypting the same objects with different secret keys gives the same output.";
 
-            b = bob.encrypt(alice.publickey(), std::vector <char> {'r', 'a', 'i', 'n'}, myclass());
-            auto c = bob.encrypt(eve.publickey(), std::vector <char> {'r', 'a', 'i', 'n'}, myclass());
-            if(a != b || a != c)
-                throw "Encrypting the same objects with the same keys does not give the same output.";
+            b = bob.encrypt(alice.publickey(), std :: vector <char> {'r', 'a', 'i', 'n'}, myclass());
+            auto c = bob.encrypt(eve.publickey(), std :: vector <char> {'r', 'a', 'i', 'n'}, myclass());
+            if(a == b || a == c)
+                throw "Encrypting the same objects with the same keys does gives the same output.";
 
-            b = bob.encrypt(alice.publickey(), std::vector <char> {'R', 'a', 'i', 'n'}, myclass());
-            c = bob.encrypt(eve.publickey(), std::vector <char> {'R', 'a', 'i', 'n'}, myclass());
+            b = bob.encrypt(alice.publickey(), std :: vector <char> {'R', 'a', 'i', 'n'}, myclass());
+            c = bob.encrypt(eve.publickey(), std :: vector <char> {'R', 'a', 'i', 'n'}, myclass());
             if(a == b || a == c)
                 throw "Encrypting different objects gives the same output.";
         }
     });
 
-    $test("channel/decrypt", []
+    $test("box/decrypt", []
     {
         box alice;
         box bob;
         box charlie;
         bool thrown = false;
 
+        auto akey = alice.publickey();
+        auto bkey = bob.publickey();
+
         {
             auto ciphertext = alice.encrypt(bob.publickey(), 3);
-            if(bob.decrypt <int> (alice.publickey(), ciphertext))
+            if(bob.decrypt <int> (alice.publickey(), ciphertext) != 3)
                 throw "Decrypting with the correct key does not return the corret value.";
         }
 
@@ -220,11 +223,11 @@ namespace
         }
 
         {
-            auto ciphertext = alice.encrypt(bob.publickey(), std::vector <char> {'r', 'a', 'i', 'n'}, myclass());
+            auto ciphertext = alice.encrypt(bob.publickey(), std :: vector <char> {'r', 'a', 'i', 'n'}, myclass());
             thrown = false;
             try
             {
-                bob.decrypt <std::vector <char>, myclass> (charlie.publickey(), ciphertext);
+                bob.decrypt <std :: vector <char>, myclass> (charlie.publickey(), ciphertext);
             }
             catch(exception <decryption_failed>)
             {
@@ -236,7 +239,7 @@ namespace
             thrown = false;
             try
             {
-                charlie.decrypt <std::vector <char>, myclass> (alice.publickey(), ciphertext);
+                charlie.decrypt <std :: vector <char>, myclass> (alice.publickey(), ciphertext);
             }
             catch(exception <decryption_failed>)
             {

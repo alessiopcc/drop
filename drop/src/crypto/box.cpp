@@ -49,7 +49,7 @@ namespace drop
         std :: vector <uint8_t> plaintext(ciphertext.size() - (crypto_secretbox_NONCEBYTES + crypto_secretbox_MACBYTES));
 
         if(crypto_box_open_easy(plaintext.data(), ciphertext.data() + crypto_box_NONCEBYTES, ciphertext.size() - crypto_box_NONCEBYTES, ciphertext.data(), from.data(), this->_secretkey.data()))
-            exception <encryption_failed> :: raise(this);
+            exception <decryption_failed> :: raise(this);
 
         return plaintext;
     }
