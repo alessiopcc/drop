@@ -14,9 +14,14 @@ namespace drop
 
     class bad_access;
     class socket_closed;
+    class socket_open;
     class fcntl_failed;
     class getsockopt_failed;
     class setsockopt_failed;
+    class bind_failed;
+    class listen_failed;
+    class accept_failed;
+    class getpeername_failed;
 
     // Classes
 
@@ -54,6 +59,20 @@ namespace drop
 
     class tcp :: socket
     {
+    public:
+
+        // Settings
+
+        struct settings
+        {
+            struct listen
+            {
+                static constexpr size_t slots = 128;
+            };
+        };
+
+    private:
+
         // Members
 
         int _descriptor;
@@ -74,23 +93,35 @@ namespace drop
 
         // Getters
 
+        address remote() const;
         template <typename> inline auto get() const;
 
         // Setters
 
         template <typename tag, typename type> inline void set(const type &);
 
+        // Methods
+
+        void bind(const class address :: port &);
+        void bind(const address &);
+
+        void listen();
+        socket accept();
+
     private:
 
         // Private methods
 
         void opencheck() const;
+        void closedcheck() const;
 
         int fcntl() const;
         void fcntl(const int &);
 
         template <typename type> type getsockopt(const int &, const int &) const;
         template <typename type> void setsockopt(const int &, const int &, const type &);
+
+        void bind(const address &, const bool &);
     };
 };
 

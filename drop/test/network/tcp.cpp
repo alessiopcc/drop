@@ -18,11 +18,17 @@ namespace
 
     $test("tcp/develop", []
     {
-        tcp :: socket my_socket;
-        my_socket.set <timeouts :: receive> (10_s);
-        std :: cout << my_socket.get <timeouts :: receive> () << std :: endl;
+        /*tcp :: socket mysocket;
 
-        my_socket.set <blocking> (false);
-        std :: cout << my_socket.get <timeouts :: receive> () << std :: endl;
+        std :: cout << "Binding.." << std :: endl;
+        mysocket.bind(1238);
+
+        std :: cout << "Listening.." << std :: endl;
+        mysocket.listen();
+
+        std :: cout << "Accepting.." << std :: endl;
+        auto connection = mysocket.accept();
+
+        std :: cout << connection.remote() << std :: endl;*/
     });
 };
