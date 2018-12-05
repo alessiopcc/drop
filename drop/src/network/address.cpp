@@ -102,6 +102,16 @@ namespace drop
 
     // Static methods
 
+    template <> class address :: ip address :: ip :: any <IPv4> ()
+    {
+        return in_addr{.s_addr = INADDR_ANY};
+    }
+
+    template <> class address :: ip address :: ip :: any <IPv6> ()
+    {
+        return in6addr_any;
+    }
+
     std :: vector <class address :: ip> address :: ip :: local(const uint32_t & scope)
     {
         std :: vector <ip> addresses;

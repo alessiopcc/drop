@@ -4,6 +4,9 @@ namespace drop
 {
     // Tags
 
+    class IPv4;
+    class IPv6;
+
     class malformed_address;
 
     // Classes
@@ -100,6 +103,7 @@ namespace drop
 
         // Static methods
 
+        template <typename> static ip any();
         static std :: vector <ip> local(const uint32_t & = 0);
 
     private:
