@@ -33,7 +33,6 @@ namespace
 
     $test("signature/signer", []
     {
-        // TODO: verify exception <signature_failed, malformed_key>
         {
             signer mysigner;
             signer myothersigner;

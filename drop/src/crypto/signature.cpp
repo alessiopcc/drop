@@ -34,10 +34,7 @@ namespace drop
     signature signer :: sign(const std :: vector <uint8_t> & message) const
     {
         signature signature;
-
-        if(crypto_sign_detached(signature.data(), nullptr, message.data(), message.size(), this->_secretkey.data()))
-            exception <signature_failed, malformed_key> :: raise();
-
+        crypto_sign_detached(signature.data(), nullptr, message.data(), message.size(), this->_secretkey.data());
         return signature;
     }
 

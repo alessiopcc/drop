@@ -90,10 +90,6 @@ namespace
 
     // Tests
 
-    /*
-        TODO. exception <encryption_failed, malformed_key> :: raise(this);
-    */
-
     $test("box/constructors", []
     {
         {
@@ -167,6 +163,28 @@ namespace
             c = bob.encrypt(eve.publickey(), std :: vector <char> {'R', 'a', 'i', 'n'}, myclass());
             if(a == b || a == c)
                 throw "Encrypting different objects gives the same output.";
+        }
+
+        {
+            bool thrown = false;
+
+            try
+            {
+                box alice;
+                class box :: publickey malformed;
+
+                for(uint8_t & byte : malformed)
+                    byte = 0;
+
+                auto ciphertext = alice.encrypt(malformed, 44);
+            }
+            catch(exception <encryption_failed, malformed_key> &)
+            {
+                thrown = true;
+            }
+
+            if(!thrown)
+                throw "Encrypting with an all-zero publickey does not yield an exception.";
         }
     });
 
