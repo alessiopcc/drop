@@ -18,7 +18,5 @@ namespace
 
     $test("time/develop", []
     {
-        for(;; sleep(1_s + 3_s))
-            std :: cout << now() << std :: endl;
     });
 };
