@@ -15,10 +15,7 @@ namespace drop
     template <size_t size> signature signer :: sign(const std :: array <uint8_t, size> & message) const
     {
         signature signature;
-
-        if(crypto_sign_detached(signature.data(), nullptr, message.data(), size, this->_secretkey.data()))
-            exception <signature_failed, malformed_key> :: raise();
-
+        crypto_sign_detached(signature.data(), nullptr, message.data(), size, this->_secretkey.data());
         return signature;
     }
 

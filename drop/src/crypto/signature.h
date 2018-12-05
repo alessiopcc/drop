@@ -4,9 +4,7 @@ namespace drop
 {
     // Tags
 
-    class signature_failed;
     class verification_failed;
-    class malformed_key;
 
     // Classes
 

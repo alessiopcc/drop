@@ -16,6 +16,29 @@ namespace
 
     // Tests
 
+    $test("iterators/constraint", []
+    {
+        {
+            auto lambda = [](auto & v)
+            {
+                v += 1;
+            };
+
+            if(!iterators :: constraints :: each <std :: tuple <int, char, float>, decltype(lambda)> ())
+                throw "`constraints :: each` returns false for valid tuple and lambda.";
+        }
+
+        {
+            auto lambda = [](int & v)
+            {
+                v += 1;
+            };
+
+            if(iterators :: constraints :: each <std :: tuple <int, char, float>, decltype(lambda)> ())
+                throw "`constraints :: each` returns true for invalid tuple and lambda.";
+        }
+    });
+
     $test("iterators/each", []
     {
         std :: tuple <int, char, float> tuple = {1, 2, 3};
