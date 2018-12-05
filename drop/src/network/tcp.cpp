@@ -32,7 +32,7 @@ namespace drop
         if(((struct sockaddr *) &remote)->sa_family == AF_INET)
             return address(*((struct sockaddr_in *) &remote));
         else
-            return address(*((struct sockaddr_in6 *) &remote));
+            return address(*((struct sockaddr_in6 *) &remote)).decay();
     }
 
     // Methods

@@ -18,10 +18,10 @@ namespace
 
     $test("tcp/develop", []
     {
-        /*tcp :: socket mysocket;
+        tcp :: socket mysocket;
 
         std :: cout << "Binding.." << std :: endl;
-        mysocket.bind(1238);
+        mysocket.bind(1239);
 
         std :: cout << "Listening.." << std :: endl;
         mysocket.listen();
@@ -29,6 +29,6 @@ namespace
         std :: cout << "Accepting.." << std :: endl;
         auto connection = mysocket.accept();
 
-        std :: cout << connection.remote() << std :: endl;*/
+        std :: cout << connection.remote() << std :: endl;
     });
 };

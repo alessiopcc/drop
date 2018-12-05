@@ -65,6 +65,13 @@ namespace drop
         return (class port){*this};
     }
 
+    // Methods
+
+    address address :: decay() const
+    {
+        return address(this->ip().decay(), this->port());
+    }
+
     // ip
 
     // Constructors
@@ -98,6 +105,31 @@ namespace drop
 
     address :: ip :: ip(const in6_addr & addr) : _addr(addr)
     {
+    }
+
+    // Methods
+
+    class address :: ip address :: ip :: decay() const
+    {
+        ip decay;
+
+        this->match([&](const in_addr & inaddr)
+        {
+            decay = inaddr;
+        }, [&](const in6_addr & inaddr)
+        {
+            static std :: array <uint8_t, 12> mask = {0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0xff, 0xff};
+            if(memcmp(inaddr.s6_addr, mask.data(), mask.size()))
+                decay = inaddr;
+            else
+            {
+                in_addr crop;
+                memcpy(&(crop.s_addr), inaddr.s6_addr + mask.size(), sizeof(in_addr));
+                decay = crop;
+            }
+        });
+
+        return decay;
     }
 
     // Static methods
