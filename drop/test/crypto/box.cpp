@@ -157,7 +157,7 @@ namespace
             b = bob.encrypt(alice.publickey(), std :: vector <char> {'r', 'a', 'i', 'n'}, myclass());
             auto c = bob.encrypt(eve.publickey(), std :: vector <char> {'r', 'a', 'i', 'n'}, myclass());
             if(a == b || a == c)
-                throw "Encrypting the same objects with the same keys does gives the same output.";
+                throw "Encrypting the same objects with the same keys gives the same output.";
 
             b = bob.encrypt(alice.publickey(), std :: vector <char> {'R', 'a', 'i', 'n'}, myclass());
             c = bob.encrypt(eve.publickey(), std :: vector <char> {'R', 'a', 'i', 'n'}, myclass());
@@ -195,9 +195,6 @@ namespace
         box charlie;
         bool thrown = false;
 
-        auto akey = alice.publickey();
-        auto bkey = bob.publickey();
-
         {
             auto ciphertext = alice.encrypt(bob.publickey(), 3);
             if(bob.decrypt <int> (alice.publickey(), ciphertext) != 3)
@@ -210,7 +207,7 @@ namespace
             auto ciphertext = alice.encrypt(bob.publickey(), a, b);
             auto [deca, decb] = bob.decrypt <std :: vector <uint32_t>, myclass> (alice.publickey(), ciphertext);
             if(deca != a || decb.i != b.i || decb.j != b.j || decb.k != b.k || decb.q != b.q || decb.h != b.h || decb.s != b.s)
-                throw "Decrypting withe the correct key does not return the correct objects.";
+                throw "Decrypting with the correct key does not return the correct objects.";
         }
 
         {
@@ -280,6 +277,139 @@ namespace
             }
             if(!thrown)
                 throw "Trying to decrypt too short message does not throw an exception.";
+        }
+    });
+
+    $test("box/seal", []
+    {
+        {
+            box alice;
+            box bob;
+            box eve(alice.publickey(), alice.secretkey());
+
+            auto a = box :: seal(alice.publickey(), 1);
+            auto b = box :: seal(bob.publickey(), 1);
+            if(a == b)
+                throw "Calling `seal` with the same value and different public keys gives the same output.";
+
+            b = box :: seal(alice.publickey(), 1);
+            auto c = box :: seal(eve.publickey(), 1);
+            if(a == b || a == c)
+                throw "Calling `seal` with the same value and the same keys gives the same output.";
+
+            b = box :: seal(alice.publickey(), 2);
+            c = box :: seal(eve.publickey(), 2);
+            if(a == b || a == c)
+                throw "Calling `seal` with different values gives the same output.";
+        }
+
+        {
+            box alice;
+            box bob;
+            box eve(alice.publickey(), alice.secretkey());
+
+            auto a = box :: seal(alice.publickey(), std :: vector <char> {'r', 'a', 'i', 'n'}, myclass());
+            auto b = box :: seal(bob.publickey(), std :: vector <char> {'r', 'a', 'i', 'n'}, myclass());
+            if(a == b)
+                throw "Calling `seal` with the same objects and different public keys gives the same output.";
+
+            b = box :: seal(alice.publickey(), std :: vector <char> {'r', 'a', 'i', 'n'}, myclass());
+            auto c = box :: seal(eve.publickey(), std :: vector <char> {'r', 'a', 'i', 'n'}, myclass());
+            if(a == b || a == c)
+                throw "Calling `seal` with the same objects and the same keys gives the same output.";
+
+            b = box :: seal(alice.publickey(), std :: vector <char> {'R', 'a', 'i', 'n'}, myclass());
+            c = box :: seal(eve.publickey(), std :: vector <char> {'R', 'a', 'i', 'n'}, myclass());
+            if(a == b || a == c)
+                throw "Calling `seal` with different objects gives the same output.";
+        }
+
+        {
+            bool thrown = false;
+
+            try
+            {
+                class box :: publickey malformed;
+
+                for(uint8_t & byte : malformed)
+                    byte = 0;
+
+                auto ciphertext = box :: seal(malformed, 44);
+            }
+            catch(exception <encryption_failed, malformed_key> &)
+            {
+                thrown = true;
+            }
+
+            if(!thrown)
+                throw "Calling `seal` with an all-zero publickey does not yield an exception.";
+        }
+    });
+
+    $test("box/unseal", []
+    {
+        box alice;
+        box bob;
+        bool thrown = false;
+
+        {
+            auto ciphertext = box :: seal(alice.publickey(), 3);
+            if(alice.unseal <int> (ciphertext) != 3)
+                throw "Calling `unseal` with the correct key does not return the corret value.";
+        }
+
+        {
+            auto a = std :: vector <uint32_t> {1, 2, 3, 4, 5, 6, 7};
+            myclass b;
+            auto ciphertext = box :: seal(alice.publickey(), a, b);
+            auto [deca, decb] = alice.unseal <std :: vector <uint32_t>, myclass> (ciphertext);
+            if(deca != a || decb.i != b.i || decb.j != b.j || decb.k != b.k || decb.q != b.q || decb.h != b.h || decb.s != b.s)
+                throw "Calling `unseal` with the correct key does not return the correct objects.";
+        }
+
+        {
+            auto ciphertext = box :: seal(alice.publickey(), 5);
+            thrown = false;
+            try
+            {
+                bob.unseal <int> (ciphertext);
+            }
+            catch(exception <decryption_failed>)
+            {
+                thrown = true;
+            }
+            if(!thrown)
+                throw "Unsealing value with the wrong `box` does not throw an exception.";
+        }
+
+        {
+            auto ciphertext = box :: seal(alice.publickey(), std :: vector <char> {'r', 'a', 'i', 'n'}, myclass());
+            thrown = false;
+            try
+            {
+                bob.unseal <std :: vector <char>, myclass> (ciphertext);
+            }
+            catch(exception <decryption_failed>)
+            {
+                thrown = true;
+            }
+            if(!thrown)
+                throw "Unsealing objects with the wrong `box` does not throw an exception.";
+        }
+
+        {
+            auto tooshort = std :: vector <uint8_t> {0, 0, 0};
+            thrown = false;
+            try
+            {
+                alice.unseal(tooshort);
+            }
+            catch(exception <decryption_failed, message_too_short>)
+            {
+                thrown = true;
+            }
+            if(!thrown)
+                throw "Trying to unseal too short message does not throw an exception.";
         }
     });
 };
