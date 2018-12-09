@@ -73,6 +73,18 @@ namespace drop
         template <typename... types, std :: enable_if_t <(sizeof...(types) > 0) && (... && bytewise :: constraints :: fixed <types> ())> * = nullptr> auto decrypt(const class publickey &, const std :: array <uint8_t, (... + bytewise :: traits :: size <types> ()) + crypto_box_NONCEBYTES + crypto_box_MACBYTES> &) const;
         template <typename... types, std :: enable_if_t <(sizeof...(types) > 0) && (... && bytewise :: constraints :: deserializable <types> ()) && !(... && bytewise :: constraints :: fixed <types> ())> * = nullptr> auto decrypt(const class publickey &, const std :: vector <uint8_t> &) const;
 
+        template <size_t size, std :: enable_if_t <(size > crypto_box_SEALBYTES)> * = nullptr> std :: array <uint8_t, size - crypto_box_SEALBYTES> unseal(const std :: array <uint8_t, size> &) const;
+        std :: vector <uint8_t> unseal(const std :: vector <uint8_t> &) const;
+
+        template <typename... types, std :: enable_if_t <(sizeof...(types) > 0) && (... && bytewise :: constraints :: fixed <types> ())> * = nullptr> auto unseal(const std :: array <uint8_t, (... + bytewise :: traits :: size <types> ()) + crypto_box_SEALBYTES> &) const;
+        template <typename... types, std :: enable_if_t <(sizeof...(types) > 0) && (... && bytewise :: constraints :: deserializable <types> ()) && !(... && bytewise :: constraints :: fixed <types> ())> * = nullptr> auto unseal(const std :: vector <uint8_t> &) const;
+
+        // Static methods
+
+        template <size_t size> static std :: array <uint8_t, size + crypto_box_SEALBYTES> seal(const class publickey &, const std :: array <uint8_t, size> &);
+        static std :: vector <uint8_t> seal(const class publickey &, const std :: vector <uint8_t> &);
+
+        template <typename... types, std :: enable_if_t <(sizeof...(types) > 0) && (... && bytewise :: constraints :: serializable <types> ())> * = nullptr> static auto seal(const class publickey &, const types & ...);
     };
 };
 

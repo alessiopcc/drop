@@ -53,4 +53,29 @@ namespace drop
 
         return plaintext;
     }
+
+    std :: vector <uint8_t> box :: unseal(const std :: vector <uint8_t> & ciphertext) const
+    {
+        if(ciphertext.size() < crypto_box_SEALBYTES)
+            exception <decryption_failed, message_too_short> :: raise(this);
+
+        std :: vector <uint8_t> plaintext(ciphertext.size() - crypto_box_SEALBYTES);
+
+        if(crypto_box_seal_open(plaintext.data(), ciphertext.data(), ciphertext.size(), this->_publickey.data(), this->_secretkey.data()))
+            exception <decryption_failed> :: raise(this);
+
+        return plaintext;
+    }
+
+    // Static methods
+
+    std :: vector <uint8_t> box :: seal(const class publickey & to, const std :: vector <uint8_t> & plaintext)
+    {
+        std :: vector <uint8_t> ciphertext(plaintext.size() + crypto_box_SEALBYTES);
+
+        if(crypto_box_seal(ciphertext.data(), plaintext.data(), plaintext.size(), to.data()))
+            exception <encryption_failed, malformed_key> :: raise();
+
+        return ciphertext;
+    }
 };

@@ -48,8 +48,8 @@ namespace drop
 
             // Public members
 
-            std :: array <uint8_t, crypto_secretbox_KEYBYTES> receive;
-            std :: array <uint8_t, crypto_secretbox_KEYBYTES> transmit;
+            class channel :: key receive;
+            class channel :: key transmit;
         };
 
     private:
