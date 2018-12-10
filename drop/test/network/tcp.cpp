@@ -19,16 +19,7 @@ namespace
     $test("tcp/develop", []
     {
         tcp :: socket mysocket;
-
-        std :: cout << "Binding.." << std :: endl;
-        mysocket.bind(1239);
-
-        std :: cout << "Listening.." << std :: endl;
-        mysocket.listen();
-
-        std :: cout << "Accepting.." << std :: endl;
-        auto connection = mysocket.accept();
-
-        std :: cout << connection.remote() << std :: endl;
+        mysocket.connect({"127.0.0.1", 1235});
+        std :: cout << "Successfully connected" << std :: endl;
     });
 };

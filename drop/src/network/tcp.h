@@ -21,6 +21,7 @@ namespace drop
     class bind_failed;
     class listen_failed;
     class accept_failed;
+    class connect_failed;
     class getpeername_failed;
 
     // Classes
@@ -107,6 +108,8 @@ namespace drop
 
         void listen();
         socket accept();
+
+        void connect(const address &);
 
     private:
 

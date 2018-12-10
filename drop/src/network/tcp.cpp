@@ -70,6 +70,28 @@ namespace drop
         return socket(descriptor);
     }
 
+    void tcp :: socket :: connect(const address & remote)
+    {
+        int status;
+
+        remote.match([&](const sockaddr_in & sockaddr)
+        {
+            if(this->_descriptor < 0)
+                this->_descriptor = :: socket(PF_INET, SOCK_STREAM, 0);
+
+            status = :: connect(this->_descriptor, (const struct sockaddr *) &sockaddr, sizeof(sockaddr_in));
+        }, [&](const sockaddr_in6 & sockaddr)
+        {
+            if(this->_descriptor < 0)
+                this->_descriptor = :: socket(PF_INET6, SOCK_STREAM, 0);
+
+            status = :: connect(this->_descriptor, (const struct sockaddr *) &sockaddr, sizeof(sockaddr_in6));
+        });
+
+        if(status && (errno != EINPROGRESS))
+            exception <connect_failed> :: raise(this, errno);
+    }
+
     // Private methods
 
     void tcp :: socket :: opencheck() const
