@@ -21,10 +21,27 @@ namespace drop
 #if !defined(__forward__) && !defined(__src__utils__parameters__h)
 #define __src__utils__parameters__h
 
+// Includes
+
+#include "concept/callable.h"
+
 namespace drop
 {
     namespace parameters
     {
+        // Constraints
+
+        class constraints
+        {
+            // Helpers
+
+            template <size_t, typename, typename, typename...> static constexpr bool repeatloop();
+
+        public:
+
+            template <size_t, typename, typename> static constexpr bool repeat();
+        };
+
         // Classes
 
         template <template <typename...> typename pack, typename... left, typename... right> struct concat <pack <left...>, pack <right...>>
@@ -54,7 +71,7 @@ namespace drop
 
         // Functions
 
-        template <size_t times, typename type, typename lambda> auto repeat(type &&, lambda &&);
+        template <size_t times, typename type, typename lambda, std :: enable_if_t <constraints :: repeat <times, type, lambda> ()> * = nullptr> auto repeat(type &&, lambda &&);
     };
 };
 

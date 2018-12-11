@@ -8,6 +8,7 @@
 
 #include "utils/parameters.hpp"
 #include "data/variant.hpp"
+#include "concept/expression.hpp"
 
 namespace
 {
@@ -65,25 +66,37 @@ namespace
 
     $test("utils/parameters-repeat", []
     {
-        int i = 4;
-
-        parameters :: repeat <4> (i, [](int & a, int & b, int & c, int & d)
         {
-            a *= 2;
-            b *= 3;
-            c++;
-            d += 4;
-        });
+            auto mylambda = [](int & a, int & b){};
+            auto myotherlambda = [](int & a, double & b){};
 
-        if(i != 29)
-            throw "`repeat` does not provide references to the same object to the callback provided (manipulation test).";
+            if(!parameters :: constraints :: repeat <2, int &, decltype(mylambda)> ())
+                throw "`parameters :: constraints :: repeat` returns false with valid lambda and types.";
+            if(parameters :: constraints :: repeat <2, char &, decltype(mylambda)> ())
+                throw "`parameters :: constraints :: repeat` returns true with invalid types.";
+            if(parameters :: constraints :: repeat <2, int &, decltype(myotherlambda)> ())
+                throw "`parameters :: constraints :: repeat` returns true with invalid lambda.";
+        }
 
-        parameters :: repeat <3> (i, [](const int & a, const int & b, const int & c)
         {
-            if((&a != &b) || (&b != &c))
-                throw "`repeat` does not provide references to the same object to the callback provided (pointer test).";
-        });
+            int i = 4;
 
-        parameters :: repeat <0> (i, []{});
+            parameters :: repeat <4> (i, [](int & a, int & b, int & c, int & d)
+            {
+                a *= 2;
+                b *= 3;
+                c++;
+                d += 4;
+            });
+
+            if(i != 29)
+                throw "`repeat` does not provide references to the same object to the callback provided (manipulation test).";
+
+            parameters :: repeat <3> (i, [](const int & a, const int & b, const int & c)
+            {
+                if((&a != &b) || (&b != &c))
+                    throw "`repeat` does not provide references to the same object to the callback provided (pointer test).";
+            });
+        }
     });
 };
