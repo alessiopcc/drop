@@ -18,21 +18,37 @@ namespace
 
     $test("time/literals", []
     {
-        // TODO: unsigned long long int vs. long double
+        {
+            auto us = uint64_t(3600000000_us);
+            auto ms = uint64_t(3600000_ms);
+            auto s = uint64_t(3600_s);
+            auto m = uint64_t(60_m);
+            auto h = uint64_t(1_h);
+            if(us != ms || us != s || us != m || us != h || ms != s || ms != m || ms != h || s != m || s != h || m != h)
+                throw "`long long int` literals initialize `interval` to the wrong values.";
+        }
 
-        auto us = uint64_t(3600000000_us);
-        auto ms = uint64_t(3600000_ms);
-        auto m = uint64_t(60_m);
-        auto h = uint64_t(1_h);
+        {
+            auto us = uint64_t(5_us);
+            auto ms = uint64_t(5.e-3_ms);
+            auto s = uint64_t(5.e-6_s);
+            if(us != ms || us != ms || ms != s)
+                throw "`long double` `_us`, `_ms` and `_s` literals initialize `interval` to the wrong values.";
 
-        if(us != ms || us != m || us != h || ms != m || ms != h || m != h)
-            throw "Literals initializing `interval` to the wrong value.";
+            s = uint64_t(30_s);
+            auto m = uint64_t(0.5_m);
+            if(s != m)
+                throw "`long double` `_s` and `_m` literals initialize `interval` to the wrong values.";
+
+            m = uint64_t(30_m);
+            auto h = uint64_t(0.5_h);
+            if(m != h)
+                throw "`long double` `_m and `_h` literals initialize `interval` to the wrong values.";
+        }
     });
 
     $test("time/interval", []
     {
-        // TODO: interval()
-
         auto myinterval = interval(1000);
         auto myotherinterval = 1_ms;
 
@@ -63,11 +79,8 @@ namespace
             throw "`interval :: random` does not respect given max.";
     });
 
-
     $test("time/timestamp", []
     {
-        // TODO: timestamp()
-
         auto mytimestamp = timestamp(1111);
         auto myothertimestamp = timestamp(111);
 
@@ -101,19 +114,22 @@ namespace
 
     $test("time/miscellaneous", []
     {
-        // TODO
-        /*
-        // Functions
+        {
+            auto before = now();
+            sleep(1_ms);
+            auto after = now();
 
-        timestamp now();
+            if(uint64_t(after - before) <= uint64_t(1_ms))
+                throw "`sleep(const interval &)` sleeps for less than the specified interval.";
+        }
 
-        void sleep(const timestamp &);
-        void sleep(const interval &);
+        {
+            auto before = now();
+            sleep(before + 1_ms);
+            auto after = now();
 
-        // Ostream integration
-
-        std :: ostream & operator << (std :: ostream &, const timestamp &);
-        std :: ostream & operator << (std :: ostream &, const interval &);
-        */
+            if(uint64_t(after - before) <= uint64_t(1_ms))
+                throw "`sleep(const timestamp &)` wakes up before the specified timestamp.";
+        }
     });
 };
