@@ -7,11 +7,11 @@
 
 namespace drop
 {
-    // guard <hard>
+    // guard <soft>
 
     // Methods
 
-    template <typename lambda> auto guard <hard> :: operator () (lambda && operation)
+    template <typename lambda> auto guard <soft> :: operator () (lambda && operation)
     {
         shield shield(this->_mutex);
         return operation();

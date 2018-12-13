@@ -18,13 +18,17 @@ namespace
 
     $test("guard/develop", []
     {
-        guard <hard> guard;
+        guard <soft> guard;
 
         try
         {
             std :: cout << guard([&]()
             {
-                throw 44; // Works with both the throw...
+                throw guard([]() // Works with both the throw...
+                {
+                    return 11;
+                });
+
                 return 33; // ... and the return! (Try commenting the throw.)
             }) << std :: endl;
         }

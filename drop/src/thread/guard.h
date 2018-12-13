@@ -21,7 +21,7 @@ namespace drop
 
 namespace drop
 {
-    template <> class guard <hard>
+    template <> class guard <soft>
     {
         // Service nested classes
 
@@ -29,7 +29,7 @@ namespace drop
 
         // Members
 
-        std :: mutex _mutex;
+        std :: recursive_mutex _mutex;
 
     public:
 
@@ -38,17 +38,17 @@ namespace drop
         template <typename lambda> auto operator () (lambda &&);
     };
 
-    class guard <hard> :: shield
+    class guard <soft> :: shield
     {
         // Members
 
-        std :: mutex & _mutex;
+        std :: recursive_mutex & _mutex;
 
     public:
 
         // Constructors
 
-        shield(std :: mutex &);
+        shield(std :: recursive_mutex &);
 
         // Destructor
 
