@@ -1,9 +1,9 @@
-#ifndef __src__network__streamers__hpp
-#define __src__network__streamers__hpp
+#ifndef __src__network__streamer__hpp
+#define __src__network__streamer__hpp
 
 // Includes
 
-#include "streamers.h"
+#include "streamer.h"
 
 namespace drop
 {
@@ -11,20 +11,20 @@ namespace drop
 
     // Constraints
 
-    template <typename type> constexpr bool streamers :: send :: constraints :: stream()
+    template <typename type> constexpr bool streamer <send> :: constraints :: stream()
     {
         return $expression($type(type).send($type(const uint8_t*), $type(size_t))).template casts <size_t> ();
     }
 
     // Constructors
 
-    template <size_t size> streamers :: send :: send(const std :: array <uint8_t, size> & buffer) : _data(buffer.data()), _size(size), _cursor(0)
+    template <size_t size> streamer <send> :: streamer(const std :: array <uint8_t, size> & buffer) : _data(buffer.data()), _size(size), _cursor(0)
     {
     }
 
     // Methods
 
-    template <typename type, std :: enable_if_t <streamers :: send :: constraints :: stream <type> ()> *> bool streamers :: send :: stream(type & stream)
+    template <typename type, std :: enable_if_t <streamer <send> :: constraints :: stream <type> ()> *> bool streamer <send> :: stream(type & stream)
     {
         bool completed = false;
 
@@ -68,20 +68,20 @@ namespace drop
 
     // Constraints
 
-    template <typename type> constexpr bool streamers :: receive :: constraints :: stream()
+    template <typename type> constexpr bool streamer <receive> :: constraints :: stream()
     {
         return $expression($type(type).receive($type(uint8_t *), $type(size_t))).template casts <size_t> ();
     }
 
     // Constructors
 
-    template <size_t size> streamers :: receive :: receive(std :: array <uint8_t, size> & buffer) : _stage(allocated{.data = buffer.data(), .size = size}), _cursor(0)
+    template <size_t size> streamer <receive> :: streamer(std :: array <uint8_t, size> & buffer) : _stage(allocated{.data = buffer.data(), .size = size}), _cursor(0)
     {
     }
 
     // Methods
 
-    template <typename type, std :: enable_if_t <streamers :: receive :: constraints :: stream <type> ()> *> bool streamers :: receive :: stream(type & stream)
+    template <typename type, std :: enable_if_t <streamer <receive> :: constraints :: stream <type> ()> *> bool streamer <receive> :: stream(type & stream)
     {
         bool completed = false;
 

@@ -6,7 +6,7 @@
 
 // Includes
 
-#include "network/streamers.hpp"
+#include "network/streamer.hpp"
 
 namespace
 {
@@ -85,7 +85,7 @@ namespace
             std :: array <uint8_t, 8> mybuffer = {1, 2, 3, 4, 5, 6, 7, 8};
             wstream mystream({0, 1, 0, 3, 2, 100});
 
-            streamers :: send mystreamer(mybuffer);
+            streamer <send> mystreamer(mybuffer);
             while(!mystreamer.stream(mystream));
         }
 
@@ -100,7 +100,7 @@ namespace
 
             wstream mystream({0, 0, 0, 1, 1, 9, 8, 9, 9, 9, 9, 9, 9, 9, 9, size});
 
-            streamers :: send mystreamer(mybuffer);
+            streamer <send> mystreamer(mybuffer);
             while(!mystreamer.stream(mystream));
         }
     });
@@ -111,7 +111,7 @@ namespace
             std :: array <uint8_t, 8> mybuffer;
             rstream mystream({1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}, {1, 2, 3, 3, 3, 3, 4, 12});
 
-            streamers :: receive mystreamer(mybuffer);
+            streamer <receive> mystreamer(mybuffer);
             while(!mystreamer.stream(mystream));
         }
 
@@ -119,7 +119,7 @@ namespace
             std :: vector <uint8_t> mybuffer;
             rstream mystream({192, 0, 0, 5, 4, 5, 6, 7, 8}, {0, 0, 0, 1, 1, 9, 8, 9, 9, 9, 9, 9, 9, 9, 9});
 
-            streamers :: receive mystreamer(mybuffer);
+            streamer <receive> mystreamer(mybuffer);
             while(!mystreamer.stream(mystream));
         }
     });
