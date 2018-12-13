@@ -44,7 +44,7 @@ namespace drop
 
         variant <std :: array <uint8_t, 1>, std :: array <uint8_t, 2>, std :: array <uint8_t, 4>> _header;
 
-        uint8_t * _data;
+        const uint8_t * _data;
         size_t _size;
 
         size_t _cursor;

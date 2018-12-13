@@ -16,6 +16,54 @@ namespace drop
         return $expression($type(type).send($type(const uint8_t*), $type(size_t))).template casts <size_t> ();
     }
 
+    // Constructors
+
+    template <size_t size> streamers :: send :: send(const std :: array <uint8_t, size> & buffer) : _data(buffer.data()), _size(size), _cursor(0)
+    {
+    }
+
+    // Methods
+
+    template <typename type, std :: enable_if_t <streamers :: send :: constraints :: stream <type> ()> *> bool streamers :: send :: stream(type & stream)
+    {
+        bool completed = false;
+
+        this->_header.match([&](const auto & header)
+        {
+            size_t sent;
+
+            do
+            {
+                sent = stream.send(header.data() + this->_cursor, header.size() - this->_cursor);
+                this->_cursor += sent;
+            }
+            while(sent && (this->_cursor < header.size()));
+
+            if(this->_cursor == header.size())
+            {
+                this->_header.erase();
+                this->_cursor = 0;
+
+                completed = this->stream(stream);
+            }
+        }, [&]()
+        {
+            size_t sent;
+
+            do
+            {
+                sent = stream.send(this->_data + this->_cursor, this->_size - this->_cursor);
+                this->_cursor += sent;
+            }
+            while(sent && (this->_cursor < this->_size));
+
+            if(this->_cursor == this->_size)
+                completed = true;
+        });
+
+        return completed;
+    }
+
     // receive
 
     // Constraints
