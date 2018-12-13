@@ -39,6 +39,8 @@ namespace drop
 
         public:
 
+            // Constraints
+
             template <size_t, typename, typename> static constexpr bool repeat();
         };
 
