@@ -20,6 +20,16 @@ namespace drop
 {
     class varint
     {
+    public:
+
+        // Constraints
+
+        struct constraints
+        {
+            template <typename> static constexpr bool visitor();
+        };
+
+    private:
         // Members
 
         uint32_t _value;
@@ -33,10 +43,18 @@ namespace drop
 
         varint(const uint8_t *);
 
+        // Getters
+
+        size_t size() const;
+
         // Bytewise
 
         template <typename vtype> void accept(bytewise :: reader <vtype> &) const;
         template <typename vtype> void accept(bytewise :: writer <vtype> &);
+
+        // Methods
+
+        template <typename lambda, std :: enable_if_t <constraints :: visitor <lambda> ()> * = nullptr> void visit(lambda &&) const;
 
         // Operators
 

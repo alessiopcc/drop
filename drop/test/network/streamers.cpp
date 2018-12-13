@@ -16,6 +16,35 @@ namespace
 
     // Classes
 
+    class wstream
+    {
+        // Members
+
+        std :: vector <size_t> _steps;
+        size_t _step;
+
+    public:
+
+        // Constructors
+
+        wstream(const std :: vector <size_t> & steps) : _steps(steps), _step(0)
+        {
+        }
+
+        size_t send(const uint8_t * chunk, size_t size)
+        {
+            size = std :: min(size, this->_steps[this->_step]);
+
+            for(size_t i = 0; i < size; i++)
+                std :: cout << (uint32_t) *(chunk + i) << std :: endl;
+
+            this->_step++;
+
+            return size;
+        }
+
+    };
+
     class rstream
     {
         // Members
@@ -50,7 +79,33 @@ namespace
 
     // Tests
 
-    $test("streamers/develop", []
+    $test("streamers/send", []
+    {
+        {
+            std :: array <uint8_t, 8> mybuffer = {1, 2, 3, 4, 5, 6, 7, 8};
+            wstream mystream({0, 1, 0, 3, 2, 100});
+
+            streamers :: send mystreamer(mybuffer);
+            while(!mystreamer.stream(mystream));
+        }
+
+        {
+            size_t size = 192;
+
+            std :: vector <uint8_t> mybuffer;
+            mybuffer.resize(size);
+
+            for(size_t i = 0; i < size; i++)
+                mybuffer[i] = i;
+
+            wstream mystream({0, 0, 0, 1, 1, 9, 8, 9, 9, 9, 9, 9, 9, 9, 9, size});
+
+            streamers :: send mystreamer(mybuffer);
+            while(!mystreamer.stream(mystream));
+        }
+    });
+
+    $test("streamers/receive", []
     {
         {
             std :: array <uint8_t, 8> mybuffer;
@@ -65,7 +120,7 @@ namespace
             rstream mystream({192, 0, 0, 5, 4, 5, 6, 7, 8}, {0, 0, 0, 1, 1, 9, 8, 9, 9, 9, 9, 9, 9, 9, 9});
 
             streamers :: receive mystreamer(mybuffer);
-            while(!mystreamer.stream(mystream));    
+            while(!mystreamer.stream(mystream));
         }
     });
 };
