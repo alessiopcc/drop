@@ -63,6 +63,12 @@ namespace drop
 #include <errno.h>
 #include <sys/ioctl.h>
 
+// Forward includes
+
+#define __forward__
+#include "connection.h"
+#undef __forward__
+
 // Includes
 
 #include "network/address.hpp"
@@ -77,6 +83,10 @@ namespace drop
         // Nested classes
 
         class socket;
+
+        // Static methods
+
+        static connection connectsync(const address &);
     };
 
     class tcp :: socket

@@ -2,9 +2,21 @@
 
 #include "tcp.hpp"
 #include "exception/exception.hpp"
+#include "connection.h"
 
 namespace drop
 {
+    // tcp
+
+    // Static methods
+
+    connection tcp :: connectsync(const address & remote)
+    {
+        socket socket;
+        socket.connect(remote);
+        return connection(socket);
+    }
+
     // socket
 
     // Constructors
