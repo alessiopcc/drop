@@ -21,12 +21,12 @@ namespace drop
 #include <memory>
 #include <exception>
 #include <vector>
-#include <mutex>
 
 // Includes
 
 #include "data/variant.hpp"
 #include "exception/exception.hpp"
+#include "thread/guard.hpp"
 
 namespace drop
 {
@@ -145,7 +145,7 @@ namespace drop
         variant <std :: experimental :: coroutine_handle <>, std :: vector <std :: experimental :: coroutine_handle <>>> _handles;
         bool _resumed;
 
-        std :: recursive_mutex _mutex;
+        guard <soft> _guard;
 
     public:
 

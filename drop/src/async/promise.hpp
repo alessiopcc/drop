@@ -34,37 +34,34 @@ namespace drop
 
     template <typename type> bool promise <type> :: await_ready() const
     {
-        bool response;
-
-        this->_arc->_mutex.lock();
-        response = this->_arc->_status;
-        this->_arc->_mutex.unlock();
-
-        return response;
+        return this->_arc->_guard([&]()
+        {
+            return this->_arc->_status;
+        });
     }
 
     template <typename type> void promise <type> :: await_suspend(std :: experimental :: coroutine_handle <> handle) const
     {
-        this->_arc->_mutex.lock();
-
-        if(!(this->_arc->_handles))
-            this->_arc->_handles = handle;
-        else if(this->_arc->_handles.template is <std :: experimental :: coroutine_handle <>> ())
+        this->_arc->_guard([&]()
         {
-            auto old = this->_arc->_handles.template reinterpret <std :: experimental :: coroutine_handle <>> ();
-            this->_arc->_handles = std :: vector <std :: experimental :: coroutine_handle <>> {old, handle};
-        }
-        else
-            this->_arc->_handles.template reinterpret <std :: vector <std :: experimental :: coroutine_handle <>>> ().push_back(handle);
-
-        this->_arc->_mutex.unlock();
+            if(!(this->_arc->_handles))
+                this->_arc->_handles = handle;
+            else if(this->_arc->_handles.template is <std :: experimental :: coroutine_handle <>> ())
+            {
+                auto old = this->_arc->_handles.template reinterpret <std :: experimental :: coroutine_handle <>> ();
+                this->_arc->_handles = std :: vector <std :: experimental :: coroutine_handle <>> {old, handle};
+            }
+            else
+                this->_arc->_handles.template reinterpret <std :: vector <std :: experimental :: coroutine_handle <>>> ().push_back(handle);
+        });
     }
 
     template <typename type> auto promise <type> :: await_resume() const
     {
-        this->_arc->_mutex.lock();
-        this->_arc->_resumed = true;
-        this->_arc->_mutex.unlock();
+        this->_arc->_guard([&]()
+        {
+            this->_arc->_resumed = true;
+        });
 
         if(this->_arc->_status.template is <typename arc :: storetype> ())
         {
@@ -83,47 +80,39 @@ namespace drop
     {
         std :: shared_ptr <arc> arc = this->_arc;
 
-        arc->_mutex.lock();
-
-        if(arc->_status)
+        arc->_guard([&]()
         {
-            arc->_mutex.unlock();
-            exception <bad_access, already_resolved> :: raise(this);
-        }
-        else
-        {
-            if constexpr (std :: is_same <type, void> :: value)
-                arc->_status = null();
+            if(arc->_status)
+                exception <bad_access, already_resolved> :: raise(this);
             else
-                [&](const type & value)
-                {
-                    arc->_status = value;
-                }(value...);
+            {
+                if constexpr (std :: is_same <type, void> :: value)
+                    arc->_status = null();
+                else
+                    [&](const type & value)
+                    {
+                        arc->_status = value;
+                    }(value...);
 
-            flush(arc);
-        }
-
-        arc->_mutex.unlock();
+                flush(arc);
+            }
+        });
     }
 
     template <typename type> void promise <type> :: reject(const std :: exception_ptr & exception) const
     {
         std :: shared_ptr <arc> arc = this->_arc;
 
-        arc->_mutex.lock();
-
-        if(arc->_status)
+        arc->_guard([&]()
         {
-            arc->_mutex.unlock();
-            drop :: exception <bad_access, already_resolved> :: raise(this);
-        }
-        else
-        {
-            arc->_status = exception;
-            flush(arc);
-        }
-
-        arc->_mutex.unlock();
+            if(arc->_status)
+                drop :: exception <bad_access, already_resolved> :: raise(this);
+            else
+            {
+                arc->_status = exception;
+                flush(arc);
+            }
+        });
     }
 
     template <typename type> template <typename etype> void promise <type> :: reject(const etype & exception) const
