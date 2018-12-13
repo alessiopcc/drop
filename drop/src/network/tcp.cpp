@@ -64,7 +64,7 @@ namespace drop
 
         int descriptor = :: accept(this->_descriptor, (struct sockaddr *) &remote, &socklen);
 
-        if(descriptor < 0)
+        if(descriptor < 0 && (errno != EAGAIN) && (errno != EWOULDBLOCK))
             exception <accept_failed> :: raise(this, errno);
 
         return socket(descriptor);
@@ -111,7 +111,7 @@ namespace drop
         int flags = :: fcntl(this->_descriptor, F_GETFL);
 
         if(flags < 0)
-            exception <bad_access, fcntl_failed> :: raise(this);
+            exception <bad_access, fcntl_failed> :: raise(this, errno);
 
         return flags;
     }
@@ -119,7 +119,19 @@ namespace drop
     void tcp :: socket :: fcntl(const int & flags)
     {
         if(:: fcntl(this->_descriptor, F_SETFL, flags))
-            exception <bad_access, fcntl_failed> :: raise(this);
+            exception <bad_access, fcntl_failed> :: raise(this, errno);
+    }
+
+    int tcp :: socket :: ioctl(const unsigned long & request) const
+    {
+        this->opencheck();
+
+        int value;
+
+        if(:: ioctl(this->_descriptor, request, &value))
+            exception <ioctl_failed> :: raise(this, errno);
+
+        return value;
     }
 
     void tcp :: socket :: bind(const address & address, const bool & ipv6only)
@@ -140,5 +152,12 @@ namespace drop
             if(:: bind(this->_descriptor, (const struct sockaddr *) &sockaddr, sizeof(sockaddr_in6)))
                 exception <bind_failed> :: raise(this, errno);
         });
+    }
+
+    // Casting
+
+    tcp :: socket :: operator bool () const
+    {
+        return (this->_descriptor >= 0);
     }
 };

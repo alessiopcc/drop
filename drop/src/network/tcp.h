@@ -10,7 +10,25 @@ namespace drop
         class receive;
     };
 
+    namespace buffers
+    {
+        namespace send
+        {
+            class size;
+            class pending;
+            class available;
+        };
+
+        namespace receive
+        {
+            class size;
+            class available;
+        }
+    }
+
     class blocking;
+    class readable;
+    class writable;
 
     class bad_access;
     class socket_closed;
@@ -23,6 +41,7 @@ namespace drop
     class accept_failed;
     class connect_failed;
     class getpeername_failed;
+    class ioctl_failed;
 
     // Classes
 
@@ -121,10 +140,18 @@ namespace drop
         int fcntl() const;
         void fcntl(const int &);
 
+        int ioctl(const unsigned long &) const;
+
         template <typename type> type getsockopt(const int &, const int &) const;
         template <typename type> void setsockopt(const int &, const int &, const type &);
 
         void bind(const address &, const bool &);
+
+    public:
+
+        // Casting
+
+        operator bool () const;
     };
 };
 
