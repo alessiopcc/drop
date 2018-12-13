@@ -2,11 +2,18 @@
 
 namespace drop
 {
-    class streamers;
+    // Tags
+
+    class send;
+    class receive;
+
+    // Classes
+
+    template <typename> class streamer;
 };
 
-#if !defined(__forward__) && !defined(__src__network__streamers__h)
-#define __src__network__streamers__h
+#if !defined(__forward__) && !defined(__src__network__streamer__h)
+#define __src__network__streamer__h
 
 // Libraries
 
@@ -21,17 +28,7 @@ namespace drop
 
 namespace drop
 {
-    class streamers
-    {
-    public:
-
-        // Nested classes
-
-        class send;
-        class receive;
-    };
-
-    class streamers :: send
+    template <> class streamer <send>
     {
         // Constraints
 
@@ -53,15 +50,15 @@ namespace drop
 
         // Constructors
 
-        template <size_t size> send(const std :: array <uint8_t, size> &);
-        send(const std :: vector <uint8_t> &);
+        template <size_t size> streamer(const std :: array <uint8_t, size> &);
+        streamer(const std :: vector <uint8_t> &);
 
         // Methods
 
         template <typename type, std :: enable_if_t <constraints :: stream <type> ()> * = nullptr> bool stream(type &);
     };
 
-    class streamers :: receive
+    template <> class streamer <receive>
     {
         // Constraints
 
@@ -93,8 +90,8 @@ namespace drop
 
         // Constructors
 
-        template <size_t size> receive(std :: array <uint8_t, size> &);
-        receive(std :: vector <uint8_t> &);
+        template <size_t size> streamer(std :: array <uint8_t, size> &);
+        streamer(std :: vector <uint8_t> &);
 
         // Methods
 
