@@ -39,23 +39,23 @@ namespace drop
     template <typename vtype> void varint :: accept(bytewise :: writer <vtype> & writer)
     {
         std :: array <uint8_t, 4> buffer;
-
         writer.visit(buffer[0]);
-        if(buffer[0] & 0x80)
+
+        switch(size(buffer[0]))
         {
-            writer.visit(buffer[1]);
-
-            if(buffer[0] & 0x40)
+            case 2:
             {
-                writer.visit(buffer[2]).visit(buffer[3]);
-
-                this->_value = ((uint32_t)(buffer[0] & 0x3f) << 24) | ((uint32_t)(buffer[1]) << 16) | ((uint32_t)(buffer[2]) << 8) | (uint32_t)(buffer[3]);
+                writer.visit(buffer[1]);
+                break;
             }
-            else
-                this->_value = ((uint32_t)(buffer[0] & 0x7f) << 8) | (uint32_t)(buffer[1]);
+            case 4:
+            {
+                writer.visit(buffer[1]).visit(buffer[2]).visit(buffer[3]);
+                break;
+            }
         }
-        else
-            this->_value = buffer[0];
+
+        (*this) = varint(buffer.data());
     }
 };
 

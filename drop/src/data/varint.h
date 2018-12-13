@@ -31,6 +31,8 @@ namespace drop
         varint() = default;
         varint(const uint32_t &);
 
+        varint(const uint8_t *);
+
         // Bytewise
 
         template <typename vtype> void accept(bytewise :: reader <vtype> &) const;
@@ -44,6 +46,10 @@ namespace drop
 
         operator uint32_t & ();
         operator const uint32_t & () const;
+
+        // Static methods
+
+        static size_t size(const uint8_t &);
     };
 };
 
