@@ -42,6 +42,8 @@ namespace drop
     class connect_failed;
     class getpeername_failed;
     class ioctl_failed;
+    class send_failed;
+    class receive_failed;
 
     // Classes
 
@@ -129,6 +131,9 @@ namespace drop
         socket accept();
 
         void connect(const address &);
+
+        size_t send(const uint8_t *, const size_t &);
+        size_t receive(uint8_t *, const size_t &);
 
     private:
 

@@ -92,6 +92,40 @@ namespace drop
             exception <connect_failed> :: raise(this, errno);
     }
 
+    size_t tcp :: socket :: send(const uint8_t * message, const size_t & size)
+    {
+        this->opencheck();
+
+        ssize_t status = :: send(this->_descriptor, message, size, 0);
+
+        if(status < 0)
+        {
+            if((errno == EAGAIN) || (errno == EWOULDBLOCK))
+                return 0;
+
+            exception <send_failed> :: raise(this, errno);
+        }
+
+        return (size_t) status;
+    }
+
+    size_t tcp :: socket :: receive(uint8_t * message, const size_t & size)
+    {
+        this->opencheck();
+
+        ssize_t status = :: recv(this->_descriptor, message, size, 0);
+
+        if(status < 0)
+        {
+            if((errno == EAGAIN) || (errno == EWOULDBLOCK))
+                return 0;
+
+            exception <receive_failed> :: raise(this, errno);
+        }
+
+        return (size_t) status;
+    }
+
     // Private methods
 
     void tcp :: socket :: opencheck() const
