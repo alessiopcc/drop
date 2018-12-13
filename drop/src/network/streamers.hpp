@@ -7,6 +7,15 @@
 
 namespace drop
 {
+    // send
+
+    // Constraints
+
+    template <typename type> constexpr bool streamers :: send :: constraints :: stream()
+    {
+        return $expression($type(type).send($type(const uint8_t*), $type(size_t))).template casts <size_t> ();
+    }
+
     // receive
 
     // Constraints

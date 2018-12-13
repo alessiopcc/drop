@@ -23,6 +23,18 @@ namespace drop
             this->_value = buffer[0];
     }
 
+    // Getters
+
+    size_t varint :: size() const
+    {
+        if(this->_value < 128)
+            return 1;
+        else if(this->_value < 16384)
+            return 2;
+        else
+            return 4;
+    }
+
     // Operators
 
     varint & varint :: operator = (const uint32_t & value)

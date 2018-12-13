@@ -33,6 +33,32 @@ namespace drop
 
     class streamers :: send
     {
+        // Constraints
+
+        struct constraints
+        {
+            template <typename> static constexpr bool stream();
+        };
+
+        // Members
+
+        variant <std :: array <uint8_t, 1>, std :: array <uint8_t, 2>, std :: array <uint8_t, 4>> _header;
+
+        uint8_t * _data;
+        size_t _size;
+
+        size_t _cursor;
+
+    public:
+
+        // Constructors
+
+        template <size_t size> send(const std :: array <uint8_t, size> &);
+        send(const std :: vector <uint8_t> &);
+
+        // Methods
+
+        template <typename type, std :: enable_if_t <constraints :: stream <type> ()> * = nullptr> bool stream(type &);
     };
 
     class streamers :: receive
