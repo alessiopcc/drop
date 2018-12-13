@@ -120,20 +120,20 @@ namespace drop
 
         // Setters
 
-        template <typename tag, typename type> inline void set(const type &);
+        template <typename tag, typename type> inline void set(const type &) const;
 
         // Methods
 
         void bind(const class address :: port &);
         void bind(const address &);
 
-        void listen();
-        socket accept();
+        void listen() const;
+        socket accept() const;
 
         void connect(const address &);
 
-        size_t send(const uint8_t *, const size_t &);
-        size_t receive(uint8_t *, const size_t &);
+        size_t send(const uint8_t *, const size_t &) const;
+        size_t receive(uint8_t *, const size_t &) const;
 
     private:
 
@@ -143,12 +143,12 @@ namespace drop
         void closedcheck() const;
 
         int fcntl() const;
-        void fcntl(const int &);
+        void fcntl(const int &) const;
 
         int ioctl(const unsigned long &) const;
 
         template <typename type> type getsockopt(const int &, const int &) const;
-        template <typename type> void setsockopt(const int &, const int &, const type &);
+        template <typename type> void setsockopt(const int &, const int &, const type &) const;
 
         void bind(const address &, const bool &);
 
