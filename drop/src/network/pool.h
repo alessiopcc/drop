@@ -31,6 +31,13 @@ namespace drop
 {
     class pool
     {
+        // Constraints
+
+        struct constraints
+        {
+            template <typename> static constexpr bool socket();
+        };
+
         // Service nested classes
 
         struct event;
@@ -51,7 +58,24 @@ namespace drop
         std :: vector <timeout> _timeouts;
         std :: vector <event> _pending;
 
+        uint64_t _nonce;
         guard <soft> _guard;
+
+        // Methods
+
+        template <typename type, std :: enable_if_t <constraints :: socket <type> ()> * = nullptr> promise <void> write(const type &, const interval & = 0);
+        template <typename type, std :: enable_if_t <constraints :: socket <type> ()> * = nullptr> promise <void> write(const type &, const streamer <send> &, const interval & = 0);
+
+        template <typename type, std :: enable_if_t <constraints :: socket <type> ()> * = nullptr> promise <void> read(const type &, const interval & = 0);
+        template <typename type, std :: enable_if_t <constraints :: socket <type> ()> * = nullptr> promise <void> read(const type &, const streamer <receive> &, const interval & = 0);
+
+    private:
+
+        // Private methods
+
+        void add(const queue :: type &, const int &, task &, const interval &);
+
+        void settimeout(const struct event &, const interval &);
     };
 
     struct pool :: event
