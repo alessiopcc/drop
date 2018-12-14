@@ -15,6 +15,10 @@ namespace drop
 
     template <typename...> class variant;
     class undefined;
+
+    // Using
+
+    template <typename type> using optional = variant <type>;
 };
 
 #if !defined(__forward__) && !defined(__src__data__variant__h)
