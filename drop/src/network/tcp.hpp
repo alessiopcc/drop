@@ -9,6 +9,12 @@ namespace drop
 {
     // Getters
 
+    template <> inline auto tcp :: socket :: get <descriptor> () const
+    {
+        this->opencheck();
+        return this->_descriptor;
+    }
+
     template <> inline auto tcp :: socket :: get <blocking> () const
     {
         this->opencheck();
@@ -58,7 +64,7 @@ namespace drop
 
     // Setters
 
-    template <> inline void tcp :: socket :: set <blocking, bool> (const bool & value)
+    template <> inline void tcp :: socket :: set <blocking, bool> (const bool & value) const
     {
         this->opencheck();
 
@@ -68,7 +74,7 @@ namespace drop
             this->fcntl(this->fcntl() | O_NONBLOCK);
     }
 
-    template <> inline void tcp :: socket :: set <timeouts :: send, interval> (const interval & value)
+    template <> inline void tcp :: socket :: set <timeouts :: send, interval> (const interval & value) const
     {
         this->opencheck();
 
@@ -79,7 +85,7 @@ namespace drop
         this->setsockopt(SOL_SOCKET, SO_SNDTIMEO, timeval);
     }
 
-    template <> inline void tcp :: socket :: set <timeouts :: receive, interval> (const interval & value)
+    template <> inline void tcp :: socket :: set <timeouts :: receive, interval> (const interval & value) const
     {
         this->opencheck();
 
@@ -103,7 +109,7 @@ namespace drop
         return value;
     }
 
-    template <typename type> void tcp :: socket :: setsockopt(const int & level, const int & optname, const type & value)
+    template <typename type> void tcp :: socket :: setsockopt(const int & level, const int & optname, const type & value) const
     {
         if(:: setsockopt(this->_descriptor, level, optname, (const uint8_t *) &value, sizeof(type)))
             exception <bad_access, setsockopt_failed> :: raise(this, errno);

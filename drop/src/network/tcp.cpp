@@ -2,9 +2,21 @@
 
 #include "tcp.hpp"
 #include "exception/exception.hpp"
+#include "connection.h"
 
 namespace drop
 {
+    // tcp
+
+    // Static methods
+
+    connection tcp :: connectsync(const address & remote)
+    {
+        socket socket;
+        socket.connect(remote);
+        return connection(socket);
+    }
+
     // socket
 
     // Constructors
@@ -47,7 +59,7 @@ namespace drop
         this->bind(address, true);
     }
 
-    void tcp :: socket :: listen()
+    void tcp :: socket :: listen() const
     {
         this->opencheck();
 
@@ -55,7 +67,7 @@ namespace drop
             exception <listen_failed> :: raise(this, errno);
     }
 
-    tcp :: socket tcp :: socket :: accept()
+    tcp :: socket tcp :: socket :: accept() const
     {
         this->opencheck();
 
@@ -92,7 +104,7 @@ namespace drop
             exception <connect_failed> :: raise(this, errno);
     }
 
-    size_t tcp :: socket :: send(const uint8_t * message, const size_t & size)
+    size_t tcp :: socket :: send(const uint8_t * message, const size_t & size) const
     {
         this->opencheck();
 
@@ -109,7 +121,7 @@ namespace drop
         return (size_t) status;
     }
 
-    size_t tcp :: socket :: receive(uint8_t * message, const size_t & size)
+    size_t tcp :: socket :: receive(uint8_t * message, const size_t & size) const
     {
         this->opencheck();
 
@@ -124,6 +136,12 @@ namespace drop
         }
 
         return (size_t) status;
+    }
+
+    void tcp :: socket :: close()
+    {
+        :: close(this->_descriptor);
+        this->_descriptor = -1;
     }
 
     // Private methods
@@ -150,7 +168,7 @@ namespace drop
         return flags;
     }
 
-    void tcp :: socket :: fcntl(const int & flags)
+    void tcp :: socket :: fcntl(const int & flags) const
     {
         if(:: fcntl(this->_descriptor, F_SETFL, flags))
             exception <bad_access, fcntl_failed> :: raise(this, errno);
