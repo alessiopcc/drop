@@ -20,10 +20,12 @@ namespace
     {
         /*auto connection = tcp :: connectsync({"127.0.0.1", 1234});
 
-        connection.sendsync(std :: array <uint32_t, 10> {1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
-        auto reply = connection.receivesync <std :: array <uint32_t, 10>> ();
+        connection.sendsync(std :: array <uint32_t, 4> {1, 2, 3, 4}, std :: string("Hello World!"));
+        auto [firstreply, secondreply] = connection.receivesync <std :: array <uint32_t, 4>, std :: string> ();
 
-        for(auto value : reply)
-            std :: cout << value << std :: endl;*/
+        for(auto value : firstreply)
+            std :: cout << value << std :: endl;
+
+        std :: cout << secondreply << std :: endl;*/
     });
 };

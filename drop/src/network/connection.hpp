@@ -21,64 +21,68 @@ namespace drop
 
     template <typename type, std :: enable_if_t <connection :: constraints :: buffer <type> ()> *> void connection :: sendsync(const type & message) const
     {
-        this->_arc->_guard([&]()
+        this->setup <send, true> ();
+
+        try
         {
-            if(this->_arc->_locks.send)
-                exception <send_failed, send_locked> :: raise(this);
+            this->_arc->_socket.match([&](const auto & socket)
+            {
+                streamer <send> streamer(message);
 
-            this->block <true> ();
-            this->_arc->_locks.send = true;
-        });
-
-        this->_arc->_socket.match([&](const auto & socket)
+                if(!streamer.stream(socket))
+                    exception <send_timeout> :: raise(this);
+            });
+        }
+        catch(...)
         {
-            streamer <send> streamer(message);
+            this->release <send> ();
+            std :: rethrow_exception(std :: current_exception());
+        }
 
-            if(!streamer.stream(socket))
-                exception <send_timeout> :: raise(this);
-        });
+        this->release <send> ();
     }
 
-    template <typename type, std :: enable_if_t <(bytewise :: constraints :: serializable <type> ()) && !(connection :: constraints :: buffer <type> ())> *> void connection :: sendsync(const type & message) const
+    template <typename... types, std :: enable_if_t <(sizeof...(types) > 0) && (... && bytewise :: constraints :: serializable <types> ()) && !((sizeof...(types) == 1) && (... && connection :: constraints :: buffer <types> ()))> *> void connection :: sendsync(const types & ... message) const
     {
-        this->sendsync(bytewise :: serialize(message));
+        this->sendsync(bytewise :: serialize(message...));
     }
 
     template <typename type, std :: enable_if_t <connection :: constraints :: buffer <type> ()> *> type connection :: receivesync() const
     {
-        this->_arc->_guard([&]()
-        {
-            if(this->_arc->_locks.receive)
-                exception <receive_failed, receive_locked> :: raise(this);
-
-            this->block <true> ();
-            this->_arc->_locks.receive = true;
-        });
-
+        this->setup <receive, true> ();
         type message;
 
-        this->_arc->_socket.match([&](const auto & socket)
+        try
         {
-            streamer <receive> streamer(message);
+            this->_arc->_socket.match([&](const auto & socket)
+            {
+                streamer <receive> streamer(message);
 
-            if(!streamer.stream(socket))
-                exception <receive_timeout> :: raise(this);
-        });
+                if(!streamer.stream(socket))
+                    exception <receive_timeout> :: raise(this);
+            });
+        }
+        catch(...)
+        {
+            this->release <receive> ();
+            std :: rethrow_exception(std :: current_exception());
+        }
 
+        this->release <receive> ();
         return message;
     }
 
-    template <typename type, std :: enable_if_t <(bytewise :: constraints :: deserializable <type> ()) && !(connection :: constraints :: buffer <type> ())> *> type connection :: receivesync() const
+    template <typename... types, std :: enable_if_t <(sizeof...(types) > 0) && (... && bytewise :: constraints :: deserializable <types> ()) && !((sizeof...(types) == 1) && (... && connection :: constraints :: buffer <types> ()))> *> auto connection :: receivesync() const
     {
-        if constexpr (bytewise :: constraints :: fixed <type> ())
+        if constexpr ((... && bytewise :: constraints :: fixed <types> ()))
         {
-            auto message = this->receivesync <std :: array <uint8_t, bytewise :: traits :: size <type> ()>> ();
-            return bytewise :: deserialize <type> (message);
+            auto message = this->receivesync <std :: array <uint8_t, (... + bytewise :: traits :: size <types> ())>> ();
+            return bytewise :: deserialize <types...> (message);
         }
         else
         {
             auto message = this->receivesync <std :: vector <uint8_t>> ();
-            return bytewise :: deserialize <type> (message);
+            return bytewise :: deserialize <types...> (message);
         }
     }
 
@@ -91,13 +95,47 @@ namespace drop
             if(this->_arc->_locks.send || this->_arc->_locks.receive)
                 exception <synchrony_locked> :: raise(this);
 
-            this->_arc->_socket.match([](auto & socket)
+            this->_arc->_socket.match([](const auto & socket)
             {
                 socket.template set <blocking> (value);
             });
 
             this->_arc->_cache.blocking = value;
         }
+    }
+
+    template <typename type, bool blocking> void connection :: setup() const
+    {
+        this->_arc->_guard([&]()
+        {
+            if constexpr (std :: is_same <type, send> :: value)
+            {
+                if(this->_arc->_locks.send)
+                    exception <send_failed, send_locked> :: raise(this);
+
+                this->_arc->_locks.send = true;
+            }
+            else
+            {
+                if(this->_arc->_locks.receive)
+                    exception <receive_failed, receive_locked> :: raise(this);
+
+                this->_arc->_locks.receive = true;
+            }
+
+            this->block <blocking> ();
+        });
+    }
+
+    template <typename type> void connection :: release() const
+    {
+        this->_arc->_guard([&]()
+        {
+            if constexpr (std :: is_same <type, send> :: value)
+                this->_arc->_locks.send = false;
+            else
+                this->_arc->_locks.receive = false;
+        });
     }
 };
 

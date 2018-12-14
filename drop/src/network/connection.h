@@ -13,6 +13,9 @@ namespace drop
     class send_timeout;
     class receive_timeout;
 
+    class send;
+    class receive;
+
     // Classes
 
     class connection;
@@ -62,16 +65,19 @@ namespace drop
         // Methods
 
         template <typename type, std :: enable_if_t <constraints :: buffer <type> ()> * = nullptr> void sendsync(const type &) const;
-        template <typename type, std :: enable_if_t <(bytewise :: constraints :: serializable <type> ()) && !(constraints :: buffer <type> ())> * = nullptr> void sendsync(const type &) const;
+        template <typename... types, std :: enable_if_t <(sizeof...(types) > 0) && (... && bytewise :: constraints :: serializable <types> ()) && !((sizeof...(types) == 1) && (... && constraints :: buffer <types> ()))> * = nullptr> void sendsync(const types & ...) const;
 
         template <typename type, std :: enable_if_t <constraints :: buffer <type> ()> * = nullptr> type receivesync() const;
-        template <typename type, std :: enable_if_t <(bytewise :: constraints :: deserializable <type> ()) && !(constraints :: buffer <type> ())> * = nullptr> type receivesync() const;
+        template <typename... types, std :: enable_if_t <(sizeof...(types) > 0) && (... && bytewise :: constraints :: deserializable <types> ()) && !((sizeof...(types) == 1) && (... && constraints :: buffer <types> ()))> * = nullptr> auto receivesync() const;
 
     private:
 
         // Private methods
 
         template <bool> void block() const;
+
+        template <typename, bool> void setup() const;
+        template <typename> void release() const;
     };
 
     class connection :: arc
