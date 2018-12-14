@@ -6,6 +6,25 @@ namespace drop
 {
     // pool
 
+    // Constructors
+
+    pool :: pool() : _alive(true), _thread(&pool :: run, this)
+    {
+    }
+
+    // Destructor
+
+    pool :: ~pool()
+    {
+        this->_guard([&]()
+        {
+            this->_alive = false;
+        });
+
+        this->_queue.wake();
+        this->_thread.join();
+    }
+
     // Private methods
 
     void pool :: add(const queue :: type & type, const int & descriptor, task & task, const interval & timeout)
@@ -22,6 +41,51 @@ namespace drop
 
             this->_nonce++;
         });
+
+        this->_queue.wake();
+    }
+
+    void pool :: run()
+    {
+        while(true)
+        {
+            std :: cout << "Hello World!" << std :: endl;
+
+            this->_queue.select([](const queue :: event & event)
+            {
+                // TODO: Process each of these!
+            }, this->nexttick());
+
+            this->_guard([&]() // Adds the pending
+            {
+                for(const event & event : this->_pending)
+                    this->_queue.add(event.type, event.descriptor);
+
+                this->_pending.clear();
+            });
+
+            // TODO: Flush the timeouts
+
+            if(!(this->_guard([&](){return this->_alive;})))
+                break;
+        }
+
+        std :: cout << "Good night." << std :: endl;
+    }
+
+    interval pool :: nexttick()
+    {
+        if(this->_timeouts.size())
+        {
+            timestamp start = now();
+
+            if(this->_timeouts.front().timeout > start)
+                return std :: max(this->_timeouts.front().timeout - start, settings :: step);
+            else
+                return settings :: step;
+        }
+
+        return 0;
     }
 
     void pool :: settimeout(const struct event & event, const interval & timeout)

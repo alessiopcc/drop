@@ -31,6 +31,13 @@ namespace drop
 {
     class pool
     {
+        // Settings
+
+        struct settings
+        {
+            static constexpr interval step = 0.1_s;
+        };
+
         // Constraints
 
         struct constraints
@@ -61,6 +68,19 @@ namespace drop
         uint64_t _nonce;
         guard <soft> _guard;
 
+        bool _alive;
+        std :: thread _thread;
+
+    public:
+
+        // Constructors
+
+        pool();
+
+        // Destructor
+
+        ~pool();
+
         // Methods
 
         template <typename type, std :: enable_if_t <constraints :: socket <type> ()> * = nullptr> promise <void> write(const type &, const interval & = 0);
@@ -74,6 +94,9 @@ namespace drop
         // Private methods
 
         void add(const queue :: type &, const int &, task &, const interval &);
+
+        void run();
+        interval nexttick();
 
         void settimeout(const struct event &, const interval &);
     };

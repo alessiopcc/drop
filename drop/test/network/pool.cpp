@@ -18,5 +18,16 @@ namespace
 
     $test("pool/develop", []
     {
+        pool mypool;
+
+        sleep(1_s);
+
+        tcp :: socket mysocket;
+        mysocket.connect({"127.0.0.1", 1234});
+
+        std :: cout << "Adding socket." << std :: endl;
+        mypool.read(mysocket, 3_s);
+
+        sleep(10_s);
     });
 };
