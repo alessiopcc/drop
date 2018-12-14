@@ -9,6 +9,12 @@ namespace drop
 {
     // Getters
 
+    template <> inline auto tcp :: socket :: get <descriptor> () const
+    {
+        this->opencheck();
+        return this->_descriptor;
+    }
+
     template <> inline auto tcp :: socket :: get <blocking> () const
     {
         this->opencheck();

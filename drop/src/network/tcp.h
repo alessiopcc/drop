@@ -26,6 +26,7 @@ namespace drop
         }
     }
 
+    class descriptor;
     class blocking;
     class readable;
     class writable;
