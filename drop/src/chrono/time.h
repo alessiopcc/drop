@@ -94,6 +94,15 @@ namespace drop
         interval operator * (const double &) const;
         interval operator / (const double &) const;
 
+        bool operator < (const interval &) const;
+        bool operator <= (const interval &) const;
+
+        bool operator > (const interval &) const;
+        bool operator >= (const interval &) const;
+
+        bool operator == (const interval &) const;
+        bool operator != (const interval &) const;
+
         // Casting
 
         explicit operator const uint64_t & () const;

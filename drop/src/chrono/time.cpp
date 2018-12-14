@@ -105,6 +105,36 @@ namespace drop
         return interval(this->_value / rho);
     }
 
+    bool interval :: operator < (const interval & rho) const
+    {
+        return (this->_value < rho._value);
+    }
+
+    bool interval :: operator <= (const interval & rho) const
+    {
+        return (this->_value <= rho._value);
+    }
+
+    bool interval :: operator > (const interval & rho) const
+    {
+        return (this->_value > rho._value);
+    }
+
+    bool interval :: operator >= (const interval & rho) const
+    {
+        return (this->_value >= rho._value);
+    }
+
+    bool interval :: operator == (const interval & rho) const
+    {
+        return (this->_value == rho._value);
+    }
+
+    bool interval :: operator != (const interval & rho) const
+    {
+        return (this->_value != rho._value);
+    }
+
     // Casting
 
     interval :: operator const uint64_t & () const
