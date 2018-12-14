@@ -7,6 +7,7 @@ namespace drop
     class unknown_event;
     class kevent_failed;
     class epoll_ctl_failed;
+    class epoll_wait_failed;
 
     // Classes
 
@@ -17,6 +18,8 @@ namespace drop
 #define __src__network__queue__h
 
 // Libraries
+
+#include <fcntl.h>
 
 #ifdef __APPLE__
 #include <sys/event.h>
@@ -29,6 +32,7 @@ namespace drop
 // Includes
 
 #include "chrono/time.hpp"
+#include "concept/expression.hpp"
 
 namespace drop
 {
@@ -41,6 +45,13 @@ namespace drop
         struct settings
         {
             static constexpr size_t buffer = 1024;
+        };
+
+        // Constraints
+
+        struct constraints
+        {
+            template <typename> static constexpr bool callback();
         };
 
         // Nested enums
@@ -79,6 +90,13 @@ namespace drop
         // Members
 
         int _descriptor;
+
+        struct
+        {
+            int read;
+            int write;
+        } _wakepipe;
+
         std :: array <event, settings :: buffer> _events;
 
     public:
@@ -95,6 +113,10 @@ namespace drop
 
         void add(const type &, const int &);
         void remove(const type &, const int &);
+
+        template <typename lambda, std :: enable_if_t <constraints :: callback <lambda> ()> * = nullptr> void select(lambda &&, const interval & = 0);
+
+        void wake();
 
     private:
 

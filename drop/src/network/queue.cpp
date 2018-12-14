@@ -67,6 +67,15 @@ namespace drop
         #ifdef __linux__
         this->_descriptor = epoll_create1(0);
         #endif
+
+        int wakepipe[2];
+        pipe(wakepipe);
+
+        this->_wakepipe.read = wakepipe[0];
+        this->_wakepipe.write = wakepipe[1];
+
+        fcntl(this->_wakepipe.read, F_SETFL, O_NONBLOCK);
+        this->add(read, this->_wakepipe.read);
     }
 
     // Destructor
@@ -74,6 +83,8 @@ namespace drop
     queue :: ~queue()
     {
         close(this->_descriptor);
+        close(this->_wakepipe.read);
+        close(this->_wakepipe.write);
     }
 
     // Methods
@@ -98,6 +109,12 @@ namespace drop
         #ifdef __linux__
         this->epoll_ctl(filter, descriptor, EPOLL_CTL_DEL);
         #endif
+    }
+
+    void queue :: wake()
+    {
+        char buffer = '\0';
+        :: write(this->_wakepipe.write, &buffer, 1);
     }
 
     // Private methods
