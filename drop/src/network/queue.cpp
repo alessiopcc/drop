@@ -130,7 +130,7 @@ namespace drop
         };
 
         if(:: epoll_ctl(this->_descriptor, operation, descriptor, &event) < 0)
-            throw exceptions :: epoll_ctl_failed();
+            exception <epoll_ctl_failed> :: raise(this, errno);
     }
     #endif
 };
