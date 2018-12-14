@@ -102,6 +102,12 @@ namespace drop
         } _locks;
 
         guard <soft> _guard;
+
+    public:
+
+        // Destructors
+
+        ~arc();
     };
 };
 

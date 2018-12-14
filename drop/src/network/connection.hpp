@@ -7,6 +7,8 @@
 
 namespace drop
 {
+    // connection
+    
     // Constraints
 
     template <typename type> constexpr bool connection :: constraints :: buffer()

@@ -146,6 +146,8 @@ namespace drop
         size_t send(const uint8_t *, const size_t &) const;
         size_t receive(uint8_t *, const size_t &) const;
 
+        void close();
+
     private:
 
         // Private methods

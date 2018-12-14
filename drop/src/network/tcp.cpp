@@ -138,6 +138,12 @@ namespace drop
         return (size_t) status;
     }
 
+    void tcp :: socket :: close()
+    {
+        :: close(this->_descriptor);
+        this->_descriptor = -1;
+    }
+
     // Private methods
 
     void tcp :: socket :: opencheck() const
