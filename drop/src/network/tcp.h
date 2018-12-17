@@ -110,12 +110,6 @@ namespace drop
 
         int _descriptor;
 
-    public:
-
-        // Constructors
-
-        socket();
-
     private:
 
         // Private constructors
@@ -153,7 +147,6 @@ namespace drop
         // Private methods
 
         void opencheck() const;
-        void closedcheck() const;
 
         int fcntl() const;
         void fcntl(const int &) const;
@@ -163,13 +156,18 @@ namespace drop
         template <typename type> type getsockopt(const int &, const int &) const;
         template <typename type> void setsockopt(const int &, const int &, const type &) const;
 
-        void bind(const address &, const bool &);
-
     public:
 
         // Casting
 
         operator bool () const;
+
+        // Static methods
+
+        static socket IPv4();
+        static socket IPv6();
+
+        static socket any();
     };
 };
 

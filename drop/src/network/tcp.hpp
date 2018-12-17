@@ -17,22 +17,17 @@ namespace drop
 
     template <> inline auto tcp :: socket :: get <blocking> () const
     {
-        this->opencheck();
         return !(this->fcntl() & O_NONBLOCK);
     }
 
     template <> inline auto tcp :: socket :: get <timeouts :: send> () const
     {
-        this->opencheck();
-
         auto timeval = this->getsockopt <struct timeval> (SOL_SOCKET, SO_SNDTIMEO);
         return interval(timeval.tv_sec * 1000000 + timeval.tv_usec);
     }
 
     template <> inline auto tcp :: socket :: get <timeouts :: receive> () const
     {
-        this->opencheck();
-
         auto timeval = this->getsockopt <struct timeval> (SOL_SOCKET, SO_RCVTIMEO);
         return interval(timeval.tv_sec * 1000000 + timeval.tv_usec);
     }
@@ -66,8 +61,6 @@ namespace drop
 
     template <> inline void tcp :: socket :: set <blocking, bool> (const bool & value) const
     {
-        this->opencheck();
-
         if(value)
             this->fcntl(this->fcntl() & ~(O_NONBLOCK));
         else
@@ -76,8 +69,6 @@ namespace drop
 
     template <> inline void tcp :: socket :: set <timeouts :: send, interval> (const interval & value) const
     {
-        this->opencheck();
-
         struct timeval timeval;
         timeval.tv_sec = ((const uint64_t &) value) / 1000000;
         timeval.tv_usec = ((const uint64_t &) value) % 1000000;
@@ -87,8 +78,6 @@ namespace drop
 
     template <> inline void tcp :: socket :: set <timeouts :: receive, interval> (const interval & value) const
     {
-        this->opencheck();
-
         struct timeval timeval;
         timeval.tv_sec = ((const uint64_t &) value) / 1000000;
         timeval.tv_usec = ((const uint64_t &) value) % 1000000;
@@ -100,6 +89,8 @@ namespace drop
 
     template <typename type> type tcp :: socket :: getsockopt(const int & level, const int & optname) const
     {
+        this->opencheck();
+
         type value;
         socklen_t size = sizeof(type);
 
@@ -111,6 +102,8 @@ namespace drop
 
     template <typename type> void tcp :: socket :: setsockopt(const int & level, const int & optname, const type & value) const
     {
+        this->opencheck();
+
         if(:: setsockopt(this->_descriptor, level, optname, (const uint8_t *) &value, sizeof(type)))
             exception <bad_access, setsockopt_failed> :: raise(this, errno);
     }
