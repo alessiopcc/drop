@@ -254,6 +254,8 @@ namespace drop
     {
         this->_arc->_guard([&]()
         {
+            this->block <blocking> ();
+
             if constexpr (std :: is_same <type, class send> :: value)
             {
                 if(this->_arc->_locks.send)
@@ -268,8 +270,6 @@ namespace drop
 
                 this->_arc->_locks.receive = true;
             }
-
-            this->block <blocking> ();
         });
     }
 

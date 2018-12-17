@@ -18,20 +18,38 @@ namespace
 
     $test("pool/develop", []
     {
-        /*[]() -> promise <void>
+        // Client
+
+        /*auto acceptor = tcp :: socket :: IPv4();
+        acceptor.bind({"127.0.0.1", 1236});
+
+        acceptor.listen();
+        auto socket = acceptor.accept();
+
+        connection connection(socket);*/
+
+        // Server
+
+        // auto connection = tcp :: connectsync({"127.0.0.1", 1236});
+
+        // Chat code
+
+        /*[&]() -> promise <void>
         {
-            std :: cout << "Connecting" << std :: endl;
-            connection myconnection = co_await tcp :: connect({"127.0.0.1", 1234});
-            std :: cout << "Connected" << std :: endl;
-
-            std :: cout << "Sending" << std :: endl;
-            co_await myconnection.send(std :: string("Hello World!"));
-            std :: cout << "Sent" << std :: endl;
-
-            std :: cout << "Receiving" << std :: endl;
-            auto reply = co_await myconnection.receive <std :: string> ();
-            std :: cout << "Received " << reply << std :: endl;
+            while(true)
+            {
+                std :: cout << co_await connection.receiveasync <std :: string> () << std :: endl;
+            }
         }();
+
+        while(true)
+        {
+            char buffer[1024];
+            std :: cin.getline(buffer, 1024);
+
+            std :: string message(buffer);
+            connection.sendasync(message);
+        }
 
         sleep(1_h);*/
     });
