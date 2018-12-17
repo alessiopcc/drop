@@ -61,6 +61,8 @@ namespace drop
         struct context;
         struct task;
 
+        class system;
+
         // Members
 
         queue _queue;
@@ -114,6 +116,12 @@ namespace drop
         void handle(const queue :: event &);
 
         void collect();
+
+    public:
+
+        // Static members
+
+        static system system;
     };
 
     struct pool :: event
@@ -146,6 +154,38 @@ namespace drop
         promise <void> promise;
         optional <context> context;
         uint64_t nonce;
+    };
+
+    class pool :: system
+    {
+        // Friends
+
+        friend class pool;
+
+        // Members
+
+        pool * _pools;
+        size_t _size;
+
+        // Private constructors
+
+        system();
+
+    public:
+
+        // Destructor
+
+        ~system();
+
+        // Methods
+
+        pool & get();
+
+    private:
+
+        // Private static members
+
+        thread_local static size_t roundrobin;
     };
 };
 

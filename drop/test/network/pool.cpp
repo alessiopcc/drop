@@ -51,5 +51,8 @@ namespace
         }();
 
         sleep(10_m); */
+
+        for(size_t i = 0; i < 64; i++)
+            std :: cout << i << ": " << &(pool :: system.get()) << std :: endl;
     });
 };

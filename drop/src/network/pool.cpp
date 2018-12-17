@@ -6,6 +6,10 @@ namespace drop
 {
     // pool
 
+    // Static members
+
+    class pool :: system pool :: system;
+
     // Constructors
 
     pool :: pool() : _alive(true), _thread(&pool :: run, this)
@@ -181,5 +185,31 @@ namespace drop
     bool pool :: timeout :: operator < (const struct timeout & rho) const
     {
         return this->timeout > rho.timeout;
+    }
+
+    // system
+
+    // Private static members
+
+    thread_local size_t pool :: system :: roundrobin = 0;
+
+    // Private constructors
+
+    pool :: system :: system() : _pools(new pool[std :: thread :: hardware_concurrency()]), _size(std :: thread :: hardware_concurrency())
+    {
+    }
+
+    // Destructor
+
+    pool :: system :: ~system()
+    {
+        delete [] this->_pools;
+    }
+
+    // Methods
+
+    pool & pool :: system :: get()
+    {
+        return this->_pools[(roundrobin++) % this->_size];
     }
 };
