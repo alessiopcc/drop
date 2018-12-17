@@ -25,9 +25,9 @@ namespace drop
         return task.promise;
     }
 
-    template <typename type, std :: enable_if_t <pool :: constraints :: socket <type> ()> *> promise <void> pool :: write(const type & socket, const streamer <send> & streamer, const interval & timeout)
+    template <typename type, std :: enable_if_t <pool :: constraints :: socket <type> ()> *> promise <void> pool :: write(const type & socket, streamer <send> & streamer, const interval & timeout)
     {
-        task task{.context = context{.socket = socket, .streamer = streamer}};
+        task task{.context = context{.socket = socket, .streamer = &streamer}};
         this->add(queue :: write, socket.template get <descriptor> (), task, timeout);
         return task.promise;
     }
@@ -39,9 +39,9 @@ namespace drop
         return task.promise;
     }
 
-    template <typename type, std :: enable_if_t <pool :: constraints :: socket <type> ()> *> promise <void> pool :: read(const type & socket, const streamer <receive> & streamer, const interval & timeout)
+    template <typename type, std :: enable_if_t <pool :: constraints :: socket <type> ()> *> promise <void> pool :: read(const type & socket, streamer <receive> & streamer, const interval & timeout)
     {
-        task task{.context = context{.socket = socket, .streamer = streamer}};
+        task task{.context = context{.socket = socket, .streamer = &streamer}};
         this->add(queue :: read, socket.template get <descriptor> (), task, timeout);
         return task.promise;
     }

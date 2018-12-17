@@ -2,6 +2,15 @@
 
 namespace drop
 {
+    // Tags
+
+    class write_failed;
+    class read_failed;
+    class write_timeout;
+    class read_timeout;
+
+    // Classes
+
     class pool;
 };
 
@@ -84,21 +93,27 @@ namespace drop
         // Methods
 
         template <typename type, std :: enable_if_t <constraints :: socket <type> ()> * = nullptr> promise <void> write(const type &, const interval & = 0);
-        template <typename type, std :: enable_if_t <constraints :: socket <type> ()> * = nullptr> promise <void> write(const type &, const streamer <send> &, const interval & = 0);
+        template <typename type, std :: enable_if_t <constraints :: socket <type> ()> * = nullptr> promise <void> write(const type &, streamer <send> &, const interval & = 0);
 
         template <typename type, std :: enable_if_t <constraints :: socket <type> ()> * = nullptr> promise <void> read(const type &, const interval & = 0);
-        template <typename type, std :: enable_if_t <constraints :: socket <type> ()> * = nullptr> promise <void> read(const type &, const streamer <receive> &, const interval & = 0);
+        template <typename type, std :: enable_if_t <constraints :: socket <type> ()> * = nullptr> promise <void> read(const type &, streamer <receive> &, const interval & = 0);
 
     private:
 
         // Private methods
 
         void add(const queue :: type &, const int &, task &, const interval &);
+        promise <void> pop(const queue :: type &, const int &);
 
         void run();
-        interval nexttick();
 
-        void settimeout(const struct event &, const interval &);
+        void update();
+
+        void select();
+        interval tick();
+        void handle(const queue :: event &);
+
+        void collect();
     };
 
     struct pool :: event
@@ -123,7 +138,7 @@ namespace drop
     struct pool :: context
     {
         variant <tcp :: socket> socket;
-        variant <streamer <send>, streamer <receive>> streamer;
+        variant <streamer <send> *, streamer <receive> *> streamer;
     };
 
     struct pool :: task
