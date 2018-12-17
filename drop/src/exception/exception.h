@@ -42,6 +42,15 @@ namespace drop
 
         // Static methods
 
+        static auto make();
+        template <typename stype> static auto make(stype *);
+        static auto make(const char *);
+        template <typename dtype> static auto make(const dtype &);
+        template <typename stype> static auto make(stype *, const char *);
+        template <typename dtype> static auto make(const char *, const dtype &);
+        template <typename stype, typename dtype> static auto make(stype *, const dtype &);
+        template <typename stype, typename dtype> static auto make(stype *, const char *, const dtype &);
+
         static void raise();
         template <typename stype> static void raise(stype *);
         static void raise(const char *);

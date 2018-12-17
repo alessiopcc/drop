@@ -11,6 +11,46 @@ namespace drop
 
     // Static methods
 
+    template <typename tag, typename... tags> auto exception <tag, tags...> :: make()
+    {
+        return holder <null, null> (nullptr, nullptr, null());
+    }
+
+    template <typename tag, typename... tags> template <typename stype> auto exception <tag, tags...> :: make(stype * source)
+    {
+        return holder <stype, null> (source, nullptr, null());
+    }
+
+    template <typename tag, typename... tags> auto exception <tag, tags...> :: make(const char * what)
+    {
+        return holder <null, null> (nullptr, what, null());
+    }
+
+    template <typename tag, typename... tags> template <typename dtype> auto exception <tag, tags...> :: make(const dtype & details)
+    {
+        return holder <null, dtype> (nullptr, nullptr, details);
+    }
+
+    template <typename tag, typename... tags> template <typename stype> auto exception <tag, tags...> :: make(stype * source, const char * what)
+    {
+        return holder <stype, null> (source, what, null());
+    }
+
+    template <typename tag, typename... tags> template <typename dtype> auto exception <tag, tags...> :: make(const char * what, const dtype & details)
+    {
+        return holder <null, dtype> (nullptr, what, details);
+    }
+
+    template <typename tag, typename... tags> template <typename stype, typename dtype> auto exception <tag, tags...> :: make(stype * source, const dtype & details)
+    {
+        return holder <stype, dtype> (source, nullptr, details);
+    }
+
+    template <typename tag, typename... tags> template <typename stype, typename dtype> auto exception <tag, tags...> :: make(stype * source, const char * what, const dtype & details)
+    {
+        return holder <stype, dtype> (source, what, details);
+    }
+
     template <typename tag, typename... tags> void exception <tag, tags...> :: raise()
     {
         throw holder <null, null> (nullptr, nullptr, null());
