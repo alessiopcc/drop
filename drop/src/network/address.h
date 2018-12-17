@@ -69,6 +69,8 @@ namespace drop
         class ip ip() const;
         class port port() const;
 
+        template <typename type, std :: enable_if_t <std :: is_same <type, IPv4> :: value || std :: is_same <type, IPv6> :: value> * = nullptr> bool is() const;
+
         // Methods
 
         address decay() const;
