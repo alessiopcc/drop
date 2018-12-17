@@ -46,7 +46,7 @@ namespace drop
     bool queue :: event :: error() const
     {
         #ifdef __APPLE__
-        return (this->flags & EV_ERROR);
+        return (this->flags & (EV_ERROR | EV_EOF));
         #endif
 
         #ifdef __linux__
