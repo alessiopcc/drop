@@ -162,6 +162,9 @@ namespace drop
 
         // Operators
 
+        template <typename... dummy, std :: enable_if_t <(sizeof...(dummy) == 0) && (sizeof...(types) == 1)> * = nullptr> auto & operator * (dummy...);
+        template <typename... dummy, std :: enable_if_t <(sizeof...(dummy) == 0) && (sizeof...(types) == 1)> * = nullptr> const auto & operator * (dummy...) const;
+
         base & operator = (const base &);
         base & operator = (base &&);
 
