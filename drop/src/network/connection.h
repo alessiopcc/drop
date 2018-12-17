@@ -36,6 +36,7 @@ namespace drop
 #include "data/variant.hpp"
 #include "concept/stltraits.h"
 #include "thread/guard.hpp"
+#include "async/promise.hpp"
 
 namespace drop
 {

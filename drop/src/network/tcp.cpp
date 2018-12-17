@@ -1,8 +1,10 @@
 // Includes
 
 #include "tcp.hpp"
+#include "pool.hpp"
+#include "connection.hpp"
 #include "exception/exception.hpp"
-#include "connection.h"
+#include "async/promise.hpp"
 
 namespace drop
 {
@@ -15,6 +17,31 @@ namespace drop
         socket socket = remote.is <IPv4> () ? socket :: IPv4() : socket :: IPv6();
         socket.connect(remote);
         return connection(socket);
+    }
+
+    promise <connection> tcp :: connectasync(const address & remote)
+    {
+        return connectasync(remote, pool :: system.get());
+    }
+
+    promise <connection> tcp :: connectasync(const address & remote, pool & pool)
+    {
+        socket socket = remote.is <IPv4> () ? socket :: IPv4() : socket :: IPv6();
+        socket.set <blocking> (false);
+        socket.connect(remote);
+
+        co_await pool.write(socket);
+        co_return connection(socket);
+    }
+
+    promise <connection> tcp :: connect(const address & remote)
+    {
+        return connectasync(remote);
+    }
+
+    promise <connection> tcp :: connect(const address & remote, pool & pool)
+    {
+        return connectasync(remote, pool);
     }
 
     // socket

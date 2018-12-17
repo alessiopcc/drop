@@ -68,11 +68,13 @@ namespace drop
 
 #define __forward__
 #include "connection.h"
+#include "pool.h"
+#include "async/promise.h"
 #undef __forward__
 
 // Includes
 
-#include "network/address.hpp"
+#include "address.hpp"
 #include "chrono/time.hpp"
 
 namespace drop
@@ -88,6 +90,12 @@ namespace drop
         // Static methods
 
         static connection connectsync(const address &);
+
+        static promise <connection> connectasync(const address &);
+        static promise <connection> connectasync(const address &, pool &);
+
+        static promise <connection> connect(const address &);
+        static promise <connection> connect(const address &, pool &);
     };
 
     class tcp :: socket

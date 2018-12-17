@@ -6,7 +6,7 @@
 
 // Includes
 
-#include "network/pool.hpp"
+#include "network/connection.hpp"
 
 namespace
 {
@@ -52,7 +52,13 @@ namespace
 
         sleep(10_m); */
 
-        for(size_t i = 0; i < 64; i++)
-            std :: cout << i << ": " << &(pool :: system.get()) << std :: endl;
+        []() -> promise <void>
+        {
+            std :: cout << "Connecting" << std :: endl;
+            connection myconnection = co_await tcp :: connect({"172.217.168.3", 80});
+            std :: cout << "Connected" << std :: endl;
+        }();
+
+        sleep(1_s);
     });
 };
