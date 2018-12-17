@@ -15,6 +15,26 @@ namespace drop
 
         this->_arc->_locks.send = false;
         this->_arc->_locks.receive = false;
+
+        this->_arc->_pool = nullptr;
+    }
+
+    // Methods
+
+    void connection :: bind(pool & pool) const
+    {
+        this->_arc->_guard([&]()
+        {
+            this->_arc->_pool = &pool;
+        });
+    }
+
+    void connection :: unbind() const
+    {
+        this->_arc->_guard([&]()
+        {
+            this->_arc->_pool = nullptr;
+        });
     }
 
     // arc
