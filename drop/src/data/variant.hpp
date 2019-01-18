@@ -380,6 +380,16 @@ namespace drop
 
     // Operators
 
+    template <typename... types> template <typename... dummy, std :: enable_if_t <(sizeof...(dummy) == 0) && (sizeof...(types) == 1)> *> auto & base <variant <types...>> :: operator * (dummy...)
+    {
+        return this->reinterpret <types...> ();
+    }
+
+    template <typename... types> template <typename... dummy, std :: enable_if_t <(sizeof...(dummy) == 0) && (sizeof...(types) == 1)> *> const auto & base <variant <types...>> :: operator * (dummy...) const
+    {
+        return this->reinterpret <types...> ();
+    }
+
     template <typename... types> base <variant <types...>> & base <variant <types...>> :: operator = (const base & rho)
     {
         if(this->_typeid == rho._typeid)

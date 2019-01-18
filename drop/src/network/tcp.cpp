@@ -1,8 +1,10 @@
 // Includes
 
 #include "tcp.hpp"
+#include "pool.hpp"
+#include "connection.hpp"
 #include "exception/exception.hpp"
-#include "connection.h"
+#include "async/promise.hpp"
 
 namespace drop
 {
@@ -12,18 +14,37 @@ namespace drop
 
     connection tcp :: connectsync(const address & remote)
     {
-        socket socket;
+        socket socket = remote.is <IPv4> () ? socket :: IPv4() : socket :: IPv6();
         socket.connect(remote);
         return connection(socket);
     }
 
-    // socket
-
-    // Constructors
-
-    tcp :: socket :: socket() : _descriptor(-1)
+    promise <connection> tcp :: connectasync(const address & remote)
     {
+        return connectasync(remote, pool :: system.get());
     }
+
+    promise <connection> tcp :: connectasync(const address & remote, pool & pool)
+    {
+        socket socket = remote.is <IPv4> () ? socket :: IPv4() : socket :: IPv6();
+        socket.set <blocking> (false);
+        socket.connect(remote);
+
+        co_await pool.write(socket);
+        co_return connection(socket);
+    }
+
+    promise <connection> tcp :: connect(const address & remote)
+    {
+        return connectasync(remote);
+    }
+
+    promise <connection> tcp :: connect(const address & remote, pool & pool)
+    {
+        return connectasync(remote, pool);
+    }
+
+    // socket
 
     // Private constructors
 
@@ -51,12 +72,22 @@ namespace drop
 
     void tcp :: socket :: bind(const class address :: port & port)
     {
-        this->bind(address(address :: ip :: any <IPv6> (), port), false);
+        this->bind(address(address :: ip :: any <drop :: IPv6> (), port));
     }
 
     void tcp :: socket :: bind(const address & address)
     {
-        this->bind(address, true);
+        this->opencheck();
+
+        address.match([&](const sockaddr_in & sockaddr)
+        {
+            if(:: bind(this->_descriptor, (const struct sockaddr *) &sockaddr, sizeof(sockaddr_in)))
+                exception <bind_failed> :: raise(this, errno);
+        }, [&](const sockaddr_in6 & sockaddr)
+        {
+            if(:: bind(this->_descriptor, (const struct sockaddr *) &sockaddr, sizeof(sockaddr_in6)))
+                exception <bind_failed> :: raise(this, errno);
+        });
     }
 
     void tcp :: socket :: listen() const
@@ -84,19 +115,15 @@ namespace drop
 
     void tcp :: socket :: connect(const address & remote)
     {
+        this->opencheck();
+
         int status;
 
         remote.match([&](const sockaddr_in & sockaddr)
         {
-            if(this->_descriptor < 0)
-                this->_descriptor = :: socket(PF_INET, SOCK_STREAM, 0);
-
             status = :: connect(this->_descriptor, (const struct sockaddr *) &sockaddr, sizeof(sockaddr_in));
         }, [&](const sockaddr_in6 & sockaddr)
         {
-            if(this->_descriptor < 0)
-                this->_descriptor = :: socket(PF_INET6, SOCK_STREAM, 0);
-
             status = :: connect(this->_descriptor, (const struct sockaddr *) &sockaddr, sizeof(sockaddr_in6));
         });
 
@@ -152,14 +179,10 @@ namespace drop
             exception <bad_access, socket_closed> :: raise(this);
     }
 
-    void tcp :: socket :: closedcheck() const
-    {
-        if(this->_descriptor >= 0)
-            exception <bad_access, socket_open> :: raise(this);
-    }
-
     int tcp :: socket :: fcntl() const
     {
+        this->opencheck();
+
         int flags = :: fcntl(this->_descriptor, F_GETFL);
 
         if(flags < 0)
@@ -170,6 +193,8 @@ namespace drop
 
     void tcp :: socket :: fcntl(const int & flags) const
     {
+        this->opencheck();
+
         if(:: fcntl(this->_descriptor, F_SETFL, flags))
             exception <bad_access, fcntl_failed> :: raise(this, errno);
     }
@@ -186,30 +211,31 @@ namespace drop
         return value;
     }
 
-    void tcp :: socket :: bind(const address & address, const bool & ipv6only)
-    {
-        this->closedcheck();
-
-        address.match([&](const sockaddr_in & sockaddr)
-        {
-            this->_descriptor = :: socket(PF_INET, SOCK_STREAM, 0);
-
-            if(:: bind(this->_descriptor, (const struct sockaddr *) &sockaddr, sizeof(sockaddr_in)))
-                exception <bind_failed> :: raise(this, errno);
-        }, [&](const sockaddr_in6 & sockaddr)
-        {
-            this->_descriptor = :: socket(PF_INET6, SOCK_STREAM, 0);
-            this->setsockopt(IPPROTO_IPV6, IPV6_V6ONLY, (int) ipv6only);
-
-            if(:: bind(this->_descriptor, (const struct sockaddr *) &sockaddr, sizeof(sockaddr_in6)))
-                exception <bind_failed> :: raise(this, errno);
-        });
-    }
-
     // Casting
 
     tcp :: socket :: operator bool () const
     {
         return (this->_descriptor >= 0);
+    }
+
+    // Static methods
+
+    tcp :: socket tcp :: socket :: IPv4()
+    {
+        return socket(:: socket(PF_INET, SOCK_STREAM, 0));
+    }
+
+    tcp :: socket tcp :: socket :: IPv6()
+    {
+        socket socket(:: socket(PF_INET6, SOCK_STREAM, 0));
+        socket.setsockopt(IPPROTO_IPV6, IPV6_V6ONLY, 0);
+        return socket;
+    }
+
+    tcp :: socket tcp :: socket :: any()
+    {
+        socket socket(:: socket(PF_INET6, SOCK_STREAM, 0));
+        socket.setsockopt(IPPROTO_IPV6, IPV6_V6ONLY, 1);
+        return socket;
     }
 };

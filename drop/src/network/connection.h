@@ -32,10 +32,12 @@ namespace drop
 
 #include "tcp.hpp"
 #include "streamer.hpp"
+#include "pool.hpp"
 #include "bytewise/bytewise.hpp"
 #include "data/variant.hpp"
 #include "concept/stltraits.h"
 #include "thread/guard.hpp"
+#include "async/promise.hpp"
 
 namespace drop
 {
@@ -70,6 +72,21 @@ namespace drop
         template <typename type, std :: enable_if_t <constraints :: buffer <type> ()> * = nullptr> type receivesync() const;
         template <typename... types, std :: enable_if_t <(sizeof...(types) > 0) && (... && bytewise :: constraints :: deserializable <types> ()) && !((sizeof...(types) == 1) && (... && constraints :: buffer <types> ()))> * = nullptr> auto receivesync() const;
 
+        template <typename type, std :: enable_if_t <constraints :: buffer <type> ()> * = nullptr> promise <void> sendasync(const type &) const;
+        template <typename... types, std :: enable_if_t <(sizeof...(types) > 0) && (... && bytewise :: constraints :: serializable <types> ()) && !((sizeof...(types) == 1) && (... && constraints :: buffer <types> ()))> * = nullptr> promise <void> sendasync(const types & ...) const;
+
+        template <typename type, std :: enable_if_t <constraints :: buffer <type> ()> * = nullptr> promise <type> receiveasync() const;
+        template <typename... types, std :: enable_if_t <(sizeof...(types) > 0) && (... && bytewise :: constraints :: deserializable <types> ()) && !((sizeof...(types) == 1) && (... && constraints :: buffer <types> ()))> * = nullptr> auto receiveasync() const;
+
+        template <typename type, std :: enable_if_t <constraints :: buffer <type> ()> * = nullptr> promise <void> send(const type &) const;
+        template <typename... types, std :: enable_if_t <(sizeof...(types) > 0) && (... && bytewise :: constraints :: serializable <types> ()) && !((sizeof...(types) == 1) && (... && constraints :: buffer <types> ()))> * = nullptr> promise <void> send(const types & ...) const;
+
+        template <typename type, std :: enable_if_t <constraints :: buffer <type> ()> * = nullptr> promise <type> receive() const;
+        template <typename... types, std :: enable_if_t <(sizeof...(types) > 0) && (... && bytewise :: constraints :: deserializable <types> ()) && !((sizeof...(types) == 1) && (... && constraints :: buffer <types> ()))> * = nullptr> auto receive() const;
+
+        void bind(pool &) const;
+        void unbind() const;
+
     private:
 
         // Private methods
@@ -100,6 +117,8 @@ namespace drop
             bool send;
             bool receive;
         } _locks;
+
+        pool * _pool;
 
         guard <soft> _guard;
 

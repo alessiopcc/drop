@@ -68,11 +68,13 @@ namespace drop
 
 #define __forward__
 #include "connection.h"
+#include "pool.h"
+#include "async/promise.h"
 #undef __forward__
 
 // Includes
 
-#include "network/address.hpp"
+#include "address.hpp"
 #include "chrono/time.hpp"
 
 namespace drop
@@ -88,6 +90,12 @@ namespace drop
         // Static methods
 
         static connection connectsync(const address &);
+
+        static promise <connection> connectasync(const address &);
+        static promise <connection> connectasync(const address &, pool &);
+
+        static promise <connection> connect(const address &);
+        static promise <connection> connect(const address &, pool &);
     };
 
     class tcp :: socket
@@ -109,12 +117,6 @@ namespace drop
         // Members
 
         int _descriptor;
-
-    public:
-
-        // Constructors
-
-        socket();
 
     private:
 
@@ -153,7 +155,6 @@ namespace drop
         // Private methods
 
         void opencheck() const;
-        void closedcheck() const;
 
         int fcntl() const;
         void fcntl(const int &) const;
@@ -163,13 +164,18 @@ namespace drop
         template <typename type> type getsockopt(const int &, const int &) const;
         template <typename type> void setsockopt(const int &, const int &, const type &) const;
 
-        void bind(const address &, const bool &);
-
     public:
 
         // Casting
 
         operator bool () const;
+
+        // Static methods
+
+        static socket IPv4();
+        static socket IPv6();
+
+        static socket any();
     };
 };
 
