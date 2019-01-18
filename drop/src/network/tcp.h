@@ -45,6 +45,7 @@ namespace drop
     class ioctl_failed;
     class send_failed;
     class receive_failed;
+    class listener_locked;
 
     // Classes
 
@@ -76,6 +77,7 @@ namespace drop
 
 #include "address.hpp"
 #include "chrono/time.hpp"
+#include "thread/guard.hpp"
 
 namespace drop
 {
@@ -86,6 +88,7 @@ namespace drop
         // Nested classes
 
         class socket;
+        class listener;
 
         // Static methods
 
@@ -176,6 +179,44 @@ namespace drop
         static socket IPv6();
 
         static socket any();
+    };
+
+    class tcp :: listener
+    {
+        // Members
+
+        socket _socket;
+
+        struct
+        {
+            bool blocking;
+        } _cache;
+
+        bool _lock;
+        guard <soft> _guard;
+
+    public:
+
+        // Constructors
+
+        listener(const class address :: port &);
+        listener(const address &);
+
+        // Methods
+
+        connection acceptsync();
+        promise <connection> acceptasync();
+
+        promise <connection> accept();
+
+    private:
+
+        // Private methods
+
+        template <bool> void block();
+
+        template <bool> void setup();
+        void release();
     };
 };
 

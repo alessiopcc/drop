@@ -238,4 +238,73 @@ namespace drop
         socket.setsockopt(IPPROTO_IPV6, IPV6_V6ONLY, 1);
         return socket;
     }
+
+    // listener
+
+    // Constructors
+
+    tcp :: listener :: listener(const class address :: port & port) : _socket(socket :: IPv6()), _cache{.blocking = false}, _lock(false)
+    {
+        this->_socket.bind(port);
+        this->_socket.listen();
+    }
+
+    tcp :: listener :: listener(const address & address) : _socket(address.is <IPv4> () ? socket :: IPv4() : socket :: IPv6()), _cache{.blocking = false}, _lock(false)
+    {
+        this->_socket.bind(address);
+        this->_socket.listen();
+    }
+
+    // Methods
+
+    connection tcp :: listener :: acceptsync()
+    {
+        this->setup <true> ();
+
+        try
+        {
+            connection connection(this->_socket.accept());
+            this->release();
+            return connection;
+        }
+        catch(...)
+        {
+            this->release();
+            std :: rethrow_exception(std :: current_exception());
+        }
+    }
+
+    promise <connection> tcp :: listener :: acceptasync()
+    {
+        this->setup <false> ();
+
+        try
+        {
+            co_await (pool :: system.get()).read(this->_socket); // TODO: Generalize to binding
+            connection connection(this->_socket.accept());
+
+            this->release();
+            co_return connection;
+        }
+        catch(...)
+        {
+            this->release();
+            std :: rethrow_exception(std :: current_exception());
+        }
+    }
+
+    promise <connection> tcp :: listener :: accept()
+    {
+        return this->acceptasync();
+    }
+
+    // Private methods
+
+    void tcp :: listener :: release()
+    {
+        this->_guard([&]()
+        {
+            this->_lock = false;
+        });
+    }
 };
