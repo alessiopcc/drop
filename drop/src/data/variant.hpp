@@ -100,34 +100,66 @@ namespace drop
 
     template <typename... types> template <typename type> base <variant <types...>> :: base(const type & value) : _typeid(index <type, types...> ())
     {
-        new (&(this->_value)) type(value);
+        try
+        {
+            new (&(this->_value)) type(value);
+        }
+        catch(...)
+        {
+            this->_typeid = 0;
+            std :: rethrow_exception(std :: current_exception());
+        }
     }
 
     template <typename... types> template <typename type> base <variant <types...>> :: base(type && value) : _typeid(index <type, types...> ())
     {
-        new (&(this->_value)) type(std :: move(value));
+        try
+        {
+            new (&(this->_value)) type(std :: move(value));
+        }
+        catch(...)
+        {
+            this->_typeid = 0;
+            std :: rethrow_exception(std :: current_exception());
+        }
     }
 
     template <typename... types> base <variant <types...>> :: base(const base & that)
     {
-        this->_typeid = that._typeid;
-
-        that.unwrap <types...> ([&](auto && value)
+        try
         {
-            typedef std :: remove_const_t <std :: remove_reference_t <decltype(value)>> vtype;
-            new (&(this->_value)) vtype(value);
-        });
+            this->_typeid = that._typeid;
+
+            that.unwrap <types...> ([&](auto && value)
+            {
+                typedef std :: remove_const_t <std :: remove_reference_t <decltype(value)>> vtype;
+                new (&(this->_value)) vtype(value);
+            });
+        }
+        catch(...)
+        {
+            this->_typeid = 0;
+            std :: rethrow_exception(std :: current_exception());
+        }
     }
 
     template <typename... types> base <variant <types...>> :: base(base && that)
     {
-        this->_typeid = that._typeid;
-
-        that.unwrap <types...> ([&](auto && value)
+        try
         {
-            typedef std :: remove_const_t <std :: remove_reference_t <decltype(value)>> vtype;
-            new (&(this->_value)) vtype(std :: move(value));
-        });
+            this->_typeid = that._typeid;
+
+            that.unwrap <types...> ([&](auto && value)
+            {
+                typedef std :: remove_const_t <std :: remove_reference_t <decltype(value)>> vtype;
+                new (&(this->_value)) vtype(std :: move(value));
+            });
+        }
+        catch(...)
+        {
+            this->_typeid = 0;
+            std :: rethrow_exception(std :: current_exception());
+        }
     }
 
     // Protected destructor
@@ -221,8 +253,17 @@ namespace drop
     template <typename... types> template <typename type, typename... atypes, std :: enable_if_t <std :: is_constructible <type, atypes...> :: value> *> void base <variant <types...>> :: emplace(atypes && ... arguments)
     {
         this->~base();
-        this->_typeid = index <type, types...> ();
-        new (&(this->_value)) type(std :: forward <atypes> (arguments)...);
+
+        try
+        {
+            this->_typeid = index <type, types...> ();
+            new (&(this->_value)) type(std :: forward <atypes> (arguments)...);
+        }
+        catch(...)
+        {
+            this->_typeid = 0;
+            std :: rethrow_exception(std :: current_exception());
+        }
     }
 
     template <typename... types> template <typename... lambdas, std :: enable_if_t <base <variant <types...>> :: constraints :: template match <false, lambdas...> ()> *> void base <variant <types...>> :: match(lambdas && ... matchcases)
@@ -265,15 +306,22 @@ namespace drop
     {
         if(tid == 1)
         {
-            this->_typeid = index <type, types...> ();
+            try
+            {
+                this->_typeid = index <type, types...> ();
 
-            if constexpr (std :: is_constructible <type, bytewise> :: value)
-                new (&(this->_value)) type(bytewise{});
-            else
-                new (&(this->_value)) type();
+                if constexpr (std :: is_constructible <type, bytewise> :: value)
+                    new (&(this->_value)) type(bytewise{});
+                else
+                    new (&(this->_value)) type();
+            }
+            catch(...)
+            {
+                this->_typeid = 0;
+                std :: rethrow_exception(std :: current_exception());
+            }
 
             callback(this->reinterpret <type> ());
-
             return;
         }
 
@@ -357,8 +405,17 @@ namespace drop
         else
         {
             this->~base();
-            this->_typeid = index <type, types...> ();
-            new (&(this->_value)) type(value);
+
+            try
+            {
+                this->_typeid = index <type, types...> ();
+                new (&(this->_value)) type(value);
+            }
+            catch(...)
+            {
+                this->_typeid = 0;
+                std :: rethrow_exception(std :: current_exception());
+            }
         }
 
         return (*this);
@@ -371,8 +428,17 @@ namespace drop
         else
         {
             this->~base();
-            this->_typeid = index <type, types...> ();
-            new (&(this->_value)) type(std :: move(value));
+
+            try
+            {
+                this->_typeid = index <type, types...> ();
+                new (&(this->_value)) type(std :: move(value));
+            }
+            catch(...)
+            {
+                this->_typeid = 0;
+                std :: rethrow_exception(std :: current_exception());
+            }
         }
 
         return (*this);
@@ -403,13 +469,22 @@ namespace drop
         else
         {
             this->~base();
-            this->_typeid = rho._typeid;
 
-            rho.unwrap <types...> ([&](auto && value)
+            try
             {
-                typedef std :: remove_const_t <std :: remove_reference_t <decltype(value)>> vtype;
-                new (&(this->_value)) vtype(value);
-            });
+                this->_typeid = rho._typeid;
+
+                rho.unwrap <types...> ([&](auto && value)
+                {
+                    typedef std :: remove_const_t <std :: remove_reference_t <decltype(value)>> vtype;
+                    new (&(this->_value)) vtype(value);
+                });
+            }
+            catch(...)
+            {
+                this->_typeid = 0;
+                std :: rethrow_exception(std :: current_exception());
+            }
         }
 
         return (*this);
@@ -428,13 +503,22 @@ namespace drop
         else
         {
             this->~base();
-            this->_typeid = rho._typeid;
 
-            rho.unwrap <types...> ([&](auto && value)
+            try
             {
-                typedef std :: remove_const_t <std :: remove_reference_t <decltype(value)>> vtype;
-                new (&(this->_value)) vtype(std :: move(value));
-            });
+                this->_typeid = rho._typeid;
+
+                rho.unwrap <types...> ([&](auto && value)
+                {
+                    typedef std :: remove_const_t <std :: remove_reference_t <decltype(value)>> vtype;
+                    new (&(this->_value)) vtype(std :: move(value));
+                });
+            }
+            catch(...)
+            {
+                this->_typeid = 0;
+                std :: rethrow_exception(std :: current_exception());
+            }
         }
 
         return (*this);
