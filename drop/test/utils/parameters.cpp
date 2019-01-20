@@ -24,6 +24,18 @@ namespace
 
     // Tests
 
+    $test("utils/parameters-in", []
+    {
+        if(parameters :: in <int, pack <>> :: value)
+            throw "`in` finds an `int` in `pack <>`.";
+
+        if(parameters :: in <int, pack <double, char, float>> :: value)
+            throw "`in` finds an `int` in `pack <double, char, float>`.";
+
+        if(!(parameters :: in <int, pack <double, char, int, float>> :: value))
+            throw "`in` does not find an `int` in `pack <double, char, int, float>`.";
+    });
+
     $test("utils/parameters-concat", []
     {
         if(!std :: is_same <parameters :: concat_t <variant <int>, variant<double>>, variant <int, double>> :: value)
