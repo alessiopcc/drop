@@ -45,6 +45,7 @@ namespace drop
     class ioctl_failed;
     class send_failed;
     class receive_failed;
+    class listener_locked;
 
     // Classes
 
@@ -70,22 +71,36 @@ namespace drop
 #include "connection.h"
 #include "pool.h"
 #include "async/promise.h"
+#include "listener.h"
 #undef __forward__
 
 // Includes
 
 #include "address.hpp"
 #include "chrono/time.hpp"
+#include "thread/guard.hpp"
 
 namespace drop
 {
     class tcp
     {
+        // Friends
+
+        friend class drop :: listener;
+
     public:
 
         // Nested classes
 
         class socket;
+
+    private:
+
+        // Service nested classes
+
+        class listener;
+
+    public:
 
         // Static methods
 
@@ -96,6 +111,9 @@ namespace drop
 
         static promise <connection> connect(const address &);
         static promise <connection> connect(const address &, pool &);
+
+        static drop :: listener listen(const class address :: port &);
+        static drop :: listener listen(const address &);
     };
 
     class tcp :: socket
@@ -176,6 +194,51 @@ namespace drop
         static socket IPv6();
 
         static socket any();
+    };
+
+    class tcp :: listener
+    {
+        // Members
+
+        socket _socket;
+
+        struct
+        {
+            bool blocking;
+        } _cache;
+
+        bool _lock;
+        pool * _pool;
+
+        guard <soft> _guard;
+
+    public:
+
+        // Constructors
+
+        listener(const class address :: port &);
+        listener(const address &);
+
+        // Destructor
+
+        ~listener();
+
+        // Methods
+
+        connection acceptsync();
+        promise <connection> acceptasync();
+
+        void bind(pool &);
+        void unbind();
+
+    private:
+
+        // Private methods
+
+        template <bool> void block();
+
+        template <bool> void setup();
+        void release();
     };
 };
 

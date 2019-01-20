@@ -4,6 +4,8 @@ namespace drop
 {
     namespace parameters
     {
+        template <typename, typename> struct in;
+
         template <typename, typename> struct concat;
         template <typename left, typename right> using concat_t = typename concat <left, right> :: type;
 
@@ -45,6 +47,21 @@ namespace drop
         };
 
         // Classes
+
+        template <typename needle, template <typename...> typename pack> struct in <needle, pack <>>
+        {
+            static constexpr bool value = false;
+        };
+
+        template <typename needle, template <typename...> typename pack, typename... haystack> struct in <needle, pack <needle, haystack...>>
+        {
+            static constexpr bool value = true;
+        };
+
+        template <typename needle, template <typename...> typename pack, typename type, typename... haystack> struct in <needle, pack <type, haystack...>>
+        {
+            static constexpr bool value = in <needle, pack <haystack...>> :: value;
+        };
 
         template <template <typename...> typename pack, typename... left, typename... right> struct concat <pack <left...>, pack <right...>>
         {

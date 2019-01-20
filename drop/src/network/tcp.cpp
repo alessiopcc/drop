@@ -44,6 +44,16 @@ namespace drop
         return connectasync(remote, pool);
     }
 
+    drop :: listener tcp :: listen(const class address :: port & port)
+    {
+        return drop :: listener :: construct <listener> (port);
+    }
+
+    drop :: listener tcp :: listen(const address & address)
+    {
+        return drop :: listener :: construct <listener> (address);
+    }
+
     // socket
 
     // Private constructors
@@ -237,5 +247,94 @@ namespace drop
         socket socket(:: socket(PF_INET6, SOCK_STREAM, 0));
         socket.setsockopt(IPPROTO_IPV6, IPV6_V6ONLY, 1);
         return socket;
+    }
+
+    // listener
+
+    // Constructors
+
+    tcp :: listener :: listener(const class address :: port & port) : _socket(socket :: IPv6()), _cache{.blocking = false}, _lock(false), _pool(nullptr)
+    {
+        this->_socket.bind(port);
+        this->_socket.listen();
+    }
+
+    tcp :: listener :: listener(const address & address) : _socket(address.is <IPv4> () ? socket :: IPv4() : socket :: IPv6()), _cache{.blocking = false}, _lock(false), _pool(nullptr)
+    {
+        this->_socket.bind(address);
+        this->_socket.listen();
+    }
+
+    // Destructor
+
+    tcp :: listener :: ~listener()
+    {
+        this->_socket.close();
+    }
+
+    // Methods
+
+    connection tcp :: listener :: acceptsync()
+    {
+        this->setup <true> ();
+
+        try
+        {
+            connection connection(this->_socket.accept());
+            this->release();
+            return connection;
+        }
+        catch(...)
+        {
+            this->release();
+            std :: rethrow_exception(std :: current_exception());
+        }
+    }
+
+    promise <connection> tcp :: listener :: acceptasync()
+    {
+        this->setup <false> ();
+
+        try
+        {
+            pool * binding = this->_guard([&](){return this->_pool;});
+
+            co_await (binding ? *binding : pool :: system.get()).read(this->_socket);
+            connection connection(this->_socket.accept());
+
+            this->release();
+            co_return connection;
+        }
+        catch(...)
+        {
+            this->release();
+            std :: rethrow_exception(std :: current_exception());
+        }
+    }
+
+    void tcp :: listener :: bind(pool & pool)
+    {
+        this->_guard([&]()
+        {
+            this->_pool = &pool;
+        });
+    }
+
+    void tcp :: listener :: unbind()
+    {
+        this->_guard([&]()
+        {
+            this->_pool = nullptr;
+        });
+    }
+
+    // Private methods
+
+    void tcp :: listener :: release()
+    {
+        this->_guard([&]()
+        {
+            this->_lock = false;
+        });
     }
 };

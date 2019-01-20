@@ -46,9 +46,7 @@ namespace drop
         this->_socket.match([](auto & socket)
         {
             if constexpr (!std :: is_const <std :: remove_reference_t <decltype(socket)>> :: value)
-            {
                 socket.close();
-            }
         });
     }
 };

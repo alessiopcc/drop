@@ -4,9 +4,13 @@
 // Includes
 
 #include "tcp.h"
+#include "connection.h"
+#include "listener.hpp"
 
 namespace drop
 {
+    // socket
+
     // Getters
 
     template <> inline auto tcp :: socket :: get <descriptor> () const
@@ -106,6 +110,31 @@ namespace drop
 
         if(:: setsockopt(this->_descriptor, level, optname, (const uint8_t *) &value, sizeof(type)))
             exception <bad_access, setsockopt_failed> :: raise(this, errno);
+    }
+
+    // listener
+
+    // Private methods
+
+    template <bool value> void tcp :: listener :: block()
+    {
+        if(this->_cache.blocking != value)
+        {
+            this->_socket.set <blocking> (value);
+            this->_cache.blocking = value;
+        }
+    }
+
+    template <bool blocking> void tcp :: listener :: setup()
+    {
+        this->_guard([&]()
+        {
+            if(this->_lock)
+                exception <accept_failed, listener_locked> :: raise(this);
+
+            this->block <blocking> ();
+            this->_lock = true;
+        });
     }
 };
 
