@@ -265,6 +265,13 @@ namespace drop
         this->_socket.listen();
     }
 
+    // Destructor
+
+    tcp :: listener :: ~listener()
+    {
+        this->_socket.close();
+    }
+
     // Methods
 
     connection tcp :: listener :: acceptsync()

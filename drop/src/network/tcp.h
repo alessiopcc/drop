@@ -219,6 +219,10 @@ namespace drop
         listener(const class address :: port &);
         listener(const address &);
 
+        // Destructor
+
+        ~listener();
+
         // Methods
 
         connection acceptsync();
