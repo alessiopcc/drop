@@ -44,6 +44,16 @@ namespace drop
         return connectasync(remote, pool);
     }
 
+    drop :: listener tcp :: listen(const class address :: port & port)
+    {
+        return drop :: listener :: construct <listener> (port);
+    }
+
+    drop :: listener tcp :: listen(const address & address)
+    {
+        return drop :: listener :: construct <listener> (address);
+    }
+
     // socket
 
     // Private constructors
@@ -243,13 +253,13 @@ namespace drop
 
     // Constructors
 
-    tcp :: listener :: listener(const class address :: port & port) : _socket(socket :: IPv6()), _cache{.blocking = false}, _lock(false)
+    tcp :: listener :: listener(const class address :: port & port) : _socket(socket :: IPv6()), _cache{.blocking = false}, _lock(false), _pool(nullptr)
     {
         this->_socket.bind(port);
         this->_socket.listen();
     }
 
-    tcp :: listener :: listener(const address & address) : _socket(address.is <IPv4> () ? socket :: IPv4() : socket :: IPv6()), _cache{.blocking = false}, _lock(false)
+    tcp :: listener :: listener(const address & address) : _socket(address.is <IPv4> () ? socket :: IPv4() : socket :: IPv6()), _cache{.blocking = false}, _lock(false), _pool(nullptr)
     {
         this->_socket.bind(address);
         this->_socket.listen();
@@ -280,7 +290,9 @@ namespace drop
 
         try
         {
-            co_await (pool :: system.get()).read(this->_socket); // TODO: Generalize to binding
+            pool * binding = this->_guard([&](){return this->_pool;});
+
+            co_await (binding ? *binding : pool :: system.get()).read(this->_socket);
             connection connection(this->_socket.accept());
 
             this->release();
@@ -293,9 +305,20 @@ namespace drop
         }
     }
 
-    promise <connection> tcp :: listener :: accept()
+    void tcp :: listener :: bind(pool & pool)
     {
-        return this->acceptasync();
+        this->_guard([&]()
+        {
+            this->_pool = &pool;
+        });
+    }
+
+    void tcp :: listener :: unbind()
+    {
+        this->_guard([&]()
+        {
+            this->_pool = nullptr;
+        });
     }
 
     // Private methods

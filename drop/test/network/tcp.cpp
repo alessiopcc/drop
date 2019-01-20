@@ -18,14 +18,9 @@ namespace
 
     $test("tcp/develop", []
     {
-        /*tcp :: listener listener(1235);
+        /*auto listener = tcp :: listen(1235);
 
-        [&]() -> promise <void>
-        {
-            connection connection = co_await listener.accept();
-            std :: cout << "Connected!" << std :: endl;
-        }();
-
-        sleep(10_h);*/
+        auto connection = listener.acceptsync();
+        std :: cout << "Connected!" << std :: endl;*/
     });
 };

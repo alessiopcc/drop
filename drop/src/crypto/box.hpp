@@ -51,10 +51,7 @@ namespace drop
         std :: array <uint8_t, size - crypto_box_SEALBYTES> plaintext;
 
         if(crypto_box_seal_open(plaintext.data(), ciphertext.data(), size, this->_publickey.data(), this->_secretkey.data()))
-        {
-            std :: cout << "wtf" << std :: endl;
             exception <decryption_failed> :: raise(this);
-        }
 
         return plaintext;
     }

@@ -71,6 +71,7 @@ namespace drop
 #include "connection.h"
 #include "pool.h"
 #include "async/promise.h"
+#include "listener.h"
 #undef __forward__
 
 // Includes
@@ -83,12 +84,23 @@ namespace drop
 {
     class tcp
     {
+        // Friends
+
+        friend class drop :: listener;
+
     public:
 
         // Nested classes
 
         class socket;
+
+    private:
+
+        // Service nested classes
+
         class listener;
+
+    public:
 
         // Static methods
 
@@ -99,6 +111,9 @@ namespace drop
 
         static promise <connection> connect(const address &);
         static promise <connection> connect(const address &, pool &);
+
+        static drop :: listener listen(const class address :: port &);
+        static drop :: listener listen(const address &);
     };
 
     class tcp :: socket
@@ -193,6 +208,8 @@ namespace drop
         } _cache;
 
         bool _lock;
+        pool * _pool;
+
         guard <soft> _guard;
 
     public:
@@ -207,7 +224,8 @@ namespace drop
         connection acceptsync();
         promise <connection> acceptasync();
 
-        promise <connection> accept();
+        void bind(pool &);
+        void unbind();
 
     private:
 
