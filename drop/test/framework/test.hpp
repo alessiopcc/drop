@@ -5,44 +5,47 @@
 
 #include "test.h"
 
-// test
-
-// Constructors
-
-template <typename lambda> test :: test(const std :: string & name, const lambda & test)
+namespace test
 {
-    tests()[name] = {.test = new specialization <lambda> (test)};
-}
+    // test
 
-template <typename lambda> test :: test(const std :: string & name, struct configuration configuration, const lambda & test)
-{
-    configuration.test = new specialization <lambda> (test);
-    tests()[name] = configuration;
-}
+    // Constructors
 
-// Static methods
+    template <typename lambda> test :: test(const std :: string & name, const lambda & test)
+    {
+        tests()[name] = {.test = new specialization <lambda> (test)};
+    }
 
-inline std :: unordered_map <std :: string, class test :: configuration> & test :: tests()
-{
-    if(!singleton)
-        singleton = new std :: unordered_map <std :: string, class configuration>;
+    template <typename lambda> test :: test(const std :: string & name, struct configuration configuration, const lambda & test)
+    {
+        configuration.test = new specialization <lambda> (test);
+        tests()[name] = configuration;
+    }
 
-    return *singleton;
-}
+    // Static methods
 
-// specialization
+    inline std :: unordered_map <std :: string, class test :: configuration> & test :: tests()
+    {
+        if(!singleton)
+            singleton = new std :: unordered_map <std :: string, class configuration>;
 
-// Constructors
+        return *singleton;
+    }
 
-template <typename lambda> test :: specialization <lambda> :: specialization(const lambda & test) : _test(test)
-{
-}
+    // specialization
 
-// Methods
+    // Constructors
 
-template <typename lambda> void test :: specialization <lambda> :: run()
-{
-    this->_test();
-}
+    template <typename lambda> test :: specialization <lambda> :: specialization(const lambda & test) : _test(test)
+    {
+    }
+
+    // Methods
+
+    template <typename lambda> void test :: specialization <lambda> :: run()
+    {
+        this->_test();
+    }
+};
 
 #endif

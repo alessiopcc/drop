@@ -2,52 +2,55 @@
 
 #include "test.hpp"
 
-// test
-
-// Static members
-
-std :: unordered_map <std :: string, struct test :: configuration> * test :: singleton = nullptr;
-
-// Static methods
-
-void test :: run(const std :: string & name)
+namespace test
 {
-    struct configuration test = tests().at(name);
-    test.test->run();
-}
+    // test
 
-struct test :: configuration test :: configuration(const std :: string & name)
-{
-    return tests().at(name);
-}
+    // Static members
 
-std :: vector <std :: string> test :: enumerate()
-{
-    std :: vector <std :: string> names;
+    std :: unordered_map <std :: string, struct test :: configuration> * test :: singleton = nullptr;
 
-    for(auto const & [name, test] : tests())
-        names.push_back(name);
+    // Static methods
 
-    std :: sort(names.begin(), names.end());
+    void test :: run(const std :: string & name)
+    {
+        struct configuration test = tests().at(name);
+        test.test->run();
+    }
 
-    return names;
-}
+    struct test :: configuration test :: configuration(const std :: string & name)
+    {
+        return tests().at(name);
+    }
 
-// interface
+    std :: vector <std :: string> test :: enumerate()
+    {
+        std :: vector <std :: string> names;
 
-// Destructor
+        for(auto const & [name, test] : tests())
+            names.push_back(name);
 
-test :: interface :: ~interface()
-{
-}
+        std :: sort(names.begin(), names.end());
 
-// configuration
+        return names;
+    }
 
-// Ostream integration
+    // interface
 
-std :: ostream & operator << (std :: ostream & out, const class test :: configuration & configuration)
-{
-    out << "{" << "\"instances\": " << configuration.instances << "}";
+    // Destructor
 
-    return out;
-}
+    test :: interface :: ~interface()
+    {
+    }
+
+    // configuration
+
+    // Ostream integration
+
+    std :: ostream & operator << (std :: ostream & out, const class test :: configuration & configuration)
+    {
+        out << "{" << "\"instances\": " << configuration.instances << "}";
+
+        return out;
+    }
+};

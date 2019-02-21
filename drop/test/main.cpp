@@ -24,7 +24,7 @@ int main(int argc, char * argv[])
         std :: cout << "[";
 
         bool first = true;
-        for(const auto & name : test :: enumerate())
+        for(const auto & name : :: test :: test :: enumerate())
             std :: cout << (first ? "" : ", ") << "\"" << name << "\"", first = false;
 
         std :: cout << "]" << std :: endl;
@@ -38,7 +38,7 @@ int main(int argc, char * argv[])
 
         try
         {
-            test :: run(argv[2]);
+            :: test :: test :: run(argv[2]);
             return 0;
         }
         catch(const std :: exception & exception)
@@ -64,11 +64,11 @@ int main(int argc, char * argv[])
             std :: cout << "{";
 
             bool first = true;
-            for(const auto & name : test :: enumerate())
+            for(const auto & name : :: test :: test :: enumerate())
             {
                 std :: cout << (first ? "" : ", ") << "\"" << name << "\": ";
                 first = false;
-                std :: cout << test :: configuration(name);
+                std :: cout << :: test :: test :: configuration(name);
             }
 
             std :: cout << "}" << std :: endl;
@@ -78,7 +78,7 @@ int main(int argc, char * argv[])
 
             try
             {
-                std :: cout << test :: configuration(argv[2]) << std :: endl;
+                std :: cout << :: test :: test :: configuration(argv[2]) << std :: endl;
             }
             catch(const std :: exception & exception)
             {
