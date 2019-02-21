@@ -17,6 +17,10 @@ namespace test
 #include <algorithm>
 #include <iostream>
 
+// Includes
+
+#include "instance.h"
+
 // Macros
 
 #define $$$test(counter, ...) :: test :: test __test__##counter##__(__VA_ARGS__)
