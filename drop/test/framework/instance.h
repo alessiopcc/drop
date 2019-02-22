@@ -34,10 +34,10 @@ namespace test {
         // Static methods
 
         static void load(const int &);
-        static void load(const int &, const std :: string &);
+        static void load(const int &, const char *);
 
         static int id();
-        template <typename> static std :: string get(const int &);
+        template <typename> static const char * get(const int &);
     };
 };
 

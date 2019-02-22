@@ -21,7 +21,7 @@ namespace test
         instance :: _id = id;
     }
 
-    void instance :: load(const int & id, const std :: string & path)
+    void instance :: load(const int & id, const char * path)
     {
         instance :: _id = id;
 
@@ -32,8 +32,10 @@ namespace test
         while (file.peek() != EOF)
         {
             file >> ipv4 >> ipv6;
+
             std :: pair <std :: string, std :: string> adresses(ipv4, ipv6);
             instance :: _peers.push_back(adresses);
+
         }
     }
 
@@ -45,19 +47,19 @@ namespace test
         return instance :: _id;
     }
 
-    template <> std :: string instance :: get <IPv4> (const int & id)
+    template <> const char * instance :: get <IPv4> (const int & id)
     {
         if(id >= instance :: _peers.size())
             throw "Invalid instance `id`.";
 
-        return instance :: _peers[id].first;
+        return instance :: _peers[id].first.c_str();
     }
 
-    template <> std :: string instance :: get <IPv6> (const int & id)
+    template <> const char * instance :: get <IPv6> (const int & id)
     {
         if(id >= instance :: _peers.size())
             throw "Invalid instance `id`.";
 
-        return instance :: _peers[id].second;
+        return instance :: _peers[id].second.c_str();
     }
 };
