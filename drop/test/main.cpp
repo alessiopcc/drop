@@ -8,7 +8,7 @@ int main(int argc, char * argv[])
     {
         std :: cout << "usage: test enumerate" << std :: endl;
         std :: cout << "       test configuration [<test_name>]" << std :: endl;
-        std :: cout << "       test run <test_name>" << std :: endl;
+        std :: cout << "       test run <test_name> [<instance_id>] [<membership_file]" << std :: endl;
 
         return -1;
     };
@@ -24,7 +24,7 @@ int main(int argc, char * argv[])
         std :: cout << "[";
 
         bool first = true;
-        for(const auto & name : test :: enumerate())
+        for(const auto & name : :: test :: test :: enumerate())
             std :: cout << (first ? "" : ", ") << "\"" << name << "\"", first = false;
 
         std :: cout << "]" << std :: endl;
@@ -33,12 +33,17 @@ int main(int argc, char * argv[])
 
     if(!strcmp(argv[1], "run"))
     {
-        if(argc < 3)
+        if(argc < 3 || argc > 5)
             return usage();
+
+        if(argc == 4)
+            :: test :: instance :: load(atoi(argv[3]));
+        else if(argc == 5)
+            :: test :: instance :: load(atoi(argv[3]), argv[4]);
 
         try
         {
-            test :: run(argv[2]);
+            :: test :: test :: run(argv[2]);
             return 0;
         }
         catch(const std :: exception & exception)
@@ -64,21 +69,20 @@ int main(int argc, char * argv[])
             std :: cout << "{";
 
             bool first = true;
-            for(const auto & name : test :: enumerate())
+            for(const auto & name : :: test :: test :: enumerate())
             {
                 std :: cout << (first ? "" : ", ") << "\"" << name << "\": ";
                 first = false;
-                std :: cout << test :: configuration(name);
+                std :: cout << :: test :: test :: configuration(name);
             }
 
             std :: cout << "}" << std :: endl;
         }
         else
         {
-
             try
             {
-                std :: cout << test :: configuration(argv[2]) << std :: endl;
+                std :: cout << :: test :: test :: configuration(argv[2]) << std :: endl;
             }
             catch(const std :: exception & exception)
             {
