@@ -18,10 +18,7 @@ namespace drop
 // Libraries
 
 #include <mutex>
-
-// Includes
-
-#include "shield.h"
+#include <deque>
 
 namespace drop
 {
@@ -32,6 +29,25 @@ namespace drop
         std :: recursive_mutex _mutex;
 
     public:
+
+        // Operators
+
+        template <typename lambda> auto operator () (lambda &&);
+    };
+
+    template <> class guard <sequential>
+    {
+        // Members
+
+        std :: recursive_mutex _mutex;
+        bool _lock;
+        std :: deque <std :: function <void()>> _queue;
+
+    public:
+
+        // Contructors
+
+        guard();
 
         // Operators
 

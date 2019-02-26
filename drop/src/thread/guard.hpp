@@ -4,6 +4,7 @@
 // Includes
 
 #include "guard.h"
+#include "shield.h"
 
 namespace drop
 {
@@ -15,6 +16,30 @@ namespace drop
     {
         shield shield(this->_mutex);
         return operation();
+    }
+
+    // guard <sequential>
+
+    // Operators
+
+    template <typename lambda> auto guard <sequential> :: operator () (lambda && operation)
+    {
+        shield shield(this->_mutex);
+
+        if(this->_lock)
+            this->_queue.push_back(operation);
+        else
+        {
+            this->_lock = true;
+            operation();
+            this->_lock = false;
+
+            if(!this->_queue.empty())
+            {
+                this->_queue.front()();
+                this->_queue.pop_front();
+            }
+        }
     }
 };
 
