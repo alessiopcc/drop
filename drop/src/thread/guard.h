@@ -5,7 +5,7 @@ namespace drop
     // Tags
 
     class recursive;
-    class hard;
+    class sequential;
 
     // Classes
 
@@ -19,14 +19,14 @@ namespace drop
 
 #include <mutex>
 
+// Includes
+
+#include "shield.h"
+
 namespace drop
 {
     template <> class guard <recursive>
     {
-        // Service nested classes
-
-        class shield;
-
         // Members
 
         std :: recursive_mutex _mutex;
@@ -36,23 +36,6 @@ namespace drop
         // Operators
 
         template <typename lambda> auto operator () (lambda &&);
-    };
-
-    class guard <recursive> :: shield
-    {
-        // Members
-
-        std :: recursive_mutex & _mutex;
-
-    public:
-
-        // Constructors
-
-        shield(std :: recursive_mutex &);
-
-        // Destructor
-
-        ~shield();
     };
 };
 

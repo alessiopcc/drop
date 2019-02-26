@@ -9,7 +9,7 @@ namespace drop
 {
     // guard <recursive>
 
-    // Methods
+    // Operators
 
     template <typename lambda> auto guard <recursive> :: operator () (lambda && operation)
     {
