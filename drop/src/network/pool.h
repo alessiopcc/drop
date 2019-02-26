@@ -77,7 +77,7 @@ namespace drop
         std :: vector <event> _pending;
 
         uint64_t _nonce;
-        guard <soft> _guard;
+        guard <recursive> _guard;
 
         bool _alive;
         std :: thread _thread;

@@ -4,7 +4,7 @@ namespace drop
 {
     // Tags
 
-    class soft;
+    class recursive;
     class hard;
 
     // Classes
@@ -21,7 +21,7 @@ namespace drop
 
 namespace drop
 {
-    template <> class guard <soft>
+    template <> class guard <recursive>
     {
         // Service nested classes
 
@@ -38,7 +38,7 @@ namespace drop
         template <typename lambda> auto operator () (lambda &&);
     };
 
-    class guard <soft> :: shield
+    class guard <recursive> :: shield
     {
         // Members
 

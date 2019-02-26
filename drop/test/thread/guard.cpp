@@ -18,7 +18,7 @@ namespace
 
     $test("guard/develop", []
     {
-        guard <soft> guard;
+        guard <recursive> guard;
 
         try
         {

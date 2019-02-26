@@ -145,7 +145,7 @@ namespace drop
         variant <std :: experimental :: coroutine_handle <>, std :: vector <std :: experimental :: coroutine_handle <>>> _handles;
         bool _resumed;
 
-        guard <soft> _guard;
+        guard <recursive> _guard;
 
     public:
 
