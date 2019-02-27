@@ -2,7 +2,14 @@
 
 namespace drop
 {
-    class shield;
+    // Tags
+
+    class simple;
+    class recursive;
+
+    // Classes
+
+    template <typename> class shield;
 };
 
 #if !defined(__forward__) && !defined(__src__thread__shield__h)
@@ -14,17 +21,21 @@ namespace drop
 
 namespace drop
 {
-    class shield
+    template <typename type> class shield
     {
+        // Asserts
+
+        static_assert(std :: is_same <type, simple> :: value || std :: is_same <type, recursive> :: value, "Valid tags for `shield` are: `simple`, `recursive`.");
+
         // Members
 
-        std :: recursive_mutex & _mutex;
+        std :: conditional_t <std :: is_same <type, simple> :: value, std :: mutex, std :: recursive_mutex> & _mutex;
 
     public:
 
         // Constructors
 
-        shield(std :: recursive_mutex &);
+        shield(std :: conditional_t <std :: is_same <type, simple> :: value, std :: mutex, std :: recursive_mutex> &);
 
         // Destructor
 

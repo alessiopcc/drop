@@ -4,7 +4,7 @@
 // Includes
 
 #include "guard.h"
-#include "shield.h"
+#include "shield.hpp"
 
 namespace drop
 {
@@ -12,9 +12,9 @@ namespace drop
 
     // Operators
 
-    template <typename lambda> auto guard <recursive> :: operator () (lambda && operation)
+    template <typename type> template <typename lambda> auto guard <type> :: operator () (lambda && operation)
     {
-        shield shield(this->_mutex);
+        shield <type> shield(this->_mutex);
         return operation();
     }
 
@@ -22,9 +22,9 @@ namespace drop
 
     // Operators
 
-    template <typename lambda> auto guard <sequential> :: operator () (lambda && operation)
+    template <typename lambda> void guard <sequential> :: operator () (lambda && operation)
     {
-        shield shield(this->_mutex);
+        shield <recursive> shield(this->_mutex);
 
         if(this->_lock)
             this->_queue.push_back(operation);
@@ -36,8 +36,9 @@ namespace drop
 
             if(!this->_queue.empty())
             {
-                this->_queue.front()();
+                auto next = this->_queue.front();
                 this->_queue.pop_front();
+                (*this)(next);
             }
         }
     }

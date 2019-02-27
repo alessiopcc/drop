@@ -4,6 +4,7 @@ namespace drop
 {
     // Tags
 
+    class simple;
     class recursive;
     class sequential;
 
@@ -22,11 +23,15 @@ namespace drop
 
 namespace drop
 {
-    template <> class guard <recursive>
+    template <typename type> class guard
     {
+        // Asserts
+
+        static_assert(std :: is_same <type, simple> :: value || std :: is_same <type, recursive> :: value, "Valid tags for a `guard` are: `simple`, `recursive`, `sequential`.");
+
         // Members
 
-        std :: recursive_mutex _mutex;
+        std :: conditional_t <std :: is_same <type, simple> :: value, std :: mutex, std :: recursive_mutex> _mutex;
 
     public:
 
@@ -51,7 +56,7 @@ namespace drop
 
         // Operators
 
-        template <typename lambda> auto operator () (lambda &&);
+        template <typename lambda> void operator () (lambda &&);
     };
 };
 
