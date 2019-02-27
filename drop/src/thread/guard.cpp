@@ -4,19 +4,9 @@
 
 namespace drop
 {
-    // guard <soft> :: shield
-
     // Constructors
 
-    guard <soft> :: shield :: shield(std :: recursive_mutex & mutex) : _mutex(mutex)
+    guard <sequential> :: guard() : _lock(false)
     {
-        this->_mutex.lock();
-    }
-
-    // Destructor
-
-    guard <soft> :: shield :: ~shield()
-    {
-        this->_mutex.unlock();
     }
 };

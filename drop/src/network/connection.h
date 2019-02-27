@@ -120,7 +120,7 @@ namespace drop
 
         pool * _pool;
 
-        guard <soft> _guard;
+        guard <recursive> _guard;
 
     public:
 

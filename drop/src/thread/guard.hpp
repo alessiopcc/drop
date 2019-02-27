@@ -4,17 +4,43 @@
 // Includes
 
 #include "guard.h"
+#include "shield.hpp"
 
 namespace drop
 {
-    // guard <soft>
+    // guard <recursive>
 
-    // Methods
+    // Operators
 
-    template <typename lambda> auto guard <soft> :: operator () (lambda && operation)
+    template <typename type> template <typename lambda> auto guard <type> :: operator () (lambda && operation)
     {
-        shield shield(this->_mutex);
+        shield <type> shield(this->_mutex);
         return operation();
+    }
+
+    // guard <sequential>
+
+    // Operators
+
+    template <typename lambda> void guard <sequential> :: operator () (lambda && operation)
+    {
+        shield <recursive> shield(this->_mutex);
+
+        if(this->_lock)
+            this->_queue.push_back(operation);
+        else
+        {
+            this->_lock = true;
+            operation();
+            this->_lock = false;
+
+            if(!this->_queue.empty())
+            {
+                auto next = this->_queue.front();
+                this->_queue.pop_front();
+                (*this)(next);
+            }
+        }
     }
 };
 
