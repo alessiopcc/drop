@@ -17,7 +17,7 @@ namespace
 
     // Tests
 
-    $test("connection/async-sync", {.instances = 2},[]
+    $test("connection/sync", {.instances = 2},[]
     {
         std :: string message = "Hello world!";
         std :: vector <uint8_t> vector = {3, 2, 1, 0};
@@ -56,13 +56,29 @@ namespace
 
         if(:: test :: instance :: id() == 0)
         {
+            // Manager
+
+            std :: string goodbye  = "Goodbye!";
+
+            auto mylistener = tcp :: listen(4321);
+            auto myotherlistener = tcp :: listen(4322);
+
+            auto one = mylistener.acceptsync();
+            auto two = myotherlistener.acceptsync();
+
+            one.receivesync <std :: string> ();
+            one.send(goodbye);
+            two.send(goodbye);
+        }
+        else if(:: test :: instance :: id() == 1)
+        {
             // Receiver
 
             auto listener = tcp :: listen(1234);
             auto connection = listener.acceptsync();
 
             sleep(3);
-            auto goodbye = tcp :: connectsync({:: test :: instance :: get <:: test :: IPv4> (2), 4321});
+            auto goodbye = tcp :: connectsync({:: test :: instance :: get <:: test :: IPv4> (0), 4321});
 
             [&]() -> promise <void>
             {
@@ -88,13 +104,13 @@ namespace
 
             goodbye.receivesync <std :: string> ();
         }
-        else if(:: test :: instance :: id() == 1)
+        else
         {
             // Sender
 
             sleep(3);
-            auto connection = tcp :: connectsync({:: test :: instance :: get <:: test :: IPv4> (0), 1234});
-            auto goodbye = tcp :: connectsync({:: test :: instance :: get <:: test :: IPv4> (2), 4322});
+            auto connection = tcp :: connectsync({:: test :: instance :: get <:: test :: IPv4> (1), 1234});
+            auto goodbye = tcp :: connectsync({:: test :: instance :: get <:: test :: IPv4> (0), 4322});
 
             connection.sendasync(message);
             connection.send(message);
@@ -103,22 +119,6 @@ namespace
             connection.send(vector);
 
             goodbye.receivesync <std :: string> ();
-        }
-        else
-        {
-            // Manager
-            
-            std :: string goodbye  = "Goodbye!";
-
-            auto mylistener = tcp :: listen(4321);
-            auto myotherlistener = tcp :: listen(4322);
-
-            auto one = mylistener.acceptsync();
-            auto two = myotherlistener.acceptsync();
-
-            one.receivesync <std :: string> ();
-            one.send(goodbye);
-            two.send(goodbye);
         }
     });
 };
