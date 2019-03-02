@@ -109,7 +109,7 @@ namespace
             // Sender
 
             sleep(3);
-            auto connection = tcp :: connectsync({:: test :: instance :: get <:: test :: IPv4> (1), 1234});
+            auto connection = tcp :: connectsync({:: test :: instance :: get <:: test :: IPv6> (1), 1234});
             auto goodbye = tcp :: connectsync({:: test :: instance :: get <:: test :: IPv4> (0), 4322});
 
             connection.sendasync(message);
