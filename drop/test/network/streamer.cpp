@@ -23,11 +23,14 @@ namespace
         std :: vector <size_t> _steps;
         size_t _step;
 
+        std :: vector <uint8_t> _data;
+        std :: vector <uint8_t> _buffer;
+
     public:
 
         // Constructors
 
-        wstream(const std :: vector <size_t> & steps) : _steps(steps), _step(0)
+        wstream(const std :: vector <size_t> & steps, std :: vector <uint8_t> & buffer) : _steps(steps), _step(0), _buffer(buffer)
         {
         }
 
@@ -36,13 +39,28 @@ namespace
             size = std :: min(size, this->_steps[this->_step]);
 
             for(size_t i = 0; i < size; i++)
-                std :: cout << (uint32_t) *(chunk + i) << std :: endl;
+                this->_data.push_back((uint32_t) *(chunk + i));
 
             this->_step++;
 
             return size;
         }
 
+        void check()
+        {
+            size_t size = 0;
+            for(size_t i = 0; i < this->_step; i++)
+                size += this->_steps[i];
+
+            if(this->_data.size() != size)
+                throw "`streamer <send>` does not return all the data it is supposed to return.";
+
+            for(size_t i = 0; i < size; i++)
+            {
+                if(this->_data[i] != this->_buffer[i])
+                    throw "`streamer <send>` does not return the expect values.";
+            }
+        }
     };
 
     class rstream
@@ -79,11 +97,13 @@ namespace
 
     // Tests
 
-    $test("streamers/send", []
+    $test("streamer/send", []
     {
         {
             std :: array <uint8_t, 8> mybuffer = {1, 2, 3, 4, 5, 6, 7, 8};
-            wstream mystream({0, 1, 0, 3, 2, 100});
+
+            std :: vector <uint8_t> myvectorbuffer(mybuffer.begin(), mybuffer.end());
+            wstream mystream({0, 1, 0, 3, 2, 100}, myvectorbuffer);
 
             streamer <send> mystreamer(mybuffer);
             while(!mystreamer.stream(mystream));
@@ -98,14 +118,14 @@ namespace
             for(size_t i = 0; i < size; i++)
                 mybuffer[i] = i;
 
-            wstream mystream({0, 0, 0, 1, 1, 9, 8, 9, 9, 9, 9, 9, 9, 9, 9, size});
+            wstream mystream({0, 0, 0, 1, 1, 9, 8, 9, 9, 9, 9, 9, 9, 9, 9, size}, mybuffer);
 
             streamer <send> mystreamer(mybuffer);
             while(!mystreamer.stream(mystream));
         }
     });
 
-    $test("streamers/receive", []
+    $test("streamer/receive", []
     {
         {
             std :: array <uint8_t, 8> mybuffer;
