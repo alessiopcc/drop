@@ -40,7 +40,7 @@ namespace
         {
             // Client
 
-            sleep(3);
+            sleep(1_s);
             auto connection = tcp :: connectsync({:: test :: instance :: get <:: test :: IPv4> (0), 1234});
 
             connection.sendasync(message);
@@ -76,7 +76,7 @@ namespace
             auto listener = tcp :: listen(1234);
             auto connection = listener.acceptsync();
 
-            sleep(3);
+            sleep(1_s);
             auto goodbye = tcp :: connectsync({:: test :: instance :: get <:: test :: IPv4> (0), 4321});
 
             [&]() -> promise <void>
@@ -107,7 +107,7 @@ namespace
         {
             // Sender
 
-            sleep(3);
+            sleep(1_s);
             auto connection = tcp :: connectsync({:: test :: instance :: get <:: test :: IPv6> (1), 1234});
             auto goodbye = tcp :: connectsync({:: test :: instance :: get <:: test :: IPv4> (0), 4322});
 
