@@ -7,7 +7,6 @@
 // Includes
 
 #include "network/connection.hpp"
-#include "async/promise.hpp"
 
 namespace
 {
