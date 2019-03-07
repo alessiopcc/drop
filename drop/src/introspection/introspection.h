@@ -70,9 +70,11 @@ namespace drop
         {                                                                       \
             if constexpr (std :: is_const <std :: remove_reference_t            \
                 <__tagtype__>> :: value)                                        \
-                return (const item &) instance;                                 \
+                return static_cast <const typename :: introspection :: traits   \
+                :: argument <void (item)> :: type &> (instance);                \
             else                                                                \
-                return (item &) instance;                                       \
+                return static_cast <typename :: introspection :: traits         \
+                :: argument <void (item)> :: type &> (instance);                \
         }                                                                       \
     };
 
@@ -114,6 +116,13 @@ namespace drop
             // Constraints
 
             template <typename, typename, typename> static constexpr bool visitor();
+        };
+
+        // Traits
+
+        struct traits
+        {
+            template <typename> struct argument;
         };
 
     private:
@@ -162,6 +171,11 @@ namespace drop
         // Static members
 
         static constexpr bool value = std :: is_same <decltype(sfinae <progressive> (nullptr)), std :: true_type> :: value;
+    };
+
+    template <typename atype> struct introspection :: traits :: argument <void(atype)>
+    {
+        typedef atype type;
     };
 }
 
