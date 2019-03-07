@@ -70,10 +70,10 @@ namespace drop
         {                                                                       \
             if constexpr (std :: is_const <std :: remove_reference_t            \
                 <__tagtype__>> :: value)                                        \
-                return static_cast <const typename :: introspection :: traits   \
-                :: argument <void (item)> :: type &> (instance);                \
+                return static_cast <const typename :: drop :: introspection ::  \
+                traits :: argument <void (item)> :: type &> (instance);         \
             else                                                                \
-                return static_cast <typename :: introspection :: traits         \
+                return static_cast <typename :: drop :: introspection :: traits \
                 :: argument <void (item)> :: type &> (instance);                \
         }                                                                       \
     };
