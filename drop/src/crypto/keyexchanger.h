@@ -34,10 +34,16 @@ namespace drop
 
         class publickey : public std :: array <uint8_t, crypto_kx_PUBLICKEYBYTES>
         {
+            // Bytewise
+
+            $bytewise(base, (std :: array <uint8_t, crypto_kx_PUBLICKEYBYTES>));
         };
 
         class secretkey : public std :: array <uint8_t, crypto_kx_SECRETKEYBYTES>
         {
+            // Bytewise
+
+            $bytewise(base, (std :: array <uint8_t, crypto_kx_SECRETKEYBYTES>));
         };
 
         struct keypair
@@ -50,6 +56,11 @@ namespace drop
 
             class channel :: key receive;
             class channel :: key transmit;
+
+            // Bytewise
+
+            $bytewise(receive);
+            $bytewise(transmit);
         };
 
     private:
