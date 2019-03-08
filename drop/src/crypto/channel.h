@@ -30,6 +30,30 @@ namespace drop
     {
     public:
 
+        // Traits
+
+        struct traits
+        {
+            template <typename> struct encrypted;
+            template <typename> struct decrypted;
+
+            template <size_t size> struct encrypted <std :: array <uint8_t, size>>
+            {
+                typedef std :: array <uint8_t, size + crypto_secretbox_MACBYTES> type;
+            };
+
+            template <size_t size> struct decrypted <std :: array <uint8_t, size>>
+            {
+                // Static asserts
+
+                static_assert(size >= crypto_secretbox_MACBYTES, "Trait `decrypted` is not defined on a `std :: array` shorter than `crypto_secretbox_MACBYTES` bytes.");
+
+                // Typedefs
+
+                typedef std :: array <uint8_t, size - crypto_secretbox_MACBYTES> type;
+            };
+        };
+
         // Nested classes
 
         class key : public std :: array <uint8_t, crypto_secretbox_KEYBYTES>
@@ -50,7 +74,7 @@ namespace drop
             // Bytewise
 
             $bytewise(base, (std :: array <uint8_t, crypto_secretbox_NONCEBYTES>));
-            
+
         public:
 
             // Methods
