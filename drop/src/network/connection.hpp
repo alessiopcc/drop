@@ -27,7 +27,10 @@ namespace drop
 
         try
         {
-            this->lsendsync(message);
+            if(this->_arc->_channelpair)
+                this->lsendsync((*this->_arc->_channelpair).transmit.encrypt(message));
+            else
+                this->lsendsync(message);
         }
         catch(...)
         {
@@ -51,7 +54,10 @@ namespace drop
 
         try
         {
-            message = this->lreceivesync <type> ();
+            if(this->_arc->_channelpair)
+                message = (*this->_arc->_channelpair).receive.decrypt(this->lreceivesync <typename channel :: traits :: encrypted <type> :: type> ());
+            else
+                message = this->lreceivesync <type> ();
         }
         catch(...)
         {
