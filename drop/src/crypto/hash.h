@@ -46,6 +46,10 @@ namespace drop
 
     class hash :: key : public std :: array <uint8_t, crypto_generichash_KEYBYTES>
     {
+        // Bytewise
+
+        $bytewise(base, (std :: array <uint8_t, crypto_generichash_KEYBYTES>));
+        
     public:
 
         // Static methods

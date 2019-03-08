@@ -36,7 +36,7 @@ namespace drop
 
 // Macros
 
-#define $bytewise(member) $tag(:: drop :: bytewise, member)
+#define $bytewise(...) $tag(:: drop :: bytewise, __VA_ARGS__)
 
 namespace drop
 {
