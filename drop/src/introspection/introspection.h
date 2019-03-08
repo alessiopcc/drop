@@ -84,7 +84,7 @@ namespace drop
 #define $$tag3args(tag, type, item) $$tag(tag, type, item, __COUNTER__)
 
 #define $$tagget4tharg(arg1, arg2, arg3, arg4, ...) arg4
-#define $$tagmacrochooser(...) $$tagget4tharg(__VA_ARGS__, $$tag3args, $$tag2args, $$tag1args,)
+#define $$tagmacrochooser(...) $$tagget4tharg(__VA_ARGS__, $$tag3args, $$tag2args,)
 #define $tag(...) $$tagmacrochooser(__VA_ARGS__)(__VA_ARGS__)
 
 namespace drop
