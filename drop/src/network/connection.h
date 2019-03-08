@@ -147,7 +147,7 @@ namespace drop
 
         pool * _pool;
 
-        guard <recursive> _guard;
+        guard <simple> _guard;
 
     public:
 
