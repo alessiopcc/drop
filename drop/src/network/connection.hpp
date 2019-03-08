@@ -24,15 +24,10 @@ namespace drop
     template <typename type, std :: enable_if_t <connection :: constraints :: buffer <type> ()> *> void connection :: sendsync(const type & message) const
     {
         this->setup <class send, true> ();
-        streamer <class send> streamer(message);
 
         try
         {
-            this->_arc->_socket.match([&](const auto & socket)
-            {
-                if(!streamer.stream(socket))
-                    exception <send_timeout> :: raise(this);
-            });
+            this->lsendsync(message);
         }
         catch(...)
         {
@@ -53,15 +48,10 @@ namespace drop
         this->setup <class receive, true> ();
 
         type message;
-        streamer <class receive> streamer(message);
 
         try
         {
-            this->_arc->_socket.match([&](const auto & socket)
-            {
-                if(!streamer.stream(socket))
-                    exception <receive_timeout> :: raise(this);
-            });
+            message = this->lreceivesync <type> ();
         }
         catch(...)
         {
@@ -90,44 +80,16 @@ namespace drop
     template <typename type, std :: enable_if_t <connection :: constraints :: buffer <type> ()> *> promise <void> connection :: sendasync(const type & message) const
     {
         connection connection = (*this);
-
         connection.setup <class send, false> ();
-        bool completed;
-
-        streamer <class send> streamer(message);
 
         try
         {
-            connection._arc->_socket.match([&](const auto & socket)
-            {
-                completed = streamer.stream(socket);
-            });
+            co_await connection.lsendasync(message);
         }
         catch(...)
         {
             connection.release <class send> ();
             std :: rethrow_exception(std :: current_exception());
-        }
-
-        if(!completed)
-        {
-            pool * binding = connection._arc->_guard([&](){return connection._arc->_pool;});
-            promise <void> promise;
-
-            connection._arc->_socket.match([&](const auto & socket)
-            {
-                promise = (binding ? *binding : pool :: system.get()).write(socket, streamer);
-            });
-
-            try
-            {
-                co_await promise;
-            }
-            catch(...)
-            {
-                connection.release <class send> ();
-                std :: rethrow_exception(std :: current_exception());
-            }
         }
 
         connection.release <class send> ();
@@ -141,45 +103,18 @@ namespace drop
     template <typename type, std :: enable_if_t <connection :: constraints :: buffer <type> ()> *> promise <type> connection :: receiveasync() const
     {
         connection connection = (*this);
-
         connection.setup <class receive, false> ();
-        bool completed;
 
         type message;
-        streamer <class receive> streamer(message);
 
         try
         {
-            connection._arc->_socket.match([&](const auto & socket)
-            {
-                completed = streamer.stream(socket);
-            });
+            message = co_await this->lreceiveasync <type> ();
         }
         catch(...)
         {
             connection.release <class receive> ();
             std :: rethrow_exception(std :: current_exception());
-        }
-
-        if(!completed)
-        {
-            pool * binding = connection._arc->_guard([&](){return connection._arc->_pool;});
-            promise <void> promise;
-
-            connection._arc->_socket.match([&](const auto & socket)
-            {
-                promise = (binding ? *binding : pool :: system.get()).read(socket, streamer);
-            });
-
-            try
-            {
-                co_await promise;
-            }
-            catch(...)
-            {
-                connection.release <class receive> ();
-                std :: rethrow_exception(std :: current_exception());
-            }
         }
 
         connection.release <class receive> ();
@@ -233,6 +168,84 @@ namespace drop
     }
 
     // Private methods
+
+    template <typename type, std :: enable_if_t <connection :: constraints :: buffer <type> ()> *> void connection :: lsendsync(const type & message) const
+    {
+        streamer <class send> streamer(message);
+
+        this->_arc->_socket.match([&](const auto & socket)
+        {
+            if(!streamer.stream(socket))
+                exception <send_timeout> :: raise(this);
+        });
+    }
+
+    template <typename type, std :: enable_if_t <connection :: constraints :: buffer <type> ()> *> type connection :: lreceivesync() const
+    {
+        type message;
+        streamer <class receive> streamer(message);
+
+        this->_arc->_socket.match([&](const auto & socket)
+        {
+            if(!streamer.stream(socket))
+                exception <receive_timeout> :: raise(this);
+        });
+
+        return message;
+    }
+
+    template <typename type, std :: enable_if_t <connection :: constraints :: buffer <type> ()> *> promise <void> connection :: lsendasync(const type & message) const
+    {
+        bool completed;
+
+        streamer <class send> streamer(message);
+
+        this->_arc->_socket.match([&](const auto & socket)
+        {
+            completed = streamer.stream(socket);
+        });
+
+        if(!completed)
+        {
+            pool * binding = this->_arc->_guard([&](){return this->_arc->_pool;});
+            promise <void> promise;
+
+            this->_arc->_socket.match([&](const auto & socket)
+            {
+                promise = (binding ? *binding : pool :: system.get()).write(socket, streamer);
+            });
+
+            co_await promise;
+        }
+    }
+
+    template <typename type, std :: enable_if_t <connection :: constraints :: buffer <type> ()> *> promise <type> connection :: lreceiveasync() const
+    {
+        bool completed;
+
+        type message;
+        streamer <class receive> streamer(message);
+
+        this->_arc->_socket.match([&](const auto & socket)
+        {
+            completed = streamer.stream(socket);
+        });
+
+        if(!completed)
+        {
+            pool * binding = this->_arc->_guard([&](){return this->_arc->_pool;});
+            promise <void> promise;
+
+            this->_arc->_socket.match([&](const auto & socket)
+            {
+                promise = (binding ? *binding : pool :: system.get()).read(socket, streamer);
+            });
+
+            co_await promise;
+        }
+
+        co_return message;
+    }
 
     template <bool value> void connection :: block() const
     {

@@ -98,6 +98,11 @@ namespace drop
 
         // Private methods
 
+        template <typename type, std :: enable_if_t <constraints :: buffer <type> ()> * = nullptr> void lsendsync(const type &) const;
+        template <typename type, std :: enable_if_t <constraints :: buffer <type> ()> * = nullptr> type lreceivesync() const;
+        template <typename type, std :: enable_if_t <constraints :: buffer <type> ()> * = nullptr> promise <void> lsendasync(const type &) const;
+        template <typename type, std :: enable_if_t <constraints :: buffer <type> ()> * = nullptr> promise <type> lreceiveasync() const;
+
         template <bool> void block() const;
 
         template <typename, bool> void setup() const;
