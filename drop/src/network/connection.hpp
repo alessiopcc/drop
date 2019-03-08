@@ -24,13 +24,7 @@ namespace drop
     template <typename type, std :: enable_if_t <connection :: constraints :: buffer <type> ()> *> void connection :: sendsync(const type & message) const
     {
         this->setup <class send, true> ();
-        auto streamer = this->_arc->_guard([&]()
-        {
-            if(this->_arc->_channelpair)
-                return :: drop :: streamer <class send> ((*(this->_arc->_channelpair)).transmit.encrypt(message));
-            else
-                return :: drop :: streamer <class send> (message);
-        });
+        streamer <class send> streamer(message);
 
         try
         {
@@ -58,20 +52,8 @@ namespace drop
     {
         this->setup <class receive, true> ();
 
-        variant <type, typename channel :: traits :: encrypted <type> :: type> message;
-        streamer <class receive> streamer = this->_arc->_guard([&]()
-        {
-            if(this->_arc->_channelpair)
-            {
-                message.template emplace <typename channel :: traits :: encrypted <type> :: type> ();
-                return :: drop :: streamer <class receive> (message.template reinterpret <typename channel :: traits :: encrypted <type> :: type> ());
-            }
-            else
-            {
-                message.template emplace <type> ();
-                return :: drop :: streamer <class receive> (message.template reinterpret <type> ());
-            }
-        });
+        type message;
+        streamer <class receive> streamer(message);
 
         try
         {
@@ -79,12 +61,6 @@ namespace drop
             {
                 if(!streamer.stream(socket))
                     exception <receive_timeout> :: raise(this);
-            });
-
-            this->_arc->_guard([&]()
-            {
-                if(message.template is <typename channel :: traits :: encrypted <type> :: type> ())
-                    message = (*(this->_arc->_channelpair)).receive.decrypt(message.template reinterpret <typename channel :: traits :: encrypted <type> :: type> ());
             });
         }
         catch(...)
@@ -94,7 +70,7 @@ namespace drop
         }
 
         this->release <class receive> ();
-        return message.template reinterpret <type> ();
+        return message;
     }
 
     template <typename... types, std :: enable_if_t <(sizeof...(types) > 0) && (... && bytewise :: constraints :: deserializable <types> ()) && !((sizeof...(types) == 1) && (... && connection :: constraints :: buffer <types> ()))> *> auto connection :: receivesync() const
