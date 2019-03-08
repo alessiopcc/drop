@@ -90,7 +90,10 @@ namespace drop
 
         try
         {
-            co_await connection.lsendasync(message);
+            if(connection._arc->_channelpair)
+                co_await connection.lsendasync((*connection._arc->_channelpair).transmit.encrypt(message));
+            else
+                co_await connection.lsendasync(message);
         }
         catch(...)
         {
@@ -115,7 +118,10 @@ namespace drop
 
         try
         {
-            message = co_await this->lreceiveasync <type> ();
+            if(connection._arc->_channelpair)
+                message = (*connection._arc->_channelpair).receive.decrypt(co_await connection.lreceiveasync <typename channel :: traits :: encrypted <type> :: type> ());
+            else
+                message = co_await connection.lreceiveasync <type> ();
         }
         catch(...)
         {
