@@ -38,6 +38,8 @@ namespace drop
 #include "concept/stltraits.h"
 #include "thread/guard.hpp"
 #include "async/promise.hpp"
+#include "crypto/keyexchanger.h"
+#include "crypto/channel.hpp"
 
 namespace drop
 {
@@ -84,6 +86,11 @@ namespace drop
         template <typename type, std :: enable_if_t <constraints :: buffer <type> ()> * = nullptr> promise <type> receive() const;
         template <typename... types, std :: enable_if_t <(sizeof...(types) > 0) && (... && bytewise :: constraints :: deserializable <types> ()) && !((sizeof...(types) == 1) && (... && constraints :: buffer <types> ()))> * = nullptr> auto receive() const;
 
+        void securesync(const keyexchanger &, const class keyexchanger :: publickey &) const;
+        promise <void> secureasync(const keyexchanger &, const class keyexchanger :: publickey &) const;
+
+        promise <void> secure(const keyexchanger &, const class keyexchanger :: publickey &) const;
+
         void bind(pool &) const;
         void unbind() const;
 
@@ -99,6 +106,20 @@ namespace drop
 
     class connection :: arc
     {
+        // Service nested structs
+
+        struct channelpair
+        {
+            // Public members
+
+            channel receive;
+            channel transmit;
+
+            // Constructors
+
+            channelpair(const class channel :: key &, const class channel :: nonce &, const class channel :: key &, const class channel :: nonce &);
+        };
+
         // Friends
 
         friend class connection;
@@ -106,6 +127,7 @@ namespace drop
         // Members
 
         variant <tcp :: socket> _socket;
+        optional <channelpair> _channelpair;
 
         struct
         {
