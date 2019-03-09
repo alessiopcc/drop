@@ -16,16 +16,118 @@ namespace
 
     // Tests
 
-    $test("connection/develop", []
+    $test("connection/sync", {.instances = 2},[]
     {
-        /*auto connection = tcp :: connectsync({"127.0.0.1", 1234});
+        std :: string message = "Hello world!";
+        std :: vector <uint8_t> vector = {3, 2, 1, 0};
 
-        connection.sendsync(std :: array <uint32_t, 4> {1, 2, 3, 4}, std :: string("Hello World!"));
-        auto [firstreply, secondreply] = connection.receivesync <std :: array <uint32_t, 4>, std :: string> ();
+        if(:: test :: instance :: id() == 0)
+        {
+            // Server
 
-        for(auto value : firstreply)
-            std :: cout << value << std :: endl;
+            auto listener = tcp :: listen(1234);
+            auto connection = listener.acceptsync();
 
-        std :: cout << secondreply << std :: endl;*/
+            auto receivedmessage = connection.receivesync <std :: string> ();
+            if(receivedmessage != message)
+                throw "`receivesync <std :: string>` does not return the string given to `sendsync`.";
+
+            auto receivedvector = connection.receivesync <std :: vector <uint8_t>>();
+            if(receivedvector != vector)
+                throw "`receivesync <std :: vector <uint8_t>>` does not return the vector given to `sendsync`.";
+        }
+        else
+        {
+            // Client
+
+            sleep(1_s);
+            auto connection = tcp :: connectsync({:: test :: instance :: get <:: test :: IPv6> (0), 1234});
+
+            connection.sendasync(message);
+            connection.sendasync(vector);
+        }
+    });
+
+    $test("connection/async", {.instances = 3},[]
+    {
+        std :: string message = "Hello world!";
+        std :: vector <uint8_t> vector = {3, 2, 1, 0};
+
+        if(:: test :: instance :: id() == 0)
+        {
+            // Manager
+
+            std :: string goodbye  = "Goodbye!";
+
+            auto mylistener = tcp :: listen(4321);
+            auto myotherlistener = tcp :: listen(4322);
+
+            auto one = mylistener.acceptsync();
+            auto two = myotherlistener.acceptsync();
+
+            one.receivesync <std :: string> ();
+            one.send(goodbye);
+            two.send(goodbye);
+        }
+        else if(:: test :: instance :: id() == 1)
+        {
+            // Receiver
+
+            auto listener = tcp :: listen({:: test :: instance :: get <:: test :: IPv4> (1), 1234});
+            auto connection = listener.acceptsync();
+
+            sleep(1_s);
+            auto goodbye = tcp :: connectsync({:: test :: instance :: get <:: test :: IPv6> (0), 4321});
+
+            [&]() -> promise <void>
+            {
+                auto mypool = pool();
+                connection.bind(mypool);
+
+                std :: string firstmessage = co_await connection.receiveasync <std :: string> ();
+                std :: string secondmessage = co_await connection.receive <std :: string> ();
+
+                connection.unbind();
+
+                std :: vector firstvector = co_await connection.receiveasync <std :: vector <uint8_t>>();
+                std :: vector secondvector = co_await connection.receive <std :: vector <uint8_t>>();
+
+                if(firstmessage != message)
+                    throw "`receiveasync <std :: string>` does not return the string given to `sendasync`.";
+                if(secondmessage != message)
+                    throw "`receive <std :: string>` does not return the string given to `send`.";
+
+                if(firstvector != vector)
+                    throw "`receiveasync <std :: vector <uint8_t>>` does not return the vector given to `sendasync`.";
+                if(secondvector != vector)
+                    throw "`receive <std :: vector <uint8_t>>` does not return the vector given to `send`.";
+
+                std :: string done = "Done!";
+                goodbye.send(done);
+            }();
+
+            goodbye.receivesync <std :: string> ();
+        }
+        else
+        {
+            // Sender
+
+            sleep(1_s);
+            auto connection = tcp :: connectsync({:: test :: instance :: get <:: test :: IPv4> (1), 1234});
+            auto goodbye = tcp :: connectsync({:: test :: instance :: get <:: test :: IPv6> (0), 4322});
+
+            auto mypool = pool();
+            connection.bind(mypool);
+
+            connection.sendasync(message);
+            connection.send(message);
+
+            connection.unbind();
+
+            connection.sendasync(vector);
+            connection.send(vector);
+
+            goodbye.receivesync <std :: string> ();
+        }
     });
 };
