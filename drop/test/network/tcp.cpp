@@ -179,7 +179,7 @@ namespace
         bool c = ((any.get <timeouts :: send> () - interval(7600000)) > interval(10000)) || (any.get <timeouts :: send> () < interval(7600000));
 
         if(a || b || c)
-            throw "A `get <timeouts :: send>` does not return the value set with `set <timeouts :: send>`.";
+            throw "`get <timeouts :: send>` does not return the value set with `set <timeouts :: send>`.";
 
         ipv4.set <timeouts :: receive> (interval(7610000));
         ipv6.set <timeouts :: receive> (interval(7610000));
@@ -190,7 +190,7 @@ namespace
         c = ((any.get <timeouts :: receive> () - interval(7610000)) > interval(10000)) || (any.get <timeouts :: receive> () < interval(7610000));
 
         if(a || b || c)
-            throw "B `get <timeouts :: receive>` does not return the value set with `set <timeouts :: receive>`.";
+            throw "`get <timeouts :: receive>` does not return the value set with `set <timeouts :: receive>`.";
 
         // TODO do better tests...HOW -> send e vedi se c'è dentro qualcosa
         a = (ipv4.get <buffers :: send :: size> () - ipv4.get <buffers :: send :: pending> ()) == ipv4.get <buffers :: send :: available> ();
