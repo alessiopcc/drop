@@ -41,7 +41,7 @@ namespace
             // Client
 
             sleep(1_s);
-            auto connection = tcp :: connectsync({:: test :: instance :: get <:: test :: IPv4> (0), 1234});
+            auto connection = tcp :: connectsync({:: test :: instance :: get <:: test :: IPv6> (0), 1234});
 
             connection.sendasync(message);
             connection.sendasync(vector);
@@ -73,16 +73,21 @@ namespace
         {
             // Receiver
 
-            auto listener = tcp :: listen(1234);
+            auto listener = tcp :: listen({:: test :: instance :: get <:: test :: IPv4> (1), 1234});
             auto connection = listener.acceptsync();
 
             sleep(1_s);
-            auto goodbye = tcp :: connectsync({:: test :: instance :: get <:: test :: IPv4> (0), 4321});
+            auto goodbye = tcp :: connectsync({:: test :: instance :: get <:: test :: IPv6> (0), 4321});
 
             [&]() -> promise <void>
             {
+                auto mypool = pool();
+                connection.bind(mypool);
+
                 std :: string firstmessage = co_await connection.receiveasync <std :: string> ();
                 std :: string secondmessage = co_await connection.receive <std :: string> ();
+
+                connection.unbind();
 
                 std :: vector firstvector = co_await connection.receiveasync <std :: vector <uint8_t>>();
                 std :: vector secondvector = co_await connection.receive <std :: vector <uint8_t>>();
@@ -108,11 +113,16 @@ namespace
             // Sender
 
             sleep(1_s);
-            auto connection = tcp :: connectsync({:: test :: instance :: get <:: test :: IPv6> (1), 1234});
-            auto goodbye = tcp :: connectsync({:: test :: instance :: get <:: test :: IPv4> (0), 4322});
+            auto connection = tcp :: connectsync({:: test :: instance :: get <:: test :: IPv4> (1), 1234});
+            auto goodbye = tcp :: connectsync({:: test :: instance :: get <:: test :: IPv6> (0), 4322});
+
+            auto mypool = pool();
+            connection.bind(mypool);
 
             connection.sendasync(message);
             connection.send(message);
+
+            connection.unbind();
 
             connection.sendasync(vector);
             connection.send(vector);
