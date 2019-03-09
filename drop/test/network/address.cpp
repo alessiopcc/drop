@@ -180,15 +180,18 @@ namespace
         if(lastop != '?')
             throw "`match` does not apply the correct match case when called on an empty `ip`.";
 
-        // any()
-        // TODO: danno 0.0.0.0 e :: ...ok? + come testo?
-        // std :: cout << address :: ip :: any <IPv4> () << std :: endl;
-        // std :: cout << address :: ip :: any <IPv6> () << std :: endl;
+        if(checkip("0.0.0.0", address :: ip :: any <IPv4> ()))
+            throw "`address :: ip :: any <IPv4> ()` does not return `0.0.0.0`.";
+        if(checkip("::", address :: ip :: any <IPv6> ()))
+            throw "`address :: ip :: any <IPv6> ()` does not return `::`.";
 
-        // local()
-        // TODO: come testo?
-        // for(auto ip : address :: ip :: local())
-        //     std :: cout << ip << std :: endl;
+        auto local = address :: ip :: local();
+        if(local.size() != 2)
+            throw "`local()` does not return the correct number of addresses.";
+        if(checkip(:: test :: instance :: get <:: test :: IPv4> (:: test :: instance :: id()), local[0]))
+            throw "The first IP returned it is not the IPv4 address of the instance.";
+        if(checkip(:: test :: instance :: get <:: test :: IPv6> (:: test :: instance :: id()), local[1]))
+            throw "The second IP returned it is not the IPv6 address of the instance.";
     });
 
     $test("address/port", []
