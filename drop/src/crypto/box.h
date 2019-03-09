@@ -35,10 +35,16 @@ namespace drop
 
         class publickey : public std :: array <uint8_t, crypto_box_PUBLICKEYBYTES>
         {
+            // Bytewise
+
+            $bytewise(base, (std :: array <uint8_t, crypto_box_PUBLICKEYBYTES>));
         };
 
         class secretkey : public std :: array <uint8_t, crypto_box_SECRETKEYBYTES>
         {
+            // Bytewise
+
+            $bytewise(base, (std :: array <uint8_t, crypto_box_SECRETKEYBYTES>));
         };
 
     private:

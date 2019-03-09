@@ -14,7 +14,7 @@ namespace drop
 
 // Macros
 
-#define $$$tag(tag, item, counter)                                              \
+#define $$tagmember(tag, item, counter)                                         \
     /* Friends */                                                               \
                                                                                 \
     friend class :: drop :: introspection;                                      \
@@ -24,7 +24,7 @@ namespace drop
     template <typename, size_t, std :: nullptr_t> class __tag__;                \
                                                                                 \
     template <std :: nullptr_t __tagdummy__> class __tag__ <tag, :: drop ::     \
-        introspection :: next <__tag__, tag, counter> (), __tagdummy__>        \
+        introspection :: next <__tag__, tag, counter> (), __tagdummy__>         \
     {                                                                           \
         /* Friends */                                                           \
                                                                                 \
@@ -43,8 +43,49 @@ namespace drop
         }                                                                       \
     };
 
-#define $$tag(tag, item, counter) $$$tag(tag, item, counter)
-#define $tag(tag, item) $$tag(tag, item, __COUNTER__)
+#define $$tagbase(tag, item, counter)                                           \
+    /* Friends */                                                               \
+                                                                                \
+    friend class :: drop :: introspection;                                      \
+                                                                                \
+    /* Forward declarations */                                                  \
+                                                                                \
+    template <typename, size_t, std :: nullptr_t> class __tag__;                \
+                                                                                \
+    template <std :: nullptr_t __tagdummy__> class __tag__ <tag, :: drop ::     \
+        introspection :: next <__tag__, tag, counter> (), __tagdummy__>         \
+    {                                                                           \
+        /* Friends */                                                           \
+                                                                                \
+        friend class :: drop :: introspection;                                  \
+                                                                                \
+        /* Exists */                                                            \
+                                                                                \
+        typedef void exists;                                                    \
+                                                                                \
+        /* Static methods */                                                    \
+                                                                                \
+        template <typename __tagtype__> static inline auto & get(__tagtype__ && \
+            instance)                                                           \
+        {                                                                       \
+            if constexpr (std :: is_const <std :: remove_reference_t            \
+                <__tagtype__>> :: value)                                        \
+                return static_cast <const typename :: drop :: introspection ::  \
+                traits :: argument <void (item)> :: type &> (instance);         \
+            else                                                                \
+                return static_cast <typename :: drop :: introspection :: traits \
+                :: argument <void (item)> :: type &> (instance);                \
+        }                                                                       \
+    };
+
+#define $$tag(tag, type, item, counter) $$tag ## type(tag, item, counter)
+
+#define $$tag2args(tag, item) $$tag(tag, member, item, __COUNTER__)
+#define $$tag3args(tag, type, item) $$tag(tag, type, item, __COUNTER__)
+
+#define $$tagget4tharg(arg1, arg2, arg3, arg4, ...) arg4
+#define $$tagmacrochooser(...) $$tagget4tharg(__VA_ARGS__, $$tag3args, $$tag2args,)
+#define $tag(...) $$tagmacrochooser(__VA_ARGS__)(__VA_ARGS__)
 
 namespace drop
 {
@@ -75,6 +116,13 @@ namespace drop
             // Constraints
 
             template <typename, typename, typename> static constexpr bool visitor();
+        };
+
+        // Traits
+
+        struct traits
+        {
+            template <typename> struct argument;
         };
 
     private:
@@ -123,6 +171,11 @@ namespace drop
         // Static members
 
         static constexpr bool value = std :: is_same <decltype(sfinae <progressive> (nullptr)), std :: true_type> :: value;
+    };
+
+    template <typename atype> struct introspection :: traits :: argument <void(atype)>
+    {
+        typedef atype type;
     };
 }
 

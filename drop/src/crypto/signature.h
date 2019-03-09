@@ -28,6 +28,9 @@ namespace drop
 {
     class signature : public std :: array <uint8_t, crypto_sign_BYTES>
     {
+        // Bytewise
+
+        $bytewise(base, (std :: array <uint8_t, crypto_sign_BYTES>));
     };
 
     class signer
@@ -38,10 +41,16 @@ namespace drop
 
         class publickey : public std :: array <uint8_t, crypto_sign_PUBLICKEYBYTES>
         {
+            // Bytewise
+
+            $bytewise(base, (std :: array <uint8_t, crypto_sign_PUBLICKEYBYTES>));
         };
 
         class secretkey : public std :: array <uint8_t, crypto_sign_SECRETKEYBYTES>
         {
+            // Bytewise
+
+            $bytewise(base, (std :: array <uint8_t, crypto_sign_SECRETKEYBYTES>));
         };
 
     private:

@@ -4,8 +4,9 @@ namespace drop
 {
     // Tags
 
-    class soft;
-    class hard;
+    class simple;
+    class recursive;
+    class sequential;
 
     // Classes
 
@@ -18,18 +19,19 @@ namespace drop
 // Libraries
 
 #include <mutex>
+#include <deque>
 
 namespace drop
 {
-    template <> class guard <soft>
+    template <typename type> class guard
     {
-        // Service nested classes
+        // Asserts
 
-        class shield;
+        static_assert(std :: is_same <type, simple> :: value || std :: is_same <type, recursive> :: value, "Valid tags for a `guard` are: `simple`, `recursive`, `sequential`.");
 
         // Members
 
-        std :: recursive_mutex _mutex;
+        std :: conditional_t <std :: is_same <type, simple> :: value, std :: mutex, std :: recursive_mutex> _mutex;
 
     public:
 
@@ -38,21 +40,23 @@ namespace drop
         template <typename lambda> auto operator () (lambda &&);
     };
 
-    class guard <soft> :: shield
+    template <> class guard <sequential>
     {
         // Members
 
-        std :: recursive_mutex & _mutex;
+        std :: recursive_mutex _mutex;
+        bool _lock;
+        std :: deque <std :: function <void()>> _queue;
 
     public:
 
-        // Constructors
+        // Contructors
 
-        shield(std :: recursive_mutex &);
+        guard();
 
-        // Destructor
+        // Operators
 
-        ~shield();
+        template <typename lambda> void operator () (lambda &&);
     };
 };
 

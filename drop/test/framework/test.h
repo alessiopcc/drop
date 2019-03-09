@@ -23,8 +23,8 @@ namespace test
 
 // Macros
 
-#define $$$test(counter, ...) :: test :: test __test__##counter##__(__VA_ARGS__)
-#define $$test(counter, ...) $$$test(counter, __VA_ARGS__)
+#define $$testcase(counter, ...) :: test :: test __test__##counter##__(__VA_ARGS__)
+#define $$test(counter, ...) $$testcase(counter, __VA_ARGS__)
 #define $test(...) $$test(__COUNTER__, __VA_ARGS__)
 
 // Classes
