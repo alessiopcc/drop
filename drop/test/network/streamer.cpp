@@ -133,6 +133,26 @@ namespace
 
             streamer <receive> mystreamer(mybuffer);
             while(!mystreamer.stream(mystream));
+
+            std :: array <uint8_t, 8> expected = {1, 2, 3, 4, 5, 6, 7, 8};
+            if(mybuffer.size() != 8)
+                throw "`streamer <read>` does not read the correct amount of data.";
+            if(mybuffer != expected)
+                throw "`streamer <read>` does not read the correct data.";
+        }
+
+        {
+            std :: array <uint8_t, 12> mybuffer;
+            rstream mystream({1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}, {1, 2, 3, 3, 3, 3, 4, 12});
+
+            streamer <receive> mystreamer(mybuffer);
+            while(!mystreamer.stream(mystream));
+
+            std :: array <uint8_t, 12> expected = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+            if(mybuffer.size() != 12)
+                throw "`streamer <read>` does not read the correct amount of data.";
+            if(mybuffer != expected)
+                throw "`streamer <read>` does not read the correct data.";
         }
 
         {
