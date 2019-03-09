@@ -82,7 +82,10 @@ namespace drop
 
     void tcp :: socket :: bind(const class address :: port & port)
     {
-        this->bind(address(address :: ip :: any <drop :: IPv6> (), port));
+        if(this->get <domain> () == PF_INET)
+            this->bind(address(address :: ip :: any <drop :: IPv4> (), port));
+        else
+            this->bind(address(address :: ip :: any <drop :: IPv6> (), port));
     }
 
     void tcp :: socket :: bind(const address & address)
@@ -232,20 +235,24 @@ namespace drop
 
     tcp :: socket tcp :: socket :: IPv4()
     {
-        return socket(:: socket(PF_INET, SOCK_STREAM, 0));
+        socket socket(:: socket(PF_INET, SOCK_STREAM, 0));
+        socket.set <reuse> (true);
+        return socket;
     }
 
     tcp :: socket tcp :: socket :: IPv6()
     {
         socket socket(:: socket(PF_INET6, SOCK_STREAM, 0));
-        socket.setsockopt(IPPROTO_IPV6, IPV6_V6ONLY, 0);
+        socket.setsockopt(IPPROTO_IPV6, IPV6_V6ONLY, 1);
+        socket.set <reuse> (true);
         return socket;
     }
 
     tcp :: socket tcp :: socket :: any()
     {
         socket socket(:: socket(PF_INET6, SOCK_STREAM, 0));
-        socket.setsockopt(IPPROTO_IPV6, IPV6_V6ONLY, 1);
+        socket.setsockopt(IPPROTO_IPV6, IPV6_V6ONLY, 0);
+        socket.set <reuse> (true);
         return socket;
     }
 
