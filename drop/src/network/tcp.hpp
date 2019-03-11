@@ -61,6 +61,16 @@ namespace drop
         return this->ioctl(FIONREAD);
     }
 
+    template <> inline auto tcp :: socket :: get <reuse> () const
+    {
+        return this->getsockopt <int> (SOL_SOCKET, SO_REUSEADDR);
+    }
+
+    template <> inline auto tcp :: socket :: get <domain> () const
+    {
+        return this->getsockopt <int> (SOL_SOCKET, SO_DOMAIN);
+    }
+
     // Setters
 
     template <> inline void tcp :: socket :: set <blocking, bool> (const bool & value) const
@@ -87,6 +97,14 @@ namespace drop
         timeval.tv_usec = ((const uint64_t &) value) % 1000000;
 
         this->setsockopt(SOL_SOCKET, SO_RCVTIMEO, timeval);
+    }
+
+    template <> inline void tcp :: socket :: set <reuse> (const bool & value) const
+    {
+        if(value)
+            this->setsockopt(SOL_SOCKET, SO_REUSEADDR, 1);
+        else
+            this->setsockopt(SOL_SOCKET, SO_REUSEADDR, 0);
     }
 
     // Private methods
