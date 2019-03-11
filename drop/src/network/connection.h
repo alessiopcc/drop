@@ -16,6 +16,10 @@ namespace drop
     class send;
     class receive;
 
+    class peer;
+    class server;
+    class client;
+
     // Classes
 
     class connection;
@@ -86,10 +90,14 @@ namespace drop
         template <typename type, std :: enable_if_t <constraints :: buffer <type> ()> * = nullptr> promise <type> receive() const;
         template <typename... types, std :: enable_if_t <(sizeof...(types) > 0) && (... && bytewise :: constraints :: deserializable <types> ()) && !((sizeof...(types) == 1) && (... && constraints :: buffer <types> ()))> * = nullptr> auto receive() const;
 
-        void securesync(const keyexchanger &, const class keyexchanger :: publickey &) const;
-        promise <void> secureasync(const keyexchanger &, const class keyexchanger :: publickey &) const;
+        template <typename type, std :: enable_if_t <std :: is_same <type, peer> :: value || std :: is_same <type, client> :: value> * = nullptr> void securesync(const keyexchanger &, const class keyexchanger :: publickey &) const;
+        template <typename type, std :: enable_if_t <std :: is_same <type, peer> :: value || std :: is_same <type, server> :: value> * = nullptr> void securesync(const keyexchanger &) const;
 
-        promise <void> secure(const keyexchanger &, const class keyexchanger :: publickey &) const;
+        template <typename type, std :: enable_if_t <std :: is_same <type, peer> :: value || std :: is_same <type, client> :: value> * = nullptr> promise <void> secureasync(const keyexchanger &, const class keyexchanger :: publickey &) const;
+        template <typename type, std :: enable_if_t <std :: is_same <type, peer> :: value || std :: is_same <type, server> :: value> * = nullptr> promise <void> secureasync(const keyexchanger &) const;
+
+        template <typename type, std :: enable_if_t <std :: is_same <type, peer> :: value || std :: is_same <type, client> :: value> * = nullptr> promise <void> secure(const keyexchanger &, const class keyexchanger :: publickey &) const;
+        template <typename type, std :: enable_if_t <std :: is_same <type, peer> :: value || std :: is_same <type, server> :: value> * = nullptr> promise <void> secure(const keyexchanger &) const;
 
         void bind(pool &) const;
         void unbind() const;

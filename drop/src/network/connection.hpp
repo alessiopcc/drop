@@ -179,6 +179,144 @@ namespace drop
         return this->receiveasync <types...> ();
     }
 
+    template <typename type, std :: enable_if_t <std :: is_same <type, peer> :: value || std :: is_same <type, client> :: value> *> void connection :: securesync(const keyexchanger & local, const class keyexchanger :: publickey & remote) const
+    {
+        this->setup <class send, true> ();
+        this->setup <class receive, true> ();
+
+        try
+        {
+            if constexpr (std :: is_same <type, client> :: value)
+                this->lsendsync(bytewise :: serialize(local.publickey()));
+
+            auto keypair = local.exchange(remote);
+            auto transmitnonce = channel :: nonce :: random();
+
+            this->lsendsync(bytewise :: serialize(transmitnonce));
+            auto receivenonce = bytewise :: deserialize <class channel :: nonce> (this->lreceivesync <std :: array <uint8_t, bytewise :: traits :: size <class channel :: nonce> ()>> ());
+
+            this->_arc->_channelpair.emplace <arc :: channelpair> (keypair.receive, receivenonce, keypair.transmit, transmitnonce);
+        }
+        catch(...)
+        {
+            this->release <class send> ();
+            this->release <class receive> ();
+
+            std :: rethrow_exception(std :: current_exception());
+        }
+
+        this->release <class send> ();
+        this->release <class receive> ();
+    }
+
+    template <typename type, std :: enable_if_t <std :: is_same <type, peer> :: value || std :: is_same <type, server> :: value> *> void connection :: securesync(const keyexchanger & local) const
+    {
+        this->setup <class send, true> ();
+        this->setup <class receive, true> ();
+
+        try
+        {
+            if constexpr (std :: is_same <type, peer> :: value)
+                this->lsendsync(bytewise :: serialize(local.publickey()));
+
+            auto remote = bytewise :: deserialize <class keyexchanger :: publickey> (this->lreceivesync <std :: array <uint8_t, bytewise :: traits :: size <class keyexchanger :: publickey> ()>> ());
+
+            auto keypair = local.exchange(remote);
+            auto transmitnonce = channel :: nonce :: random();
+
+            this->lsendsync(bytewise :: serialize(transmitnonce));
+            auto receivenonce = bytewise :: deserialize <class channel :: nonce> (this->lreceivesync <std :: array <uint8_t, bytewise :: traits :: size <class channel :: nonce> ()>> ());
+
+            this->_arc->_channelpair.emplace <arc :: channelpair> (keypair.receive, receivenonce, keypair.transmit, transmitnonce);
+        }
+        catch(...)
+        {
+            this->release <class send> ();
+            this->release <class receive> ();
+
+            std :: rethrow_exception(std :: current_exception());
+        }
+
+        this->release <class send> ();
+        this->release <class receive> ();
+    }
+
+    template <typename type, std :: enable_if_t <std :: is_same <type, peer> :: value || std :: is_same <type, client> :: value> *> promise <void> connection :: secureasync(const keyexchanger & local, const class keyexchanger :: publickey & remote) const
+    {
+        connection connection = (*this);
+
+        connection.setup <class send, false> ();
+        connection.setup <class receive, false> ();
+
+        try
+        {
+            if constexpr (std :: is_same <type, client> :: value)
+                connection.lsendasync(bytewise :: serialize(local.publickey()));
+
+            auto keypair = local.exchange(remote);
+            auto transmitnonce = channel :: nonce :: random();
+
+            co_await connection.lsendasync(bytewise :: serialize (transmitnonce));
+            auto receivenonce = bytewise :: deserialize <class channel :: nonce> (co_await connection.lreceiveasync <std :: array <uint8_t, bytewise :: traits :: size <class channel :: nonce> ()>> ());
+
+            connection._arc->_channelpair.emplace <arc :: channelpair> (keypair.receive, receivenonce, keypair.transmit, transmitnonce);
+        }
+        catch(...)
+        {
+            connection.release <class send> ();
+            connection.release <class receive> ();
+
+            std :: rethrow_exception(std :: current_exception());
+        }
+
+        connection.release <class send> ();
+        connection.release <class receive> ();
+    }
+
+    template <typename type, std :: enable_if_t <std :: is_same <type, peer> :: value || std :: is_same <type, server> :: value> *> promise <void> connection :: secureasync(const keyexchanger & local) const
+    {
+        connection connection = (*this);
+
+        connection.setup <class send, false> ();
+        connection.setup <class receive, false> ();
+
+        try
+        {
+            if constexpr (std :: is_same <type, peer> :: value)
+                connection.lsendasync(bytewise :: serialize(local.publickey()));
+
+            auto remote = bytewise :: deserialize <class keyexchanger :: publickey> (co_await connection.lreceiveasync <std :: array <uint8_t, bytewise :: traits :: size <class keyexchanger :: publickey> ()>> ());
+
+            auto keypair = local.exchange(remote);
+            auto transmitnonce = channel :: nonce :: random();
+
+            co_await connection.lsendasync(bytewise :: serialize (transmitnonce));
+            auto receivenonce = bytewise :: deserialize <class channel :: nonce> (co_await connection.lreceiveasync <std :: array <uint8_t, bytewise :: traits :: size <class channel :: nonce> ()>> ());
+
+            connection._arc->_channelpair.emplace <arc :: channelpair> (keypair.receive, receivenonce, keypair.transmit, transmitnonce);
+        }
+        catch(...)
+        {
+            connection.release <class send> ();
+            connection.release <class receive> ();
+
+            std :: rethrow_exception(std :: current_exception());
+        }
+
+        connection.release <class send> ();
+        connection.release <class receive> ();
+    }
+
+    template <typename type, std :: enable_if_t <std :: is_same <type, peer> :: value || std :: is_same <type, client> :: value> *> promise <void> connection :: secure(const keyexchanger & local, const class keyexchanger :: publickey & remote) const
+    {
+        return this->secureasync <type> (local, remote);
+    }
+
+    template <typename type, std :: enable_if_t <std :: is_same <type, peer> :: value || std :: is_same <type, server> :: value> *> promise <void> connection :: secure(const keyexchanger & local) const
+    {
+        return this->secureasync <type> (local);
+    }
+
     // Private methods
 
     template <typename type, std :: enable_if_t <connection :: constraints :: buffer <type> ()> *> void connection :: lsendsync(const type & message) const
