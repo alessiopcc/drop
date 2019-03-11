@@ -49,4 +49,12 @@ namespace drop
                 socket.close();
         });
     }
+
+    // channelpair
+
+    // Constructors
+
+    connection :: arc :: channelpair :: channelpair(const class channel :: key & receivekey, const class channel :: nonce & receivenonce, const class channel :: key & transmitkey, const class channel :: nonce & transmitnonce) : receive(receivekey, receivenonce), transmit(transmitkey, transmitnonce)
+    {
+    }
 };

@@ -16,6 +16,10 @@ namespace drop
     class send;
     class receive;
 
+    class peer;
+    class server;
+    class client;
+
     // Classes
 
     class connection;
@@ -38,6 +42,8 @@ namespace drop
 #include "concept/stltraits.h"
 #include "thread/guard.hpp"
 #include "async/promise.hpp"
+#include "crypto/keyexchanger.h"
+#include "crypto/channel.hpp"
 
 namespace drop
 {
@@ -84,12 +90,26 @@ namespace drop
         template <typename type, std :: enable_if_t <constraints :: buffer <type> ()> * = nullptr> promise <type> receive() const;
         template <typename... types, std :: enable_if_t <(sizeof...(types) > 0) && (... && bytewise :: constraints :: deserializable <types> ()) && !((sizeof...(types) == 1) && (... && constraints :: buffer <types> ()))> * = nullptr> auto receive() const;
 
+        template <typename type, std :: enable_if_t <std :: is_same <type, peer> :: value || std :: is_same <type, client> :: value> * = nullptr> void securesync(const keyexchanger &, const class keyexchanger :: publickey &) const;
+        template <typename type, std :: enable_if_t <std :: is_same <type, peer> :: value || std :: is_same <type, server> :: value> * = nullptr> void securesync(const keyexchanger &) const;
+
+        template <typename type, std :: enable_if_t <std :: is_same <type, peer> :: value || std :: is_same <type, client> :: value> * = nullptr> promise <void> secureasync(const keyexchanger &, const class keyexchanger :: publickey &) const;
+        template <typename type, std :: enable_if_t <std :: is_same <type, peer> :: value || std :: is_same <type, server> :: value> * = nullptr> promise <void> secureasync(const keyexchanger &) const;
+
+        template <typename type, std :: enable_if_t <std :: is_same <type, peer> :: value || std :: is_same <type, client> :: value> * = nullptr> promise <void> secure(const keyexchanger &, const class keyexchanger :: publickey &) const;
+        template <typename type, std :: enable_if_t <std :: is_same <type, peer> :: value || std :: is_same <type, server> :: value> * = nullptr> promise <void> secure(const keyexchanger &) const;
+
         void bind(pool &) const;
         void unbind() const;
 
     private:
 
         // Private methods
+
+        template <typename type, std :: enable_if_t <constraints :: buffer <type> ()> * = nullptr> void lsendsync(const type &) const;
+        template <typename type, std :: enable_if_t <constraints :: buffer <type> ()> * = nullptr> type lreceivesync() const;
+        template <typename type, std :: enable_if_t <constraints :: buffer <type> ()> * = nullptr> promise <void> lsendasync(const type &) const;
+        template <typename type, std :: enable_if_t <constraints :: buffer <type> ()> * = nullptr> promise <type> lreceiveasync() const;
 
         template <bool> void block() const;
 
@@ -99,6 +119,20 @@ namespace drop
 
     class connection :: arc
     {
+        // Service nested structs
+
+        struct channelpair
+        {
+            // Public members
+
+            channel receive;
+            channel transmit;
+
+            // Constructors
+
+            channelpair(const class channel :: key &, const class channel :: nonce &, const class channel :: key &, const class channel :: nonce &);
+        };
+
         // Friends
 
         friend class connection;
@@ -106,6 +140,7 @@ namespace drop
         // Members
 
         variant <tcp :: socket> _socket;
+        optional <channelpair> _channelpair;
 
         struct
         {
@@ -120,7 +155,7 @@ namespace drop
 
         pool * _pool;
 
-        guard <recursive> _guard;
+        guard <simple> _guard;
 
     public:
 

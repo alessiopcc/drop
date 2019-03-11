@@ -24,15 +24,13 @@ namespace drop
     template <typename type, std :: enable_if_t <connection :: constraints :: buffer <type> ()> *> void connection :: sendsync(const type & message) const
     {
         this->setup <class send, true> ();
-        streamer <class send> streamer(message);
 
         try
         {
-            this->_arc->_socket.match([&](const auto & socket)
-            {
-                if(!streamer.stream(socket))
-                    exception <send_timeout> :: raise(this);
-            });
+            if(this->_arc->_channelpair)
+                this->lsendsync((*this->_arc->_channelpair).transmit.encrypt(message));
+            else
+                this->lsendsync(message);
         }
         catch(...)
         {
@@ -53,15 +51,13 @@ namespace drop
         this->setup <class receive, true> ();
 
         type message;
-        streamer <class receive> streamer(message);
 
         try
         {
-            this->_arc->_socket.match([&](const auto & socket)
-            {
-                if(!streamer.stream(socket))
-                    exception <receive_timeout> :: raise(this);
-            });
+            if(this->_arc->_channelpair)
+                message = (*this->_arc->_channelpair).receive.decrypt(this->lreceivesync <typename channel :: traits :: encrypted <type> :: type> ());
+            else
+                message = this->lreceivesync <type> ();
         }
         catch(...)
         {
@@ -90,44 +86,19 @@ namespace drop
     template <typename type, std :: enable_if_t <connection :: constraints :: buffer <type> ()> *> promise <void> connection :: sendasync(const type & message) const
     {
         connection connection = (*this);
-
         connection.setup <class send, false> ();
-        bool completed;
-
-        streamer <class send> streamer(message);
 
         try
         {
-            connection._arc->_socket.match([&](const auto & socket)
-            {
-                completed = streamer.stream(socket);
-            });
+            if(connection._arc->_channelpair)
+                co_await connection.lsendasync((*connection._arc->_channelpair).transmit.encrypt(message));
+            else
+                co_await connection.lsendasync(message);
         }
         catch(...)
         {
             connection.release <class send> ();
             std :: rethrow_exception(std :: current_exception());
-        }
-
-        if(!completed)
-        {
-            pool * binding = connection._arc->_guard([&](){return connection._arc->_pool;});
-            promise <void> promise;
-
-            connection._arc->_socket.match([&](const auto & socket)
-            {
-                promise = (binding ? *binding : pool :: system.get()).write(socket, streamer);
-            });
-
-            try
-            {
-                co_await promise;
-            }
-            catch(...)
-            {
-                connection.release <class send> ();
-                std :: rethrow_exception(std :: current_exception());
-            }
         }
 
         connection.release <class send> ();
@@ -141,45 +112,21 @@ namespace drop
     template <typename type, std :: enable_if_t <connection :: constraints :: buffer <type> ()> *> promise <type> connection :: receiveasync() const
     {
         connection connection = (*this);
-
         connection.setup <class receive, false> ();
-        bool completed;
 
         type message;
-        streamer <class receive> streamer(message);
 
         try
         {
-            connection._arc->_socket.match([&](const auto & socket)
-            {
-                completed = streamer.stream(socket);
-            });
+            if(connection._arc->_channelpair)
+                message = (*connection._arc->_channelpair).receive.decrypt(co_await connection.lreceiveasync <typename channel :: traits :: encrypted <type> :: type> ());
+            else
+                message = co_await connection.lreceiveasync <type> ();
         }
         catch(...)
         {
             connection.release <class receive> ();
             std :: rethrow_exception(std :: current_exception());
-        }
-
-        if(!completed)
-        {
-            pool * binding = connection._arc->_guard([&](){return connection._arc->_pool;});
-            promise <void> promise;
-
-            connection._arc->_socket.match([&](const auto & socket)
-            {
-                promise = (binding ? *binding : pool :: system.get()).read(socket, streamer);
-            });
-
-            try
-            {
-                co_await promise;
-            }
-            catch(...)
-            {
-                connection.release <class receive> ();
-                std :: rethrow_exception(std :: current_exception());
-            }
         }
 
         connection.release <class receive> ();
@@ -232,7 +179,223 @@ namespace drop
         return this->receiveasync <types...> ();
     }
 
+    template <typename type, std :: enable_if_t <std :: is_same <type, peer> :: value || std :: is_same <type, client> :: value> *> void connection :: securesync(const keyexchanger & local, const class keyexchanger :: publickey & remote) const
+    {
+        this->setup <class send, true> ();
+        this->setup <class receive, true> ();
+
+        try
+        {
+            if constexpr (std :: is_same <type, client> :: value)
+                this->lsendsync(bytewise :: serialize(local.publickey()));
+
+            auto keypair = local.exchange(remote);
+            auto transmitnonce = channel :: nonce :: random();
+
+            this->lsendsync(bytewise :: serialize(transmitnonce));
+            auto receivenonce = bytewise :: deserialize <class channel :: nonce> (this->lreceivesync <std :: array <uint8_t, bytewise :: traits :: size <class channel :: nonce> ()>> ());
+
+            this->_arc->_channelpair.emplace <arc :: channelpair> (keypair.receive, receivenonce, keypair.transmit, transmitnonce);
+        }
+        catch(...)
+        {
+            this->release <class send> ();
+            this->release <class receive> ();
+
+            std :: rethrow_exception(std :: current_exception());
+        }
+
+        this->release <class send> ();
+        this->release <class receive> ();
+    }
+
+    template <typename type, std :: enable_if_t <std :: is_same <type, peer> :: value || std :: is_same <type, server> :: value> *> void connection :: securesync(const keyexchanger & local) const
+    {
+        this->setup <class send, true> ();
+        this->setup <class receive, true> ();
+
+        try
+        {
+            if constexpr (std :: is_same <type, peer> :: value)
+                this->lsendsync(bytewise :: serialize(local.publickey()));
+
+            auto remote = bytewise :: deserialize <class keyexchanger :: publickey> (this->lreceivesync <std :: array <uint8_t, bytewise :: traits :: size <class keyexchanger :: publickey> ()>> ());
+
+            auto keypair = local.exchange(remote);
+            auto transmitnonce = channel :: nonce :: random();
+
+            this->lsendsync(bytewise :: serialize(transmitnonce));
+            auto receivenonce = bytewise :: deserialize <class channel :: nonce> (this->lreceivesync <std :: array <uint8_t, bytewise :: traits :: size <class channel :: nonce> ()>> ());
+
+            this->_arc->_channelpair.emplace <arc :: channelpair> (keypair.receive, receivenonce, keypair.transmit, transmitnonce);
+        }
+        catch(...)
+        {
+            this->release <class send> ();
+            this->release <class receive> ();
+
+            std :: rethrow_exception(std :: current_exception());
+        }
+
+        this->release <class send> ();
+        this->release <class receive> ();
+    }
+
+    template <typename type, std :: enable_if_t <std :: is_same <type, peer> :: value || std :: is_same <type, client> :: value> *> promise <void> connection :: secureasync(const keyexchanger & local, const class keyexchanger :: publickey & remote) const
+    {
+        connection connection = (*this);
+
+        connection.setup <class send, false> ();
+        connection.setup <class receive, false> ();
+
+        try
+        {
+            if constexpr (std :: is_same <type, client> :: value)
+                connection.lsendasync(bytewise :: serialize(local.publickey()));
+
+            auto keypair = local.exchange(remote);
+            auto transmitnonce = channel :: nonce :: random();
+
+            co_await connection.lsendasync(bytewise :: serialize (transmitnonce));
+            auto receivenonce = bytewise :: deserialize <class channel :: nonce> (co_await connection.lreceiveasync <std :: array <uint8_t, bytewise :: traits :: size <class channel :: nonce> ()>> ());
+
+            connection._arc->_channelpair.emplace <arc :: channelpair> (keypair.receive, receivenonce, keypair.transmit, transmitnonce);
+        }
+        catch(...)
+        {
+            connection.release <class send> ();
+            connection.release <class receive> ();
+
+            std :: rethrow_exception(std :: current_exception());
+        }
+
+        connection.release <class send> ();
+        connection.release <class receive> ();
+    }
+
+    template <typename type, std :: enable_if_t <std :: is_same <type, peer> :: value || std :: is_same <type, server> :: value> *> promise <void> connection :: secureasync(const keyexchanger & local) const
+    {
+        connection connection = (*this);
+
+        connection.setup <class send, false> ();
+        connection.setup <class receive, false> ();
+
+        try
+        {
+            if constexpr (std :: is_same <type, peer> :: value)
+                connection.lsendasync(bytewise :: serialize(local.publickey()));
+
+            auto remote = bytewise :: deserialize <class keyexchanger :: publickey> (co_await connection.lreceiveasync <std :: array <uint8_t, bytewise :: traits :: size <class keyexchanger :: publickey> ()>> ());
+
+            auto keypair = local.exchange(remote);
+            auto transmitnonce = channel :: nonce :: random();
+
+            co_await connection.lsendasync(bytewise :: serialize (transmitnonce));
+            auto receivenonce = bytewise :: deserialize <class channel :: nonce> (co_await connection.lreceiveasync <std :: array <uint8_t, bytewise :: traits :: size <class channel :: nonce> ()>> ());
+
+            connection._arc->_channelpair.emplace <arc :: channelpair> (keypair.receive, receivenonce, keypair.transmit, transmitnonce);
+        }
+        catch(...)
+        {
+            connection.release <class send> ();
+            connection.release <class receive> ();
+
+            std :: rethrow_exception(std :: current_exception());
+        }
+
+        connection.release <class send> ();
+        connection.release <class receive> ();
+    }
+
+    template <typename type, std :: enable_if_t <std :: is_same <type, peer> :: value || std :: is_same <type, client> :: value> *> promise <void> connection :: secure(const keyexchanger & local, const class keyexchanger :: publickey & remote) const
+    {
+        return this->secureasync <type> (local, remote);
+    }
+
+    template <typename type, std :: enable_if_t <std :: is_same <type, peer> :: value || std :: is_same <type, server> :: value> *> promise <void> connection :: secure(const keyexchanger & local) const
+    {
+        return this->secureasync <type> (local);
+    }
+
     // Private methods
+
+    template <typename type, std :: enable_if_t <connection :: constraints :: buffer <type> ()> *> void connection :: lsendsync(const type & message) const
+    {
+        streamer <class send> streamer(message);
+
+        this->_arc->_socket.match([&](const auto & socket)
+        {
+            if(!streamer.stream(socket))
+                exception <send_timeout> :: raise(this);
+        });
+    }
+
+    template <typename type, std :: enable_if_t <connection :: constraints :: buffer <type> ()> *> type connection :: lreceivesync() const
+    {
+        type message;
+        streamer <class receive> streamer(message);
+
+        this->_arc->_socket.match([&](const auto & socket)
+        {
+            if(!streamer.stream(socket))
+                exception <receive_timeout> :: raise(this);
+        });
+
+        return message;
+    }
+
+    template <typename type, std :: enable_if_t <connection :: constraints :: buffer <type> ()> *> promise <void> connection :: lsendasync(const type & message) const
+    {
+        bool completed;
+
+        streamer <class send> streamer(message);
+
+        this->_arc->_socket.match([&](const auto & socket)
+        {
+            completed = streamer.stream(socket);
+        });
+
+        if(!completed)
+        {
+            pool * binding = this->_arc->_guard([&](){return this->_arc->_pool;});
+            promise <void> promise;
+
+            this->_arc->_socket.match([&](const auto & socket)
+            {
+                promise = (binding ? *binding : pool :: system.get()).write(socket, streamer);
+            });
+
+            co_await promise;
+        }
+    }
+
+    template <typename type, std :: enable_if_t <connection :: constraints :: buffer <type> ()> *> promise <type> connection :: lreceiveasync() const
+    {
+        bool completed;
+
+        type message;
+        streamer <class receive> streamer(message);
+
+        this->_arc->_socket.match([&](const auto & socket)
+        {
+            completed = streamer.stream(socket);
+        });
+
+        if(!completed)
+        {
+            pool * binding = this->_arc->_guard([&](){return this->_arc->_pool;});
+            promise <void> promise;
+
+            this->_arc->_socket.match([&](const auto & socket)
+            {
+                promise = (binding ? *binding : pool :: system.get()).read(socket, streamer);
+            });
+
+            co_await promise;
+        }
+
+        co_return message;
+    }
 
     template <bool value> void connection :: block() const
     {
