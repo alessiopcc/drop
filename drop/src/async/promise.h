@@ -43,6 +43,10 @@ namespace drop
 
     private:
 
+        // Service typedefs
+
+        typedef variant <std :: experimental :: coroutine_handle <>, std :: vector <std :: experimental :: coroutine_handle <>>> handles;
+
         // Service nested classes
 
         class arc;
@@ -84,7 +88,7 @@ namespace drop
 
         // Private static methods
 
-        static void flush(const std :: shared_ptr <arc> &);
+        static void flush(handles &);
     };
 
     template <typename type> class promise <type> :: promise_base
@@ -142,10 +146,10 @@ namespace drop
         // Members
 
         variant <storetype, std :: exception_ptr> _status;
-        variant <std :: experimental :: coroutine_handle <>, std :: vector <std :: experimental :: coroutine_handle <>>> _handles;
+        handles _handles;
         bool _resumed;
 
-        guard <recursive> _guard;
+        guard <simple> _guard;
 
     public:
 

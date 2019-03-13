@@ -80,6 +80,8 @@ namespace drop
     {
         std :: shared_ptr <arc> arc = this->_arc;
 
+        handles handles;
+
         arc->_guard([&]()
         {
             if(arc->_status)
@@ -94,14 +96,18 @@ namespace drop
                         arc->_status = value;
                     }(value...);
 
-                flush(arc);
+                std :: swap(handles, arc->_handles);
             }
         });
+
+        flush(handles);
     }
 
     template <typename type> void promise <type> :: reject(const std :: exception_ptr & exception) const
     {
         std :: shared_ptr <arc> arc = this->_arc;
+
+        handles handles;
 
         arc->_guard([&]()
         {
@@ -110,9 +116,11 @@ namespace drop
             else
             {
                 arc->_status = exception;
-                flush(arc);
+                std :: swap(handles, arc->_handles);
             }
         });
+
+        flush(handles);
     }
 
     template <typename type> template <typename etype> void promise <type> :: reject(const etype & exception) const
@@ -122,9 +130,9 @@ namespace drop
 
     // Private methods
 
-    template <typename type> void promise <type> :: flush(const std :: shared_ptr <arc> & arc)
+    template <typename type> void promise <type> :: flush(handles & handles)
     {
-        arc->_handles.match([](std :: experimental :: coroutine_handle <> & handle)
+        handles.match([](std :: experimental :: coroutine_handle <> & handle)
         {
             handle.resume();
         }, [](std :: vector <std :: experimental :: coroutine_handle <>> & handles)
@@ -132,8 +140,6 @@ namespace drop
             for(auto & handle : handles)
                 handle.resume();
         });
-
-        arc->_handles.erase();
     }
 
     // promise_base
