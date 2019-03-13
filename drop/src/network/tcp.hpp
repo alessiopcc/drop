@@ -26,14 +26,12 @@ namespace drop
 
     template <> inline auto tcp :: socket :: get <timeouts :: send> () const
     {
-        auto timeval = this->getsockopt <struct timeval> (SOL_SOCKET, SO_SNDTIMEO);
-        return interval(timeval.tv_sec * 1000000 + timeval.tv_usec);
+        return interval(this->getsockopt <timeval> (SOL_SOCKET, SO_SNDTIMEO));
     }
 
     template <> inline auto tcp :: socket :: get <timeouts :: receive> () const
     {
-        auto timeval = this->getsockopt <struct timeval> (SOL_SOCKET, SO_RCVTIMEO);
-        return interval(timeval.tv_sec * 1000000 + timeval.tv_usec);
+        return interval(this->getsockopt <timeval> (SOL_SOCKET, SO_RCVTIMEO));
     }
 
     template <> inline auto tcp :: socket :: get <buffers :: send :: size> () const
@@ -78,20 +76,12 @@ namespace drop
 
     template <> inline void tcp :: socket :: set <timeouts :: send, interval> (const interval & value) const
     {
-        struct timeval timeval;
-        timeval.tv_sec = ((const uint64_t &) value) / 1000000;
-        timeval.tv_usec = ((const uint64_t &) value) % 1000000;
-
-        this->setsockopt(SOL_SOCKET, SO_SNDTIMEO, timeval);
+        this->setsockopt(SOL_SOCKET, SO_SNDTIMEO, (timeval) value);
     }
 
     template <> inline void tcp :: socket :: set <timeouts :: receive, interval> (const interval & value) const
     {
-        struct timeval timeval;
-        timeval.tv_sec = ((const uint64_t &) value) / 1000000;
-        timeval.tv_usec = ((const uint64_t &) value) % 1000000;
-
-        this->setsockopt(SOL_SOCKET, SO_RCVTIMEO, timeval);
+        this->setsockopt(SOL_SOCKET, SO_RCVTIMEO, (timeval) value);
     }
 
     template <> inline void tcp :: socket :: set <reuse> (const bool & value) const

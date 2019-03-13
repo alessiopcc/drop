@@ -12,6 +12,10 @@ namespace drop
     {
     }
 
+    timestamp :: timestamp(const timeval & timeval) : _value(timeval.tv_sec * 1000000 + timeval.tv_usec)
+    {
+    }
+
     // Operators
 
     timestamp timestamp :: operator + (const interval & rho) const
@@ -75,11 +79,25 @@ namespace drop
         return this->_value;
     }
 
+    timestamp :: operator timeval () const
+    {
+        timeval timeval;
+
+        timeval.tv_sec = this->_value / 1000000;
+        timeval.tv_usec = this->_value % 1000000;
+
+        return timeval;
+    }
+
     // interval
 
     // Constructors
 
     interval :: interval()
+    {
+    }
+
+    interval :: interval(const timeval & timeval) : _value(timeval.tv_sec * 1000000 + timeval.tv_usec)
     {
     }
 
@@ -142,6 +160,16 @@ namespace drop
         return this->_value;
     }
 
+    interval :: operator timeval () const
+    {
+        timeval timeval;
+
+        timeval.tv_sec = this->_value / 1000000;
+        timeval.tv_usec = this->_value % 1000000;
+
+        return timeval;
+    }
+
     // Static methods
 
     interval interval :: random(const interval & max)
@@ -157,7 +185,7 @@ namespace drop
 
     timestamp now()
     {
-        struct timeval time;
+        timeval time;
         gettimeofday(&time, nullptr);
         return timestamp(time.tv_sec * 1000000 + time.tv_usec);
     }
