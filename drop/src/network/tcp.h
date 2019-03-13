@@ -29,7 +29,6 @@ namespace drop
     class descriptor;
     class blocking;
     class reuse;
-    class domain;
 
     class readable;
     class writable;
@@ -138,6 +137,7 @@ namespace drop
         // Members
 
         int _descriptor;
+        int _type;
 
         // Private constructors
 

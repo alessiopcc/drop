@@ -66,11 +66,6 @@ namespace drop
         return this->getsockopt <int> (SOL_SOCKET, SO_REUSEADDR);
     }
 
-    template <> inline auto tcp :: socket :: get <domain> () const
-    {
-        return this->getsockopt <int> (SOL_SOCKET, SO_DOMAIN);
-    }
-
     // Setters
 
     template <> inline void tcp :: socket :: set <blocking, bool> (const bool & value) const

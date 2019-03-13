@@ -162,13 +162,6 @@ namespace
         if(!ipv4.get <reuse> () || !ipv6.get <reuse> () || !any.get <reuse> ())
             throw "`get <reuse>` does not return `true` after `set <reuse> (true)`.";
 
-        if(ipv4.get <domain> () != PF_INET)
-            throw "`get <domain>` does not return `PF_INET` when called on an IPv4 socket.";
-
-        if(ipv6.get <domain> () != PF_INET6)
-            throw "`get <domain>` does not return `PF_INET6` when called on an IPv6 socket.";
-
-
         ipv4.set <timeouts :: send> (interval(7600000));
         ipv6.set <timeouts :: send> (interval(7600000));
         any.set <timeouts :: send> (interval(7600000));
