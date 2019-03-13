@@ -74,6 +74,11 @@ namespace drop
 
     // Casting
 
+    timestamp :: operator interval () const
+    {
+        return interval(this->_value);
+    }
+
     timestamp :: operator const uint64_t & () const
     {
         return this->_value;
@@ -154,6 +159,11 @@ namespace drop
     }
 
     // Casting
+
+    interval :: operator timestamp () const
+    {
+        return timestamp(this->_value);
+    }
 
     interval :: operator const uint64_t & () const
     {
