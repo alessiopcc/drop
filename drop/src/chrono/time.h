@@ -39,6 +39,7 @@ namespace drop
         // Constructors
 
         timestamp();
+        timestamp(const timeval &);
 
         // Constexpr constructors
 
@@ -65,6 +66,7 @@ namespace drop
         // Casting
 
         explicit operator const uint64_t & () const;
+        explicit operator timeval () const;
     };
 
     class interval
@@ -82,6 +84,7 @@ namespace drop
         // Constructors
 
         interval();
+        interval(const timeval &);
 
         // Constexpr constructors
 
@@ -106,6 +109,7 @@ namespace drop
         // Casting
 
         explicit operator const uint64_t & () const;
+        explicit operator timeval () const;
 
         // Static methods
 
