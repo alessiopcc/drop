@@ -200,12 +200,12 @@ namespace drop
         return timestamp(time.tv_sec * 1000000 + time.tv_usec);
     }
 
-    void sleep(const timestamp & timestamp)
+    void sleep(const timestamp & target)
     {
         timestamp offset = now();
 
-        if(timestamp > offset)
-            usleep((const uint64_t &) (timestamp - offset));
+        if(target > offset)
+            usleep((const uint64_t &) (target - offset));
     }
 
     void sleep(const interval & interval)
