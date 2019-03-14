@@ -202,7 +202,10 @@ namespace drop
 
     void sleep(const timestamp & timestamp)
     {
-        usleep((const uint64_t &) (timestamp - now()));
+        timestamp offset = now();
+
+        if(timestamp > offset)
+            usleep((const uint64_t &) (timestamp - offset));
     }
 
     void sleep(const interval & interval)
