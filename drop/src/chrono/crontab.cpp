@@ -6,6 +6,10 @@ namespace drop
 {
     // crontab
 
+    // Static members
+
+    class crontab :: system crontab :: system;
+
     // Constructors
 
     crontab :: crontab() : _waketime(0), _alive(true), _thread(&crontab :: run, this)
@@ -38,6 +42,11 @@ namespace drop
         });
 
         return event;
+    }
+
+    promise <void> crontab :: wait(const interval & target)
+    {
+        return this->wait(now() + target);
     }
 
     // Private methods
@@ -117,5 +126,43 @@ namespace drop
 
     crontab :: event :: event(const timestamp & time) : timestamp(time)
     {
+    }
+
+    // system
+
+    // Private static members
+
+    thread_local size_t crontab :: system :: roundrobin = 0;
+
+    // Private constructors
+
+    crontab :: system :: system() : _crontabs(new crontab[std :: thread :: hardware_concurrency()]), _size(std :: thread :: hardware_concurrency())
+    {
+    }
+
+    // Destructor
+
+    crontab :: system :: ~system()
+    {
+        delete [] this->_crontabs;
+    }
+
+    // Methods
+
+    crontab & crontab :: system :: get()
+    {
+        return this->_crontabs[(roundrobin++) % this->_size];
+    }
+
+    // Functions
+
+    promise <void> wait(const timestamp & target)
+    {
+        return crontab :: system.get().wait(target);
+    }
+
+    promise <void> wait(const interval & target)
+    {
+        return crontab :: system.get().wait(target);
     }
 };

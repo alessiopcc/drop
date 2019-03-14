@@ -31,6 +31,8 @@ namespace drop
             static constexpr interval tick = 1_ms;
         };
 
+    private:
+
         // Service nested classes
 
         class event : public promise <void>, public timestamp
@@ -41,6 +43,8 @@ namespace drop
 
             event(const timestamp &);
         };
+
+        class system;
 
         // Members
 
@@ -79,7 +83,50 @@ namespace drop
         void sleep(const timestamp &);
 
         void run();
+
+    public:
+
+        // Static members
+
+        static system system;
     };
+
+    class crontab :: system
+    {
+        // Friends
+
+        friend class crontab;
+
+        // Members
+
+        crontab * _crontabs;
+        size_t _size;
+
+        // Private constructors
+
+        system();
+
+    public:
+
+        // Destructor
+
+        ~system();
+
+        // Methods
+
+        crontab & get();
+
+    private:
+
+        // Private static members
+
+        static thread_local size_t roundrobin;
+    };
+
+    // Functions
+
+    promise <void> wait(const timestamp &);
+    promise <void> wait(const interval &);
 };
 
 #endif

@@ -18,18 +18,13 @@ namespace
 
     $test("crontab/develop", []
     {
-        crontab mycrontab;
-
-        sleep(1_s);
-
         for(int i = 0; i < 10; i++)
-            [&]() -> promise <void>
+            [=]() -> promise <void>
             {
                 while(true)
                 {
-                    std :: cout << "Adding..." << std :: endl;
-                    co_await mycrontab.wait(now() + 1_s);
-                    std :: cout << "YAY!" << std :: endl;
+                    co_await wait(1_s);
+                    std :: cout << "Hello from " << i << "!" << std :: endl;
                 }
             }();
 
