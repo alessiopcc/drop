@@ -16,7 +16,7 @@ namespace
 
     // Tests
 
-    $test("aggregators/develop", []
+    $test("aggregators/develop-all", []
     {
         promise <void> a, b, c, d;
 
@@ -37,5 +37,42 @@ namespace
 
         std :: cout << "D" << std :: endl;
         d.resolve();
+    });
+
+    $test("aggregators/develop-any", []
+    {
+        promise <int> a, b, c;
+        promise <double> d;
+
+        [&]() -> promise <void>
+        {
+            try
+            {
+                std :: cout << co_await any(a, b, c) << std :: endl;
+            }
+            catch(const std :: array <std :: exception_ptr, 3> & exceptions)
+            {
+                try
+                {
+                    std :: rethrow_exception(exceptions[2]);
+                }
+                catch(const char * message)
+                {
+                    std :: cout << message << std :: endl;
+                }
+            }
+        }();
+
+        std :: cout << "Rejecting c.." << std :: endl;
+        c.reject("and your stupid code!");
+
+        std :: cout << "Rejecting a.." << std :: endl;
+        a.reject("screw you!");
+
+        // std :: cout << "Rejecting b.." << std :: endl;
+        // b.reject("and your promise!");
+
+        std :: cout << "Resolving b.." << std :: endl;
+        b.resolve(33);
     });
 };
