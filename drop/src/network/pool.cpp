@@ -156,6 +156,8 @@ namespace drop
 
     void pool :: collect()
     {
+        std :: vector <event> rejections;
+
         this->_guard([&]()
         {
             timestamp threshold = now();
@@ -168,14 +170,17 @@ namespace drop
 
                 auto & taskmap = (timeout.event.type == queue :: write) ? this->_tasks.write : this->_tasks.read;
                 if(taskmap.find(timeout.event.descriptor) != taskmap.end() && taskmap[timeout.event.descriptor].nonce == timeout.nonce)
-                {
-                    if(timeout.event.type == queue :: write)
-                        this->pop(timeout.event.type, timeout.event.descriptor).reject(exception <write_timeout> :: make(this));
-                    else
-                        this->pop(timeout.event.type, timeout.event.descriptor).reject(exception <read_timeout> :: make(this));
-                }
+                    rejections.push_back(timeout.event);
             }
         });
+
+        for(const auto & event : rejections)
+        {
+            if(event.type == queue :: write)
+                this->pop(event.type, event.descriptor).reject(exception <write_timeout> :: make(this));
+            else
+                this->pop(event.type, event.descriptor).reject(exception <read_timeout> :: make(this));
+        }
     }
 
     // timeout

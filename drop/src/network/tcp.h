@@ -211,7 +211,7 @@ namespace drop
         bool _lock;
         pool * _pool;
 
-        guard <recursive> _guard;
+        guard <simple> _guard;
 
     public:
 

@@ -65,6 +65,7 @@ namespace drop
 
         // Casting
 
+        explicit operator interval () const;
         explicit operator const uint64_t & () const;
         explicit operator timeval () const;
     };
@@ -108,6 +109,7 @@ namespace drop
 
         // Casting
 
+        explicit operator timestamp () const;
         explicit operator const uint64_t & () const;
         explicit operator timeval () const;
 
