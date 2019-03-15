@@ -29,12 +29,12 @@ namespace drop
 #include "tcp.hpp"
 #include "streamer.hpp"
 #include "queue.hpp"
-#include "bytewise/bytewise.hpp"
-#include "crypto/shorthash.hpp"
-#include "chrono/time.hpp"
-#include "data/variant.hpp"
-#include "async/promise.hpp"
-#include "thread/guard.hpp"
+#include "drop/bytewise/bytewise.hpp"
+#include "drop/crypto/shorthash.hpp"
+#include "drop/chrono/time.hpp"
+#include "drop/data/variant.hpp"
+#include "drop/async/promise.hpp"
+#include "drop/thread/guard.hpp"
 
 namespace drop
 {

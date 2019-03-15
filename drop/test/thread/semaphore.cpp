@@ -7,7 +7,7 @@
 
 // Includes
 
-#include "thread/semaphore.h"
+#include "drop/thread/semaphore.h"
 
 namespace
 {

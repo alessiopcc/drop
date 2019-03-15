@@ -6,7 +6,7 @@
 
 // Includes
 
-#include "crypto/channel.hpp"
+#include "drop/crypto/channel.hpp"
 
 namespace
 {

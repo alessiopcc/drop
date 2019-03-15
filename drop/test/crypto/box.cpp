@@ -6,7 +6,7 @@
 
 // Includes
 
-#include "crypto/box.hpp"
+#include "drop/crypto/box.hpp"
 
 namespace
 {

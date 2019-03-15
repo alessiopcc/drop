@@ -24,9 +24,9 @@ namespace drop
 
 // Includes
 
-#include "data/variant.hpp"
-#include "exception/exception.hpp"
-#include "thread/guard.hpp"
+#include "drop/data/variant.hpp"
+#include "drop/exception/exception.hpp"
+#include "drop/thread/guard.hpp"
 
 namespace drop
 {

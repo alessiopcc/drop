@@ -6,7 +6,7 @@
 
 // Includes
 
-#include "crypto/hash.hpp"
+#include "drop/crypto/hash.hpp"
 
 namespace
 {

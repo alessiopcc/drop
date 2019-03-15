@@ -6,7 +6,7 @@
 
 // Includes
 
-#include "concept/stltraits.h"
+#include "drop/concept/stltraits.h"
 
 namespace
 {

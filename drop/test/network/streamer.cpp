@@ -6,7 +6,7 @@
 
 // Includes
 
-#include "network/streamer.hpp"
+#include "drop/network/streamer.hpp"
 
 namespace
 {

@@ -16,9 +16,9 @@ namespace drop
 // Includes
 
 #include "time.hpp"
-#include "async/promise.hpp"
-#include "thread/semaphore.h"
-#include "thread/guard.h"
+#include "drop/async/promise.hpp"
+#include "drop/thread/semaphore.h"
+#include "drop/thread/guard.h"
 
 namespace drop
 {

@@ -6,7 +6,7 @@
 
 // Includes
 
-#include "network/connection.hpp"
+#include "drop/network/connection.hpp"
 
 namespace
 {

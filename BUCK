@@ -1,5 +1,13 @@
 include_defs('//BUCKAROO_DEPS')
 
+# Configuration
+
+mode = read_config('build', 'mode', 'release')
+
+if mode not in ['release', 'debug']:
+    print "Build mode not recognized, using the default release mode."
+    mode = 'release'
+
 # Drop sources & headers
 
 drop = {
@@ -46,13 +54,6 @@ test = {
     ])
 }
 
-# Useful functions
-
-def merge(x, y):
-    z = x.copy()
-    z.update(y)
-    return z
-
 # Build targets
 
 cxx_library(
@@ -60,18 +61,18 @@ cxx_library(
   header_namespace = 'drop',
   srcs = drop['sources'],
   exported_headers = drop['headers'],
-  compiler_flags = drop['flags']['common']['compiler'] + drop['flags']['release']['compiler'],
-  linker_flags = drop['flags']['common']['linker'] + drop['flags']['release']['linker'],
+  compiler_flags = drop['flags']['common']['compiler'] + drop['flags'][mode]['compiler'],
+  linker_flags = drop['flags']['common']['linker'] + drop['flags'][mode]['linker'],
   deps = BUCKAROO_DEPS,
   visibility = ['PUBLIC']
 )
 
 cxx_binary(
   name = 'test',
-  srcs = drop['sources'] + test['sources'],
-  headers = merge(drop['headers'], test['headers']),
-  compiler_flags = drop['flags']['common']['compiler'] + drop['flags']['debug']['compiler'],
-  linker_flags = drop['flags']['common']['linker'] + drop['flags']['debug']['linker'],
-  deps = BUCKAROO_DEPS,
+  srcs = test['sources'],
+  headers =  test['headers'],
+  compiler_flags = drop['flags']['common']['compiler'] + drop['flags'][mode]['compiler'],
+  linker_flags = drop['flags']['common']['linker'] + drop['flags'][mode]['linker'],
+  deps = [":drop"],
   visibility = []
 )

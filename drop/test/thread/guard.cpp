@@ -6,7 +6,7 @@
 
 // Includes
 
-#include "thread/guard.hpp"
+#include "drop/thread/guard.hpp"
 
 namespace
 {

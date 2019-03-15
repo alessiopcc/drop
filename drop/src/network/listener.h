@@ -16,8 +16,8 @@ namespace drop
 
 #include "connection.h"
 #include "tcp.h"
-#include "data/variant.hpp"
-#include "utils/parameters.h"
+#include "drop/data/variant.hpp"
+#include "drop/utils/parameters.h"
 
 namespace drop
 {

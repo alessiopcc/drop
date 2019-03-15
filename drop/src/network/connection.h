@@ -37,13 +37,13 @@ namespace drop
 #include "tcp.hpp"
 #include "streamer.hpp"
 #include "pool.hpp"
-#include "bytewise/bytewise.hpp"
-#include "data/variant.hpp"
-#include "concept/stltraits.h"
-#include "thread/guard.hpp"
-#include "async/promise.hpp"
-#include "crypto/keyexchanger.h"
-#include "crypto/channel.hpp"
+#include "drop/bytewise/bytewise.hpp"
+#include "drop/data/variant.hpp"
+#include "drop/concept/stltraits.h"
+#include "drop/thread/guard.hpp"
+#include "drop/async/promise.hpp"
+#include "drop/crypto/keyexchanger.h"
+#include "drop/crypto/channel.hpp"
 
 namespace drop
 {

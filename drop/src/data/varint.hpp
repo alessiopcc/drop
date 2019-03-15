@@ -4,8 +4,8 @@
 // Includes
 
 #include "varint.h"
-#include "bytewise/bytewise.hpp"
-#include "concept/expression.hpp"
+#include "drop/bytewise/bytewise.hpp"
+#include "drop/concept/expression.hpp"
 
 namespace drop
 {

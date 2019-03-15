@@ -22,7 +22,7 @@ namespace drop
 
 // Includes
 
-#include "crypto/channel.h"
+#include "drop/crypto/channel.h"
 
 namespace drop
 {

@@ -31,8 +31,8 @@ namespace drop
 
 // Includes
 
-#include "bytewise/bytewise.h"
-#include "data/variant.hpp"
+#include "drop/bytewise/bytewise.h"
+#include "drop/data/variant.hpp"
 
 namespace drop
 {

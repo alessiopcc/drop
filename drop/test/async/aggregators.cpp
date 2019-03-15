@@ -6,7 +6,7 @@
 
 // Includes
 
-#include "async/aggregators.hpp"
+#include "drop/async/aggregators.hpp"
 
 namespace
 {

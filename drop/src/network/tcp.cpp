@@ -3,8 +3,8 @@
 #include "tcp.hpp"
 #include "pool.hpp"
 #include "connection.hpp"
-#include "exception/exception.hpp"
-#include "async/promise.hpp"
+#include "drop/exception/exception.hpp"
+#include "drop/async/promise.hpp"
 
 namespace drop
 {

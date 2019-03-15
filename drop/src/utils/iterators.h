@@ -14,8 +14,8 @@ namespace drop
 
 // Includes
 
-#include "concept/expression.hpp"
-#include "concept/stltraits.h"
+#include "drop/concept/expression.hpp"
+#include "drop/concept/stltraits.h"
 
 namespace drop
 {

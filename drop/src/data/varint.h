@@ -14,7 +14,7 @@ namespace drop
 
 // Includes
 
-#include "bytewise/bytewise.h"
+#include "drop/bytewise/bytewise.h"
 
 namespace drop
 {

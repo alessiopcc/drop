@@ -31,10 +31,10 @@ namespace drop
 
 // Includes
 
-#include "utils/math.hpp"
-#include "concept/callable.h"
-#include "utils/enablers.h"
-#include "bytewise/bytewise.hpp"
+#include "drop/utils/math.hpp"
+#include "drop/concept/callable.h"
+#include "drop/utils/enablers.h"
+#include "drop/bytewise/bytewise.hpp"
 
 namespace drop
 {

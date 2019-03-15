@@ -6,8 +6,8 @@
 
 // Includes
 
-#include "network/listener.hpp"
-#include "network/connection.hpp"
+#include "drop/network/listener.hpp"
+#include "drop/network/connection.hpp"
 
 namespace
 {

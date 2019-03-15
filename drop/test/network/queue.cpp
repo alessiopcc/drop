@@ -7,8 +7,8 @@
 
 // Includes
 
-#include "network/queue.hpp"
-#include "network/tcp.hpp"
+#include "drop/network/queue.hpp"
+#include "drop/network/tcp.hpp"
 
 namespace
 {

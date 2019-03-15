@@ -6,8 +6,8 @@
 
 // Includes
 
-#include "network/tcp.hpp"
-#include "network/connection.hpp"
+#include "drop/network/tcp.hpp"
+#include "drop/network/connection.hpp"
 
 namespace
 {

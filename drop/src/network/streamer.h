@@ -22,9 +22,9 @@ namespace drop
 
 // Includes
 
-#include "data/variant.hpp"
-#include "data/varint.hpp"
-#include "concept/expression.hpp"
+#include "drop/data/variant.hpp"
+#include "drop/data/varint.hpp"
+#include "drop/concept/expression.hpp"
 
 namespace drop
 {
