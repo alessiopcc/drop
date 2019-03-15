@@ -205,4 +205,31 @@ namespace
         if((uint16_t) port != 4321)
             throw "`port` constructor does not extract correctly the port number from the given `address`.";
     });
+
+    $test("address/bytewise", []
+    {
+        {
+            auto ipv4 = "192.178.15.1";
+
+            auto serialized = bytewise :: serialize(address(ipv4, 1234));
+            if(serialized.size() != 7)
+                throw "Serialized IPv4 address has size different from 7 bytes.";
+
+            auto deserialized = bytewise :: deserialize <address> (serialized);
+            if(checkip(ipv4, deserialized.ip()) || 1234 != (uint16_t) deserialized.port())
+                throw "Deserialized IPv4 address does not match it's original value.";
+        }
+
+        {
+            auto ipv6 = "2001:620:618:149:1:80b2:4987:1";
+
+            auto serialized = bytewise :: serialize(address(ipv6, 1234));
+            if(serialized.size() != 19)
+                throw "Serialized IPv6 address has size different from 19 bytes.";
+
+            auto deserialized = bytewise :: deserialize <address> (serialized);
+            if(checkip(ipv6, deserialized.ip()) || 1234 != (uint16_t) deserialized.port())
+                throw "Deserialized IPv6 address does not match it's original value.";
+        }
+    });
 };

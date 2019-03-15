@@ -64,6 +64,11 @@ namespace drop
         address(const sockaddr_in &);
         address(const sockaddr_in6 &);
 
+        // Bytewise
+
+        template <typename atype> void accept(bytewise :: reader <atype> &) const;
+        template <typename atype> void accept(bytewise :: writer <atype> &);
+
         // Getters
 
         class ip ip() const;
