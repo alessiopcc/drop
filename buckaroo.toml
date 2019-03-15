@@ -1,1 +1,4 @@
-targets = ["//:drop"]
+[[dependency]]
+package = "github.com/buckaroo-pm/jedisct1-libsodium"
+version = "*"
+

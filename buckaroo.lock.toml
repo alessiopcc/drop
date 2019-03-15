@@ -1,0 +1,9 @@
+manifest = "fa357f5fbcd5b5d808abdc2ef209c2ebf8e6859dd82d12aa52cac05b4f74622c"
+
+[[dependency]]
+package = "github.com/buckaroo-pm/jedisct1-libsodium"
+target = "//:sodium"
+
+[lock."github.com/buckaroo-pm/jedisct1-libsodium"]
+versions = [ "branch=master" ]
+revision = "2841fd740122b966e6fa2cf8246f38a08f22caba"

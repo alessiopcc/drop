@@ -1,4 +1,4 @@
-include_defs('//BUCKAROO_DEPS')
+load('//:buckaroo_macros.bzl', 'buckaroo_deps')
 
 # Configuration
 
@@ -63,7 +63,7 @@ cxx_library(
   exported_headers = drop['headers'],
   compiler_flags = drop['flags']['common']['compiler'] + drop['flags'][mode]['compiler'],
   linker_flags = drop['flags']['common']['linker'] + drop['flags'][mode]['linker'],
-  deps = BUCKAROO_DEPS,
+  deps = buckaroo_deps(),
   visibility = ['PUBLIC']
 )
 

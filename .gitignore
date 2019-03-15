@@ -6,17 +6,17 @@
 *.profdata
 
 ### Buck ###
-buck-out/
+buck-out
 .buckconfig.local
-.buckd/
+.buckconfig.d
+.buckd
 .buckversion
 .fakebuckversion
 
 ### Buckaroo ###
 
-buckaroo.lock.json
-buckaroo/
-BUCKAROO_DEPS
+buckaroo
+buckaroo_macros.bzl
 
 ### C++ ###
 # Prerequisites
