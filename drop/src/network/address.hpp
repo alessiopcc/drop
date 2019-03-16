@@ -84,6 +84,61 @@ namespace drop
 
     // ip
 
+    // Bytewise
+
+    template <typename atype> void address :: ip :: accept(bytewise :: reader <atype> & reader) const
+    {
+        this->_addr.match([&]()
+        {
+            reader.visit(uint8_t(0));
+        }, [&](const in_addr & addr)
+        {
+            reader.visit(uint8_t(1));
+            reader.visit(reinterpret_cast <const std :: array <uint8_t, 4> &> (addr.s_addr));
+        },[&](const in6_addr & addr)
+        {
+            reader.visit(uint8_t(2));
+            reader.visit(reinterpret_cast <const std :: array <uint8_t, 16> &> (addr.s6_addr));
+        });
+    }
+
+    template <typename atype> void address :: ip :: accept(bytewise :: writer <atype> & writer)
+    {
+        uint8_t type;
+        writer.visit(type);
+
+        switch(type)
+        {
+            case 0:
+            {
+                this->_addr.erase();
+                break;
+            }
+            case 1:
+            {
+                this->_addr.emplace <in_addr> ();
+                writer.visit(reinterpret_cast <std :: array <uint8_t, 4> &> (this->_addr.reinterpret <in_addr> ().s_addr));
+                break;
+            }
+            case 2:
+            {
+                this->_addr.emplace <in6_addr> ();
+                writer.visit(reinterpret_cast <std :: array <uint8_t, 16> &> (this->_addr.reinterpret <in6_addr> ().s6_addr));
+                break;
+            }
+        }
+    }
+
+    // Getters
+
+    template <typename type, std :: enable_if_t <std :: is_same <type, IPv4> :: value || std :: is_same <type, IPv6> :: value> *> bool address :: ip :: is() const
+    {
+        if constexpr (std :: is_same <type, IPv4> :: value)
+            return this->_addr.is <in_addr> ();
+        else
+            return this->_addr.is <in6_addr> ();
+    }
+
     // Methods
 
     template <typename... lambdas, std :: enable_if_t <variant <in_addr, in6_addr> :: constraints :: match <false, lambdas...> ()> *> void address :: ip :: match(lambdas && ... matchcases)

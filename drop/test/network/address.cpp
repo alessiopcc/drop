@@ -131,6 +131,11 @@ namespace
         if(checkip("127.0.0.0", myip))
             throw "`ip` constructor does extract correctly the ip from the given `address`.";
 
+        if(myip.is <IPv6>() || !myip.is <IPv4> ())
+            throw "`is` does not return the correct value when called on an IPv4 ip.";
+        if(myotherip.is <IPv4>() || !myotherip.is <IPv6> ())
+            throw "`is` does not return the correct value when called on an IPv6 ip.";
+
         if(checkip("127.0.0.0", myip.decay()))
             throw "`decay` should not modify an IPv4.";
         if(checkip("aaaa:2379:fcde::1", myotherip.decay()))
@@ -242,6 +247,42 @@ namespace
             auto deserialized = bytewise :: deserialize <address> (serialized);
             if(deserialized.is <IPv4> () || deserialized.is <IPv6> ())
                 throw "Deserialized null address does not match its original value.";
+        }
+
+        {
+            auto ipv4 = "192.178.15.1";
+
+            auto serialized = bytewise :: serialize((class address :: ip){ipv4});
+            if(serialized.size() != 5)
+                throw "Serialized IPv4 ip has size different from 5 bytes.";
+
+            auto deserialized = bytewise :: deserialize <class address :: ip> (serialized);
+            if(checkip(ipv4, deserialized))
+                throw "Deserialized IPv4 ip does not match its original value.";
+        }
+
+        {
+            auto ipv6 = "2001:620:618:149:1:80b2:4987:1";
+
+            auto serialized = bytewise :: serialize((class address :: ip){ipv6});
+            if(serialized.size() != 17)
+                throw "Serialized IPv6 ip has size different from 17 bytes.";
+
+            auto deserialized = bytewise :: deserialize <class address :: ip> (serialized);
+            if(checkip(ipv6, deserialized))
+                throw "Deserialized IPv6 ip does not match its original value.";
+        }
+
+        {
+            class address :: ip null;
+
+            auto serialized = bytewise :: serialize(null);
+            if(serialized.size() != 1)
+                throw "Serialized null ip has a size different from 1 byte.";
+
+            auto deserialized = bytewise :: deserialize <class address :: ip> (serialized);
+            if(deserialized.is <IPv4> () || deserialized.is <IPv6> ())
+                throw "Deserialized null ip does not match its original value.";
         }
     });
 

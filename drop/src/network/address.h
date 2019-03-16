@@ -110,6 +110,15 @@ namespace drop
         ip(const in_addr &);
         ip(const in6_addr &);
 
+        // Bytewise
+
+        template <typename atype> void accept(bytewise :: reader <atype> &) const;
+        template <typename atype> void accept(bytewise :: writer <atype> &);
+
+        // Getters
+
+        template <typename type, std :: enable_if_t <std :: is_same <type, IPv4> :: value || std :: is_same <type, IPv6> :: value> * = nullptr> bool is() const;
+
         // Methods
 
         template <typename... lambdas, std :: enable_if_t <variant <in_addr, in6_addr> :: constraints :: match <false, lambdas...> ()> * = nullptr> void match(lambdas && ...);
