@@ -13,14 +13,17 @@ namespace drop
 
     template <typename atype> void address :: accept(bytewise :: reader <atype> & reader) const
     {
-        this->_sockaddr.match([&](const sockaddr_in & sockaddr)
+        this->_sockaddr.match([&]()
         {
             reader.visit(uint8_t(0));
+        }, [&](const sockaddr_in & sockaddr)
+        {
+            reader.visit(uint8_t(1));
             reader.visit(reinterpret_cast <const std :: array <uint8_t, 4> &> (sockaddr.sin_addr.s_addr));
             reader.visit(reinterpret_cast <const std :: array <uint8_t, 2> &> (sockaddr.sin_port));
         },[&](const sockaddr_in6 & sockaddr)
         {
-            reader.visit(uint8_t(1));
+            reader.visit(uint8_t(2));
             reader.visit(reinterpret_cast <const std :: array <uint8_t, 16> &> (sockaddr.sin6_addr.s6_addr));
             reader.visit(reinterpret_cast <const std :: array <uint8_t, 2> &> (sockaddr.sin6_port));
         });
@@ -31,17 +34,29 @@ namespace drop
         uint8_t type;
         writer.visit(type);
 
-        if(!type)
+        switch(type)
         {
-            this->_sockaddr.emplace <sockaddr_in> ();
-            writer.visit(reinterpret_cast <std :: array <uint8_t, 4> &> (this->_sockaddr.reinterpret <sockaddr_in> ().sin_addr.s_addr));
-            writer.visit(reinterpret_cast <std :: array <uint8_t, 2> &> (this->_sockaddr.reinterpret <sockaddr_in> ().sin_port));
-        }
-        else
-        {
-            this->_sockaddr.emplace <sockaddr_in6> ();
-            writer.visit(reinterpret_cast <std :: array <uint8_t, 16> &> (this->_sockaddr.reinterpret <sockaddr_in6> ().sin6_addr.s6_addr));
-            writer.visit(reinterpret_cast <std :: array <uint8_t, 2> &> (this->_sockaddr.reinterpret <sockaddr_in6> ().sin6_port));
+            case 0:
+            {
+                this->_sockaddr.erase();
+                break;
+            }
+            case 1:
+            {
+                this->_sockaddr.emplace <sockaddr_in> ();
+                writer.visit(reinterpret_cast <std :: array <uint8_t, 4> &> (this->_sockaddr.reinterpret <sockaddr_in> ().sin_addr.s_addr));
+                writer.visit(reinterpret_cast <std :: array <uint8_t, 2> &> (this->_sockaddr.reinterpret <sockaddr_in> ().sin_port));
+
+                break;
+            }
+            case 2:
+            {
+                this->_sockaddr.emplace <sockaddr_in6> ();
+                writer.visit(reinterpret_cast <std :: array <uint8_t, 16> &> (this->_sockaddr.reinterpret <sockaddr_in6> ().sin6_addr.s6_addr));
+                writer.visit(reinterpret_cast <std :: array <uint8_t, 2> &> (this->_sockaddr.reinterpret <sockaddr_in6> ().sin6_port));
+
+                break;
+            }
         }
     }
 

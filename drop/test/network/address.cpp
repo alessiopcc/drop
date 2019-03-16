@@ -217,7 +217,7 @@ namespace
 
             auto deserialized = bytewise :: deserialize <address> (serialized);
             if(checkip(ipv4, deserialized.ip()) || 1234 != (uint16_t) deserialized.port())
-                throw "Deserialized IPv4 address does not match it's original value.";
+                throw "Deserialized IPv4 address does not match its original value.";
         }
 
         {
@@ -229,7 +229,19 @@ namespace
 
             auto deserialized = bytewise :: deserialize <address> (serialized);
             if(checkip(ipv6, deserialized.ip()) || 1234 != (uint16_t) deserialized.port())
-                throw "Deserialized IPv6 address does not match it's original value.";
+                throw "Deserialized IPv6 address does not match its original value.";
+        }
+
+        {
+            address null;
+
+            auto serialized = bytewise :: serialize(null);
+            if(serialized.size() != 1)
+                throw "Serialized null address has a size different from 1 byte.";
+
+            auto deserialized = bytewise :: deserialize <address> (serialized);
+            if(deserialized.is <IPv4> () || deserialized.is <IPv6> ())
+                throw "Deserialized null address does not match its original value.";
         }
     });
 };
