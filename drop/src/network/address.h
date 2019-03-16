@@ -82,6 +82,11 @@ namespace drop
 
         template <typename... lambdas, std :: enable_if_t <variant <sockaddr_in, sockaddr_in6> :: constraints :: match <false, lambdas...> ()> * = nullptr> void match(lambdas && ...);
         template <typename... lambdas, std :: enable_if_t <variant <sockaddr_in, sockaddr_in6> :: constraints :: match <true, lambdas...> ()> * = nullptr> void match(lambdas && ...) const;
+
+        // Operators
+
+        bool operator == (const address &) const;
+        bool operator != (const address &) const;
     };
 
     class address :: ip

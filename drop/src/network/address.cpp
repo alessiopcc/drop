@@ -72,6 +72,40 @@ namespace drop
         return address(this->ip().decay(), this->port());
     }
 
+    // Operators
+
+    bool address :: operator == (const address & rho) const
+    {
+        bool equal = false;
+
+        this->decay()._sockaddr.match([&]()
+        {
+            rho.decay()._sockaddr.match([&]()
+            {
+                equal = true;
+            });
+        }, [&](const sockaddr_in & sockaddr)
+        {
+            rho.decay()._sockaddr.match([&](const sockaddr_in & rhosockaddr)
+            {
+                equal = (sockaddr.sin_addr.s_addr == rhosockaddr.sin_addr.s_addr) && (sockaddr.sin_port == rhosockaddr.sin_port);
+            });
+        }, [&](const sockaddr_in6 & sockaddr)
+        {
+            rho.decay()._sockaddr.match([&](const sockaddr_in6 & rhosockaddr)
+            {
+                equal = !(memcmp(sockaddr.sin6_addr.s6_addr, rhosockaddr.sin6_addr.s6_addr, 16)) && (sockaddr.sin6_port == rhosockaddr.sin6_port);
+            });
+        });
+
+        return equal;
+    }
+
+    bool address :: operator != (const address & rho) const
+    {
+        return !((*this) == rho);
+    }
+
     // ip
 
     // Constructors

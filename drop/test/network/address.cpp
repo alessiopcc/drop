@@ -244,4 +244,46 @@ namespace
                 throw "Deserialized null address does not match its original value.";
         }
     });
+
+    $test("address/operators", []
+    {
+        if(address() != address())
+            throw "Two null addresses are not equal.";
+
+        if(address("192.186.7.44", 1234) != address("192.186.7.44", 1234))
+            throw "Two identical IPv4 addresses are not equal.";
+
+        if(address("192.186.7.44", 1234) == address("192.186.7.43", 1234))
+            throw "Two IPv4 addresses with different IPs are equal.";
+
+        if(address("192.186.7.44", 1234) == address("192.186.7.44", 1235))
+            throw "Two IPv4 addresses with different ports are equal.";
+
+        if(address("2001:620:618:149:1:80b2:4987:1", 1234) != address("2001:620:618:149:1:80b2:4987:1", 1234))
+            throw "Two identical IPv6 addresses are not equal.";
+
+        if(address("2001:620:618:149:1:80b2:4987:1", 1234) == address("2001:620:618:149:1:80b2:4987:2", 1234))
+            throw "Two IPv6 addresses with different IPs are equal.";
+
+        if(address("2001:620:618:149:1:80b2:4987:1", 1234) == address("2001:620:618:149:1:80b2:4987:1", 1235))
+            throw "Two IPv4ì6 addresses with different ports are equal.";
+
+        if(address() == address("127.0.0.1", 1234))
+            throw "A null address is equal to an IPv4 address.";
+
+        if(address() == address("2001:620:618:149:1:80b2:4987:1", 1234))
+            throw "A null address is equal to an IPv6 address.";
+
+        if(address("127.0.0.1", 1234) == address("2001:620:618:149:1:80b2:4987:1", 1234))
+            throw "An IPv4 address is equal to an IPv4 address.";
+
+        if(address("192.0.2.128", 1234) != address("::ffff:192.0.2.128", 1234))
+            throw "An IPv4 address is not equal to a matching, IPv6 encoded IPv4 address.";
+
+        if(address("192.0.2.128", 1234) == address("::ffff:192.0.2.129", 1234))
+            throw "An IPv4 address is equal to an IPv6 encoded IPv4 address with different IP.";
+
+        if(address("192.0.2.128", 1234) == address("::ffff:192.0.2.128", 1235))
+            throw "An IPv4 address is equal to an IPv6 encoded IPv4 address with different port.";
+    });
 };
