@@ -19,6 +19,20 @@ namespace drop
         this->_arc->_pool = nullptr;
     }
 
+    // Getters
+
+    address connection :: remote() const
+    {
+        address remote;
+
+        this->_arc->_socket.match([&](auto & socket)
+        {
+            remote = socket.remote();
+        });
+
+        return remote;
+    }
+
     // Methods
 
     void connection :: bind(pool & pool) const

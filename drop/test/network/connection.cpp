@@ -28,6 +28,9 @@ namespace
             auto listener = tcp :: listen(1234);
             auto connection = listener.acceptsync();
 
+            if(connection.remote().ip() != (class address :: ip)(:: test :: instance :: get <:: test :: IPv6> (1)))
+                throw "`remote` does not return the remote peer IP address.";
+
             auto receivedmessage = connection.receivesync <std :: string> ();
             if(receivedmessage != message)
                 throw "`receivesync <std :: string>` does not return the string given to `sendsync`.";
@@ -42,6 +45,9 @@ namespace
 
             sleep(1_s);
             auto connection = tcp :: connectsync({:: test :: instance :: get <:: test :: IPv6> (0), 1234});
+
+            if(connection.remote().ip() != (class address :: ip)(:: test :: instance :: get <:: test :: IPv6> (0)))
+                throw "`remote` does not return the remote peer IP address.";
 
             connection.sendasync(message);
             connection.sendasync(vector);
@@ -65,6 +71,12 @@ namespace
             auto one = mylistener.acceptsync();
             auto two = myotherlistener.acceptsync();
 
+            if(one.remote().ip() != (class address :: ip)(:: test :: instance :: get <:: test :: IPv6> (1)))
+                throw "`remote` does not return the remote peer IP address.";
+
+            if(two.remote().ip() != (class address :: ip)(:: test :: instance :: get <:: test :: IPv6> (2)))
+                throw "`remote` does not return the remote peer IP address.";
+
             one.receivesync <std :: string> ();
             one.send(goodbye);
             two.send(goodbye);
@@ -76,8 +88,14 @@ namespace
             auto listener = tcp :: listen({:: test :: instance :: get <:: test :: IPv4> (1), 1234});
             auto connection = listener.acceptsync();
 
+            if(connection.remote().ip() != (class address :: ip)(:: test :: instance :: get <:: test :: IPv4> (2)))
+                throw "`remote` does not return the remote peer IP address.";
+
             sleep(1_s);
             auto goodbye = tcp :: connectsync({:: test :: instance :: get <:: test :: IPv6> (0), 4321});
+
+            if(goodbye.remote().ip() != (class address :: ip)(:: test :: instance :: get <:: test :: IPv6> (0)))
+                throw "`remote` does not return the remote peer IP address.";
 
             [&]() -> promise <void>
             {
@@ -115,6 +133,12 @@ namespace
             sleep(1_s);
             auto connection = tcp :: connectsync({:: test :: instance :: get <:: test :: IPv4> (1), 1234});
             auto goodbye = tcp :: connectsync({:: test :: instance :: get <:: test :: IPv6> (0), 4322});
+
+            if(connection.remote().ip() != (class address :: ip)(:: test :: instance :: get <:: test :: IPv4> (1)))
+                throw "`remote` does not return the remote peer IP address.";
+
+            if(goodbye.remote().ip() != (class address :: ip)(:: test :: instance :: get <:: test :: IPv6> (0)))
+                throw "`remote` does not return the remote peer IP address.";
 
             auto mypool = pool();
             connection.bind(mypool);

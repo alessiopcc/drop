@@ -263,7 +263,7 @@ namespace drop
 
     // Constructors
 
-    tcp :: listener :: listener(const class address :: port & port) : _socket(socket :: IPv6()), _cache{.blocking = false}, _lock(false), _pool(nullptr)
+    tcp :: listener :: listener(const class address :: port & port) : _socket(socket :: any()), _cache{.blocking = false}, _lock(false), _pool(nullptr)
     {
         this->_socket.bind(port);
         this->_socket.listen();
