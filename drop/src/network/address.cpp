@@ -166,6 +166,40 @@ namespace drop
         return decay;
     }
 
+    // Operators
+
+    bool address :: ip :: operator == (const ip & rho) const
+    {
+        bool equal = false;
+
+        this->decay()._addr.match([&]()
+        {
+            rho.decay()._addr.match([&]()
+            {
+                equal = true;
+            });
+        }, [&](const in_addr & addr)
+        {
+            rho.decay()._addr.match([&](const in_addr & rhoaddr)
+            {
+                equal = (addr.s_addr == rhoaddr.s_addr);
+            });
+        }, [&](const in6_addr & addr)
+        {
+            rho.decay()._addr.match([&](const in6_addr & rhoaddr)
+            {
+                equal = !(memcmp(addr.s6_addr, rhoaddr.s6_addr, 16));
+            });
+        });
+
+        return equal;
+    }
+
+    bool address :: ip :: operator != (const ip & rho) const
+    {
+        return !((*this) == rho);
+    }
+
     // Static methods
 
     template <> class address :: ip address :: ip :: any <IPv4> ()
@@ -251,6 +285,18 @@ namespace drop
         {
             this->_port = sockaddr.sin6_port;
         });
+    }
+
+    // Operators
+
+    bool address :: port :: operator == (const port & rho) const
+    {
+        return (this->_port == rho._port);
+    }
+
+    bool address :: port :: operator != (const port & rho) const
+    {
+        return (this->_port != rho._port);
     }
 
     // Casting

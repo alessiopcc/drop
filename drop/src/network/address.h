@@ -117,6 +117,11 @@ namespace drop
 
         ip decay() const;
 
+        // Operators
+
+        bool operator == (const ip &) const;
+        bool operator != (const ip &) const;
+
         // Static methods
 
         template <typename> static ip any();
@@ -147,6 +152,11 @@ namespace drop
         port();
         port(const uint16_t &);
         port(const address &);
+
+        // Operators
+
+        bool operator == (const port &) const;
+        bool operator != (const port &) const;
 
         // Casting
 
