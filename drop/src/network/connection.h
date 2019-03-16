@@ -70,6 +70,10 @@ namespace drop
 
         connection(const tcp :: socket &);
 
+        // Getters
+
+        address remote() const;
+
         // Methods
 
         template <typename type, std :: enable_if_t <constraints :: buffer <type> ()> * = nullptr> void sendsync(const type &) const;
