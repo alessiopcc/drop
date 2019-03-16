@@ -13,14 +13,17 @@ namespace drop
 
     template <typename atype> void address :: accept(bytewise :: reader <atype> & reader) const
     {
-        this->_sockaddr.match([&](const sockaddr_in & sockaddr)
+        this->_sockaddr.match([&]()
         {
             reader.visit(uint8_t(0));
+        }, [&](const sockaddr_in & sockaddr)
+        {
+            reader.visit(uint8_t(1));
             reader.visit(reinterpret_cast <const std :: array <uint8_t, 4> &> (sockaddr.sin_addr.s_addr));
             reader.visit(reinterpret_cast <const std :: array <uint8_t, 2> &> (sockaddr.sin_port));
         },[&](const sockaddr_in6 & sockaddr)
         {
-            reader.visit(uint8_t(1));
+            reader.visit(uint8_t(2));
             reader.visit(reinterpret_cast <const std :: array <uint8_t, 16> &> (sockaddr.sin6_addr.s6_addr));
             reader.visit(reinterpret_cast <const std :: array <uint8_t, 2> &> (sockaddr.sin6_port));
         });
@@ -31,17 +34,29 @@ namespace drop
         uint8_t type;
         writer.visit(type);
 
-        if(!type)
+        switch(type)
         {
-            this->_sockaddr.emplace <sockaddr_in> ();
-            writer.visit(reinterpret_cast <std :: array <uint8_t, 4> &> (this->_sockaddr.reinterpret <sockaddr_in> ().sin_addr.s_addr));
-            writer.visit(reinterpret_cast <std :: array <uint8_t, 2> &> (this->_sockaddr.reinterpret <sockaddr_in> ().sin_port));
-        }
-        else
-        {
-            this->_sockaddr.emplace <sockaddr_in6> ();
-            writer.visit(reinterpret_cast <std :: array <uint8_t, 16> &> (this->_sockaddr.reinterpret <sockaddr_in6> ().sin6_addr.s6_addr));
-            writer.visit(reinterpret_cast <std :: array <uint8_t, 2> &> (this->_sockaddr.reinterpret <sockaddr_in6> ().sin6_port));
+            case 0:
+            {
+                this->_sockaddr.erase();
+                break;
+            }
+            case 1:
+            {
+                this->_sockaddr.emplace <sockaddr_in> ();
+                writer.visit(reinterpret_cast <std :: array <uint8_t, 4> &> (this->_sockaddr.reinterpret <sockaddr_in> ().sin_addr.s_addr));
+                writer.visit(reinterpret_cast <std :: array <uint8_t, 2> &> (this->_sockaddr.reinterpret <sockaddr_in> ().sin_port));
+
+                break;
+            }
+            case 2:
+            {
+                this->_sockaddr.emplace <sockaddr_in6> ();
+                writer.visit(reinterpret_cast <std :: array <uint8_t, 16> &> (this->_sockaddr.reinterpret <sockaddr_in6> ().sin6_addr.s6_addr));
+                writer.visit(reinterpret_cast <std :: array <uint8_t, 2> &> (this->_sockaddr.reinterpret <sockaddr_in6> ().sin6_port));
+
+                break;
+            }
         }
     }
 
@@ -68,6 +83,61 @@ namespace drop
     }
 
     // ip
+
+    // Bytewise
+
+    template <typename atype> void address :: ip :: accept(bytewise :: reader <atype> & reader) const
+    {
+        this->_addr.match([&]()
+        {
+            reader.visit(uint8_t(0));
+        }, [&](const in_addr & addr)
+        {
+            reader.visit(uint8_t(1));
+            reader.visit(reinterpret_cast <const std :: array <uint8_t, 4> &> (addr.s_addr));
+        },[&](const in6_addr & addr)
+        {
+            reader.visit(uint8_t(2));
+            reader.visit(reinterpret_cast <const std :: array <uint8_t, 16> &> (addr.s6_addr));
+        });
+    }
+
+    template <typename atype> void address :: ip :: accept(bytewise :: writer <atype> & writer)
+    {
+        uint8_t type;
+        writer.visit(type);
+
+        switch(type)
+        {
+            case 0:
+            {
+                this->_addr.erase();
+                break;
+            }
+            case 1:
+            {
+                this->_addr.emplace <in_addr> ();
+                writer.visit(reinterpret_cast <std :: array <uint8_t, 4> &> (this->_addr.reinterpret <in_addr> ().s_addr));
+                break;
+            }
+            case 2:
+            {
+                this->_addr.emplace <in6_addr> ();
+                writer.visit(reinterpret_cast <std :: array <uint8_t, 16> &> (this->_addr.reinterpret <in6_addr> ().s6_addr));
+                break;
+            }
+        }
+    }
+
+    // Getters
+
+    template <typename type, std :: enable_if_t <std :: is_same <type, IPv4> :: value || std :: is_same <type, IPv6> :: value> *> bool address :: ip :: is() const
+    {
+        if constexpr (std :: is_same <type, IPv4> :: value)
+            return this->_addr.is <in_addr> ();
+        else
+            return this->_addr.is <in6_addr> ();
+    }
 
     // Methods
 

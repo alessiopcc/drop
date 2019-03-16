@@ -82,6 +82,11 @@ namespace drop
 
         template <typename... lambdas, std :: enable_if_t <variant <sockaddr_in, sockaddr_in6> :: constraints :: match <false, lambdas...> ()> * = nullptr> void match(lambdas && ...);
         template <typename... lambdas, std :: enable_if_t <variant <sockaddr_in, sockaddr_in6> :: constraints :: match <true, lambdas...> ()> * = nullptr> void match(lambdas && ...) const;
+
+        // Operators
+
+        bool operator == (const address &) const;
+        bool operator != (const address &) const;
     };
 
     class address :: ip
@@ -105,12 +110,26 @@ namespace drop
         ip(const in_addr &);
         ip(const in6_addr &);
 
+        // Bytewise
+
+        template <typename atype> void accept(bytewise :: reader <atype> &) const;
+        template <typename atype> void accept(bytewise :: writer <atype> &);
+
+        // Getters
+
+        template <typename type, std :: enable_if_t <std :: is_same <type, IPv4> :: value || std :: is_same <type, IPv6> :: value> * = nullptr> bool is() const;
+
         // Methods
 
         template <typename... lambdas, std :: enable_if_t <variant <in_addr, in6_addr> :: constraints :: match <false, lambdas...> ()> * = nullptr> void match(lambdas && ...);
         template <typename... lambdas, std :: enable_if_t <variant <in_addr, in6_addr> :: constraints :: match <true, lambdas...> ()> * = nullptr> void match(lambdas && ...) const;
 
         ip decay() const;
+
+        // Operators
+
+        bool operator == (const ip &) const;
+        bool operator != (const ip &) const;
 
         // Static methods
 
@@ -133,7 +152,15 @@ namespace drop
 
         // Members
 
-        in_port_t _port;
+        union
+        {
+            in_port_t port;
+            std :: array <uint8_t, 2> representation;
+        } _port;
+
+        // Bytewise
+
+        $bytewise(_port.representation);
 
     public:
 
@@ -142,6 +169,11 @@ namespace drop
         port();
         port(const uint16_t &);
         port(const address &);
+
+        // Operators
+
+        bool operator == (const port &) const;
+        bool operator != (const port &) const;
 
         // Casting
 
