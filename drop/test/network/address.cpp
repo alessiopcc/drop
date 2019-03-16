@@ -197,6 +197,36 @@ namespace
             throw "The first IP returned it is not the IPv4 address of the instance.";
         if(checkip(:: test :: instance :: get <:: test :: IPv6> (:: test :: instance :: id()), local[1]))
             throw "The second IP returned it is not the IPv6 address of the instance.";
+
+        if((class address :: ip){} != (class address :: ip){})
+            throw "Two null IPs are not equal.";
+
+        if((class address :: ip){"192.186.7.44"} != (class address :: ip){"192.186.7.44"})
+            throw "Two identical IPv4 IPs are not equal.";
+
+        if((class address :: ip){"192.186.7.44"} == (class address :: ip){"192.186.7.43"})
+            throw "Two different IPv4 IPs are equal.";
+
+        if((class address :: ip){"2001:620:618:149:1:80b2:4987:1"} != (class address :: ip){"2001:620:618:149:1:80b2:4987:1"})
+            throw "Two identical IPv6 IPs are not equal.";
+
+        if((class address :: ip){"2001:620:618:149:1:80b2:4987:1"} == (class address :: ip){"2001:620:618:149:1:80b2:4987:2"})
+            throw "Two different IPv6 IPs are equal.";
+
+        if((class address :: ip){} == (class address :: ip){"127.0.0.1"})
+            throw "A null IP is equal to an IPv4 IP.";
+
+        if((class address :: ip){} == (class address :: ip){"2001:620:618:149:1:80b2:4987:1"})
+            throw "A null IP is equal to an IPv6 IP.";
+
+        if((class address :: ip){"127.0.0.1"} == (class address :: ip){"2001:620:618:149:1:80b2:4987:1"})
+            throw "An IPv4 IP is equal to an IPv6 IP.";
+
+        if((class address :: ip){"192.0.2.128"} != (class address :: ip){"::ffff:192.0.2.128"})
+            throw "An IPv4 IP is not equal to a matching, IPv6 encoded IPv4 IP.";
+
+        if((class address :: ip){"192.0.2.128"} == (class address :: ip){"::ffff:192.0.2.129"})
+            throw "An IPv4 IP is equal to an IPv6 encoded IPv4 IP";
     });
 
     $test("address/port", []
@@ -209,6 +239,12 @@ namespace
         port = (class address :: port){addr};
         if((uint16_t) port != 4321)
             throw "`port` constructor does not extract correctly the port number from the given `address`.";
+
+        if((class :: address :: port){1234} != (class :: address :: port){1234})
+            throw "Two identical ports are not equal.";
+
+        if((class :: address :: port){1234} == (class :: address :: port){1235})
+            throw "Two different ports are equal.";
     });
 
     $test("address/bytewise", []
