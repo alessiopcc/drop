@@ -27,7 +27,7 @@ namespace drop
         {
             sockaddr_in sockaddr;
             sockaddr.sin_family = AF_INET;
-            sockaddr.sin_port = port._port;
+            sockaddr.sin_port = port._port.port;
             sockaddr.sin_addr = ip;
             memset(sockaddr.sin_zero, '\0', sizeof(sockaddr.sin_zero));
 
@@ -36,7 +36,7 @@ namespace drop
         {
             sockaddr_in6 sockaddr;
             sockaddr.sin6_family = AF_INET6;
-            sockaddr.sin6_port = port._port;
+            sockaddr.sin6_port = port._port.port;
             sockaddr.sin6_flowinfo = 0;
             sockaddr.sin6_addr = ip;
             sockaddr.sin6_scope_id = scope;
@@ -272,7 +272,7 @@ namespace drop
     {
     }
 
-    address :: port :: port(const uint16_t & port) : _port(htons(port))
+    address :: port :: port(const uint16_t & port) : _port({.port = htons(port)})
     {
     }
 
@@ -280,10 +280,10 @@ namespace drop
     {
         address._sockaddr.match([&](const sockaddr_in & sockaddr)
         {
-            this->_port = sockaddr.sin_port;
+            this->_port.port = sockaddr.sin_port;
         }, [&](const sockaddr_in6 & sockaddr)
         {
-            this->_port = sockaddr.sin6_port;
+            this->_port.port = sockaddr.sin6_port;
         });
     }
 
@@ -291,19 +291,19 @@ namespace drop
 
     bool address :: port :: operator == (const port & rho) const
     {
-        return (this->_port == rho._port);
+        return (this->_port.port == rho._port.port);
     }
 
     bool address :: port :: operator != (const port & rho) const
     {
-        return (this->_port != rho._port);
+        return (this->_port.port != rho._port.port);
     }
 
     // Casting
 
     address :: port :: operator uint16_t () const
     {
-        return ntohs(this->_port);
+        return ntohs(this->_port.port);
     }
 
     // Ostream integration
