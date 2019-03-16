@@ -152,7 +152,15 @@ namespace drop
 
         // Members
 
-        in_port_t _port;
+        union
+        {
+            in_port_t port;
+            std :: array <uint8_t, 2> representation;
+        } _port;
+
+        // Bytewise
+
+        $bytewise(_port.representation);
 
     public:
 

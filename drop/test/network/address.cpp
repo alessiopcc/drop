@@ -320,6 +320,18 @@ namespace
             if(deserialized.is <IPv4> () || deserialized.is <IPv6> ())
                 throw "Deserialized null ip does not match its original value.";
         }
+
+        {
+            class address :: port port = 1234;
+
+            auto serialized = bytewise :: serialize(port);
+            if(serialized.size() != 2)
+                throw "Serialized port has size different from 2 bytes.";
+
+            auto deserialized = bytewise :: deserialize <class address :: port> (serialized);
+            if(deserialized != port)
+                throw "Deserialized port does not match it original value.";
+        }
     });
 
     $test("address/operators", []
