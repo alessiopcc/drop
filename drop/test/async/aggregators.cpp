@@ -63,16 +63,26 @@ namespace
             }
         }();
 
-        std :: cout << "Rejecting c.." << std :: endl;
-        c.reject("and your stupid code!");
 
-        std :: cout << "Rejecting a.." << std :: endl;
-        a.reject("screw you!");
-
+        // std :: cout << "Rejecting c.." << std :: endl;
+        // c.reject("and your stupid code!");
+        //
+        // std :: cout << "Rejecting a.." << std :: endl;
+        // a.reject("screw you!");
+        //
         // std :: cout << "Rejecting b.." << std :: endl;
         // b.reject("and your promise!");
 
+        std :: cout << "Resolving a.." << std :: endl;
+        a.resolve(12);
+
         std :: cout << "Resolving b.." << std :: endl;
-        b.resolve(33);
+        b.resolve(13);
+
+        std :: cout << "Resolving c.." << std :: endl;
+        c.resolve(14);
+
+        // std :: cout << "Resolving b.." << std :: endl;
+        // b.resolve(33);
     });
 };
