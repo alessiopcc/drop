@@ -220,7 +220,7 @@ namespace drop
 
     template <typename type> inline void promise <type> :: promise_base :: unhandled_exception()
     {
-        this->_promise.reject(std :: current_exception());
+        this->_promise.rejectsoft(std :: current_exception());
     }
 
     // promise <void> :: promise_type
@@ -229,14 +229,14 @@ namespace drop
 
     inline void promise <void> :: promise_type :: return_void()
     {
-        this->_promise.resolve();
+        this->_promise.resolvesoft();
     }
 
     // promise <type> :: promise_type
 
     template <typename type> inline void promise <type> :: promise_type :: return_value(const type & value)
     {
-        this->_promise.resolve(value);
+        this->_promise.resolvesoft(value);
     }
 
     // arc
