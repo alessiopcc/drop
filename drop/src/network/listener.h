@@ -34,10 +34,6 @@ namespace drop
 
     private:
 
-        // Service nested classes
-
-        class arc;
-
         // Service typedefs
 
         typedef variant <tcp :: listener> variant;
