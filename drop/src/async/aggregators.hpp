@@ -20,7 +20,6 @@ namespace drop
         struct context
         {
             promise <type> aggregated;
-            bool resolved;
 
             std :: array <std :: exception_ptr, 1 + sizeof...(ptypes)> exceptions;
             size_t rejections;
@@ -28,7 +27,7 @@ namespace drop
             guard <simple> guard;
         };
 
-        std :: shared_ptr <context> context(new (struct context) {.resolved = false, .rejections = 0});
+        std :: shared_ptr <context> context(new (struct context) {.rejections = 0});
 
         size_t index = 0;
         for(const auto & promise : {head, tail...})
@@ -42,35 +41,17 @@ namespace drop
                     std :: shared_ptr <struct context> context;
                 } local{.index = index, .promise = promise, .context = context};
 
-                auto acquire = [&]()
-                {
-                    return local.context->guard([&]()
-                    {
-                        if(!local.context->resolved)
-                        {
-                            local.context->resolved = true;
-                            return true;
-                        }
-
-                        return false;
-                    });
-                };
-
                 try
                 {
                     if constexpr(std :: is_same <type, void> :: value)
                     {
                         co_await local.promise;
-
-                        if(acquire())
-                            local.context->aggregated.resolve();
+                        local.context->aggregated.resolvesoft();
                     }
                     else
                     {
                         type value = co_await local.promise;
-
-                        if(acquire())
-                            local.context->aggregated.resolve(value);
+                        local.context->aggregated.resolvesoft(value);
                     }
                 }
                 catch(...)
