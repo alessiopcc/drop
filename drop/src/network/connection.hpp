@@ -61,7 +61,7 @@ namespace drop
                 socket.template set <timeouts :: receive> (timeout);
             });
 
-            this->_arc->_cache.timeouts.send = timeout;
+            this->_arc->_cache.timeouts.receive = timeout;
         });
     }
 

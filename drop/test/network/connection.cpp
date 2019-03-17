@@ -628,4 +628,26 @@ namespace
             sleep(1_s);
         }
     });
+
+    /*$test("connection/timeout", []()
+    {
+        auto listener = tcp :: listen(1234);
+
+        [&]() -> promise <void>
+        {
+            try
+            {
+                auto connection = co_await listener.accept();
+
+                connection.set <timeouts :: receive> (10_s);
+                std :: cout << co_await connection.receive <int> () << std :: endl;
+            }
+            catch(...)
+            {
+                std :: cout << "Exception" << std :: endl;
+            }
+        }();
+
+        sleep(1_h);
+    });*/
 };
