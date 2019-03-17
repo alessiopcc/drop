@@ -19,6 +19,52 @@ namespace drop
             return std :: is_same <type, std :: vector <uint8_t>> :: value;
     }
 
+    // Getters
+
+    template <> inline auto connection :: get <timeouts :: send> () const
+    {
+        return this->_arc->_guard([&]()
+        {
+            return this->_arc->_cache.timeouts.send;
+        });
+    }
+
+    template <> inline auto connection :: get <timeouts :: receive> () const
+    {
+        return this->_arc->_guard([&]()
+        {
+            return this->_arc->_cache.timeouts.receive;
+        });
+    }
+
+    // Setters
+
+    template <> inline void connection :: set <timeouts :: send> (const interval & timeout) const
+    {
+        this->_arc->_guard([&]()
+        {
+            this->_arc->_socket.match([&](const auto & socket)
+            {
+                socket.template set <timeouts :: send> (timeout);
+            });
+
+            this->_arc->_cache.timeouts.send = timeout;
+        });
+    }
+
+    template <> inline void connection :: set <timeouts :: receive> (const interval & timeout) const
+    {
+        this->_arc->_guard([&]()
+        {
+            this->_arc->_socket.match([&](const auto & socket)
+            {
+                socket.template set <timeouts :: receive> (timeout);
+            });
+
+            this->_arc->_cache.timeouts.send = timeout;
+        });
+    }
+
     // Methods
 
     template <typename type, std :: enable_if_t <connection :: constraints :: buffer <type> ()> *> void connection :: sendsync(const type & message) const
@@ -362,7 +408,7 @@ namespace drop
 
             this->_arc->_socket.match([&](const auto & socket)
             {
-                promise = (binding ? *binding : pool :: system.get()).write(socket, streamer);
+                promise = (binding ? *binding : pool :: system.get()).write(socket, streamer, this->_arc->_cache.timeouts.send);
             });
 
             co_await promise;
@@ -388,7 +434,7 @@ namespace drop
 
             this->_arc->_socket.match([&](const auto & socket)
             {
-                promise = (binding ? *binding : pool :: system.get()).read(socket, streamer);
+                promise = (binding ? *binding : pool :: system.get()).read(socket, streamer, this->_arc->_cache.timeouts.receive);
             });
 
             co_await promise;
