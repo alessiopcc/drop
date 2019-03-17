@@ -8,6 +8,7 @@ namespace drop
     {
         class send;
         class receive;
+        class accept;
     };
 
     namespace buffers
@@ -206,6 +207,7 @@ namespace drop
         struct
         {
             bool blocking;
+            interval timeout;
         } _cache;
 
         bool _lock;
@@ -223,6 +225,14 @@ namespace drop
         // Destructor
 
         ~listener();
+
+        // Getters
+
+        template <typename> inline auto get();
+
+        // Setters
+
+        template <typename tag, typename type> inline void set(const type &);
 
         // Methods
 
