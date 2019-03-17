@@ -138,19 +138,19 @@ namespace drop
                     (*context).streamer.match([&](auto * streamer)
                     {
                         if(streamer->stream(socket))
-                            this->pop(event.type(), event.descriptor()).resolve();
+                            this->pop(event.type(), event.descriptor()).resolvesoft();
                     });
                 });
             }
             else
-                this->pop(event.type(), event.descriptor()).resolve();
+                this->pop(event.type(), event.descriptor()).resolvesoft();
         }
         else
         {
             if(event.type() == queue :: write)
-                this->pop(event.type(), event.descriptor()).reject(exception <write_failed> :: make(this));
+                this->pop(event.type(), event.descriptor()).rejectsoft(exception <write_failed> :: make(this));
             else
-                this->pop(event.type(), event.descriptor()).reject(exception <read_failed> :: make(this));
+                this->pop(event.type(), event.descriptor()).rejectsoft(exception <read_failed> :: make(this));
         }
     }
 
@@ -177,9 +177,9 @@ namespace drop
         for(const auto & event : rejections)
         {
             if(event.type == queue :: write)
-                this->pop(event.type, event.descriptor).reject(exception <write_timeout> :: make(this));
+                this->pop(event.type, event.descriptor).rejectsoft(exception <write_timeout> :: make(this));
             else
-                this->pop(event.type, event.descriptor).reject(exception <read_timeout> :: make(this));
+                this->pop(event.type, event.descriptor).rejectsoft(exception <read_timeout> :: make(this));
         }
     }
 
