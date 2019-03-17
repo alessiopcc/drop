@@ -5,7 +5,7 @@
 
 #include "tcp.h"
 #include "connection.h"
-#include "listener.hpp"
+#include "listener.h"
 
 namespace drop
 {
@@ -116,6 +116,26 @@ namespace drop
     }
 
     // listener
+
+    // Getters
+
+    template <> inline auto tcp :: listener :: get <timeouts :: accept> ()
+    {
+        return this->_guard([&]()
+        {
+            return this->_cache.timeout;
+        });
+    }
+
+    // Setters
+
+    template <> inline void tcp :: listener :: set <timeouts :: accept> (const interval & timeout)
+    {
+        this->_guard([&]()
+        {
+            this->_cache.timeout = timeout;
+        });
+    }
 
     // Private methods
 

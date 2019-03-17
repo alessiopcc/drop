@@ -27,9 +27,10 @@ namespace drop
 
     promise <connection> listener :: acceptasync() const
     {
+        listener listener = (*this);
         promise <connection> promise;
 
-        this->_arc->match([&](auto & listener)
+        listener._arc->match([&](auto & listener)
         {
             if constexpr (!std :: is_const <std :: remove_reference_t <decltype(listener)>> :: value)
                 promise = listener.acceptasync();

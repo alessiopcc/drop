@@ -96,4 +96,24 @@ namespace
             goodbye.receivesync <std :: string> ();
         }
     });
+
+    /*$test("listener/timeout", []
+    {
+        auto listener = tcp :: listen(1234);
+        listener.set <timeouts :: accept> (10_s);
+
+        [&]() -> promise <void>
+        {
+            try
+            {
+                auto connection = co_await listener.accept();
+            }
+            catch(...)
+            {
+                std :: cout << "Exception!" << std :: endl;
+            }
+        }();
+
+        sleep(1_h);
+    });*/
 };

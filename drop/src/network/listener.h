@@ -48,6 +48,14 @@ namespace drop
 
     public:
 
+        // Getters
+
+        template <typename> inline auto get() const;
+
+        // Setters
+
+        template <typename tag, typename type> inline void set(const type &) const;
+
         // Methods
 
         connection acceptsync() const;

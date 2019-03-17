@@ -73,6 +73,11 @@ namespace drop
         // Getters
 
         address remote() const;
+        template <typename> inline auto get() const;
+
+        // Setters
+
+        template <typename tag, typename type> inline void set(const type &) const;
 
         // Methods
 
@@ -149,6 +154,12 @@ namespace drop
         struct
         {
             bool blocking;
+
+            struct
+            {
+                interval send;
+                interval receive;
+            } timeouts;
         } _cache;
 
         struct
