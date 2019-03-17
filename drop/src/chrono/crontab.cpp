@@ -69,7 +69,7 @@ namespace drop
         });
 
         for(const auto & event : expired)
-            event.resolve();
+            event.resolvesoft();
 
         expired.clear();
     }
@@ -78,7 +78,7 @@ namespace drop
     {
         while(!this->_events.empty() && this->_events.top() < target)
         {
-            this->_events.top().resolve();
+            this->_events.top().resolvesoft();
             this->_events.pop();
         }
     }

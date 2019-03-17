@@ -76,7 +76,54 @@ namespace drop
 
     // Methods
 
+    template <typename type> template <typename... vtype, std :: enable_if_t <promise <type> :: constraints :: template resolve <vtype...> ()> *> void promise <type> :: resolvehard(const vtype & ... value) const
+    {
+        this->resolve <true> (value...);
+    }
+
+    template <typename type> template <typename... vtype, std :: enable_if_t <promise <type> :: constraints :: template resolve <vtype...> ()> *> void promise <type> :: resolvesoft(const vtype & ... value) const
+    {
+        this->resolve <false> (value...);
+    }
+
     template <typename type> template <typename... vtype, std :: enable_if_t <promise <type> :: constraints :: template resolve <vtype...> ()> *> void promise <type> :: resolve(const vtype & ... value) const
+    {
+        this->resolvehard(value...);
+    }
+
+    template <typename type> void promise <type> :: rejecthard(const std :: exception_ptr & exception) const
+    {
+        this->reject <true> (exception);
+    }
+
+    template <typename type> void promise <type> :: rejectsoft(const std :: exception_ptr & exception) const
+    {
+        this->reject <false> (exception);
+    }
+
+    template <typename type> void promise <type> :: reject(const std :: exception_ptr & exception) const
+    {
+        this->rejecthard(exception);
+    }
+
+    template <typename type> template <typename etype> void promise <type> :: rejecthard(const etype & exception) const
+    {
+        this->reject <true> (exception);
+    }
+
+    template <typename type> template <typename etype> void promise <type> :: rejectsoft(const etype & exception) const
+    {
+        this->reject <false> (exception);
+    }
+
+    template <typename type> template <typename etype> void promise <type> :: reject(const etype & exception) const
+    {
+        this->rejecthard(exception);
+    }
+
+    // Private methods
+
+    template <typename type> template <bool hard, typename... vtype, std :: enable_if_t <promise <type> :: constraints :: template resolve <vtype...> ()> *> void promise <type> :: resolve(const vtype & ... value) const
     {
         std :: shared_ptr <arc> arc = this->_arc;
 
@@ -85,7 +132,10 @@ namespace drop
         arc->_guard([&]()
         {
             if(arc->_status)
-                exception <bad_access, already_resolved> :: raise(this);
+            {
+                if constexpr (hard)
+                    exception <bad_access, already_resolved> :: raise(this);
+            }
             else
             {
                 if constexpr (std :: is_same <type, void> :: value)
@@ -103,7 +153,7 @@ namespace drop
         flush(handles);
     }
 
-    template <typename type> void promise <type> :: reject(const std :: exception_ptr & exception) const
+    template <typename type> template <bool hard> void promise <type> :: reject(const std :: exception_ptr & exception) const
     {
         std :: shared_ptr <arc> arc = this->_arc;
 
@@ -112,7 +162,10 @@ namespace drop
         arc->_guard([&]()
         {
             if(arc->_status)
-                drop :: exception <bad_access, already_resolved> :: raise(this);
+            {
+                if constexpr (hard)
+                    drop :: exception <bad_access, already_resolved> :: raise(this);
+            }
             else
             {
                 arc->_status = exception;
@@ -123,12 +176,12 @@ namespace drop
         flush(handles);
     }
 
-    template <typename type> template <typename etype> void promise <type> :: reject(const etype & exception) const
+    template <typename type> template <bool hard, typename etype> void promise <type> :: reject(const etype & exception) const
     {
-        this->reject(std :: make_exception_ptr(exception));
+        this->reject <hard> (std :: make_exception_ptr(exception));
     }
 
-    // Private methods
+    // Static private methods
 
     template <typename type> void promise <type> :: flush(handles & handles)
     {
@@ -167,7 +220,7 @@ namespace drop
 
     template <typename type> inline void promise <type> :: promise_base :: unhandled_exception()
     {
-        this->_promise.reject(std :: current_exception());
+        this->_promise.rejectsoft(std :: current_exception());
     }
 
     // promise <void> :: promise_type
@@ -176,14 +229,14 @@ namespace drop
 
     inline void promise <void> :: promise_type :: return_void()
     {
-        this->_promise.resolve();
+        this->_promise.resolvesoft();
     }
 
     // promise <type> :: promise_type
 
     template <typename type> inline void promise <type> :: promise_type :: return_value(const type & value)
     {
-        this->_promise.resolve(value);
+        this->_promise.resolvesoft(value);
     }
 
     // arc

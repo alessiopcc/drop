@@ -79,12 +79,26 @@ namespace drop
 
         // Methods
 
+        template <typename... vtype, std :: enable_if_t <constraints :: template resolve <vtype...> ()> * = nullptr> void resolvehard(const vtype & ...) const;
+        template <typename... vtype, std :: enable_if_t <constraints :: template resolve <vtype...> ()> * = nullptr> void resolvesoft(const vtype & ...) const;
         template <typename... vtype, std :: enable_if_t <constraints :: template resolve <vtype...> ()> * = nullptr> void resolve(const vtype & ...) const;
 
+        void rejecthard(const std :: exception_ptr &) const;
+        void rejectsoft(const std :: exception_ptr &) const;
         void reject(const std :: exception_ptr &) const;
+
+        template <typename etype> void rejecthard(const etype &) const;
+        template <typename etype> void rejectsoft(const etype &) const;
         template <typename etype> void reject(const etype &) const;
 
     private:
+
+        // Private methods
+
+        template <bool, typename... vtype, std :: enable_if_t <constraints :: template resolve <vtype...> ()> * = nullptr> void resolve(const vtype & ...) const;
+
+        template <bool> void reject(const std :: exception_ptr &) const;
+        template <bool, typename etype> void reject(const etype &) const;
 
         // Private static methods
 
