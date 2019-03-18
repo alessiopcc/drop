@@ -6,6 +6,12 @@ namespace drop
 {
     // hash
 
+    // Constructors
+
+    hash :: hash(bytewise)
+    {
+    }
+
     // Private constructors
 
     hash :: hash(crypto_generichash_state & state)

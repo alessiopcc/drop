@@ -43,6 +43,8 @@ namespace drop
 
         template <typename... types, std :: enable_if_t <(... && (bytewise :: constraints :: readable <types, state> ()))> * = nullptr> hash(const types & ...);
 
+        hash(bytewise);
+
     private:
 
         // Private constructors
