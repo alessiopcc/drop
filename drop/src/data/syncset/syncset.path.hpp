@@ -9,22 +9,22 @@ namespace drop
 {
     // Constructors
 
-    template <typename type> syncset <type> :: path :: path(const hash & path) : hash(path)
+    template <typename type> syncset <type> :: path :: path(const hash & hash) : _hash(hash)
     {
     }
 
-    template <typename type> syncset <type> :: path :: path(const type & element) : hash(element)
+    template <typename type> syncset <type> :: path :: path(const type & element) : _hash(element)
     {
     }
 
     // Operators
 
-    template <typename type> bool syncset <type> :: path :: operator [] (const size_t & index) const
+    template <typename type> typename syncset <type> :: navigation syncset <type> :: path :: operator [] (const size_t & index) const
     {
         size_t byte = index / 8;
         size_t bit = index % 8;
 
-        return (((const hash &) *this)[byte]) & (1 << (7 - bit));
+        return (this->_hash[byte] & (1 << (7 - bit))) ? right : left;
     }
 };
 

@@ -22,9 +22,25 @@ namespace
 
         syncset <uint64_t> :: path path(42);
 
-        std :: vector <bool> reference = {false, true, false, true, true, false, true, false, false, false, false, true, true, true, true, true};
+        std :: vector <typename syncset <uint64_t> :: navigation> reference =
+        {
+            syncset <uint64_t> :: left, syncset <uint64_t> :: right, syncset <uint64_t> :: left, syncset <uint64_t> :: right,
+            syncset <uint64_t> :: right, syncset <uint64_t> :: left, syncset <uint64_t> :: right, syncset <uint64_t> :: left,
+            syncset <uint64_t> :: left, syncset <uint64_t> :: left, syncset <uint64_t> :: left, syncset <uint64_t> :: right,
+            syncset <uint64_t> :: right, syncset <uint64_t> :: right, syncset <uint64_t> :: right, syncset <uint64_t> :: right
+        };
+
         for(size_t bit = 0; bit < reference.size(); bit++)
             if(path[bit] != reference[bit])
                 throw "Path bit differs from reference.";
+    });
+
+    $test("syncset/prefix", []
+    {
+        syncset <uint64_t> :: prefix prefix(42, 9);
+        auto serialized = bytewise :: serialize(prefix);
+        // auto deserialized = bytewise :: deserialize <syncset <uint64_t> :: prefix> (serialized);
+        std :: cout << bytewise :: constraints :: fixed <syncset <uint64_t> :: prefix> () << std :: endl;
+        std :: cout << introspection :: count <syncset <uint64_t> :: prefix, bytewise> () << std :: endl;
     });
 };

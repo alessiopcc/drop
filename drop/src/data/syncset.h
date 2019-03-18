@@ -107,8 +107,12 @@ namespace drop
         syncset & operator = (syncset &&);
     };
 
-    template <typename type> class syncset <type> :: path : public hash
+    template <typename type> class syncset <type> :: path
     {
+        // Members
+
+        hash _hash;
+
     public:
 
         // Constructors
@@ -118,7 +122,7 @@ namespace drop
 
         // Operators
 
-        bool operator [] (const size_t &) const;
+        navigation operator [] (const size_t &) const;
     };
 
     template <typename type> class syncset <type> :: prefix : public path
@@ -199,6 +203,7 @@ namespace drop
         // Methods
 
         single fill(const type &);
+
         template <typename lambda> void traverse (lambda &&) const;
     };
 
