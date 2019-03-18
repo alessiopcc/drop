@@ -80,4 +80,98 @@ namespace
             }
         }
     });
+
+    $test("syncset/node", []
+    {
+        syncset <uint64_t> :: node root = syncset <uint64_t> :: empty();
+        root = root.reinterpret <syncset <uint64_t> :: empty> ().fill(42);
+
+        bool success = false;
+        root.match([&](syncset <uint64_t> :: single & root)
+        {
+            if(root.element() == 42)
+                success = true;
+        });
+
+        if(!success)
+            throw "`empty.fill()` on root does not work.";
+
+        root = root.reinterpret <syncset <uint64_t> :: single> ().push(syncset <uint64_t> :: left);
+
+        success = false;
+        root.match([&](syncset <uint64_t> :: multiple & root)
+        {
+            root.left()->match([&](syncset <uint64_t> :: single & left)
+            {
+                root.right()->match([&](syncset <uint64_t> :: empty & right)
+                {
+                    success = (left.element() == 42) && (root.label() == hash(hash(uint64_t(42)), hash()));
+                });
+            });
+        });
+
+        if(!success)
+            throw "`single.push()` does not work.";
+
+        (*(root.reinterpret <syncset <uint64_t> :: multiple> ().right())) = root.reinterpret <syncset <uint64_t> :: multiple> ().right()->reinterpret <syncset <uint64_t> :: empty> ().fill(13);
+        root.reinterpret <syncset <uint64_t> :: multiple> ().refresh();
+
+        if(root.reinterpret <syncset <uint64_t> :: multiple> ().label() != hash(hash(uint64_t(42)), hash(uint64_t(13))) || root.reinterpret <syncset <uint64_t> :: multiple> ().size() != 2)
+            throw "`empty.fill()` on right child does not work.";
+
+
+        uint64_t total = 0;
+        root.reinterpret <syncset <uint64_t> :: multiple> ().traverse([&](const uint64_t & value)
+        {
+            total += value;
+        });
+
+        if(total != (13 + 42))
+            throw "Something wrong on `traverse` of two elements.";
+
+
+        (*(root.reinterpret <syncset <uint64_t> :: multiple> ().left())) = root.reinterpret <syncset <uint64_t> :: multiple> ().left()->reinterpret <syncset <uint64_t> :: single> ().empty();
+        root.reinterpret <syncset <uint64_t> :: multiple> ().refresh();
+
+        if(root.reinterpret <syncset <uint64_t> :: multiple> ().label() != hash(hash(), hash(uint64_t(13))) || root.reinterpret <syncset <uint64_t> :: multiple> ().size() != 1)
+            throw "`single.empty()` on left child does not work.";
+
+        total = 0;
+        root.reinterpret <syncset <uint64_t> :: multiple> ().traverse([&](const uint64_t & value)
+        {
+            total += value;
+        });
+
+        if(total != 13)
+            throw "Something wrong on `traverse` of one element.";
+
+        auto otherroot = root;
+
+        success = false;
+        root.match([&](syncset <uint64_t> :: multiple & root)
+        {
+            otherroot.match([&](syncset <uint64_t> :: multiple & otherroot)
+            {
+                if(root.label() == otherroot.label() && root.size() == otherroot.size() && root.left() != otherroot.left() && root.right() != otherroot.right())
+                    success = true;
+            });
+        });
+
+        if(!success)
+            throw "Deep copy on `multiple` does not work.";
+
+        if(!root.reinterpret <syncset <uint64_t> :: multiple> ().pullable())
+            throw "Something wrong on `pullable`.";
+
+        root = root.reinterpret <syncset <uint64_t> :: multiple> ().pull();
+
+        success = false;
+        root.match([&](syncset <uint64_t> :: single & root)
+        {
+            success = (root.element() == 13);
+        });
+
+        if(!success)
+            throw "Something wrong on `pull`";
+    });
 };
