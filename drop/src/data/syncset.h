@@ -109,6 +109,8 @@ namespace drop
 
     template <typename type> class syncset <type> :: path
     {
+    protected:
+
         // Members
 
         hash _hash;
@@ -119,6 +121,8 @@ namespace drop
 
         path(const hash &);
         path(const type &);
+
+        path(bytewise);
 
         // Operators
 
@@ -137,6 +141,8 @@ namespace drop
 
         prefix(const path &, const size_t &);
 
+        prefix(bytewise);
+
         // Bytewise
 
         template <typename vtype> void accept(bytewise :: reader <vtype> &) const;
@@ -144,7 +150,7 @@ namespace drop
 
         // Getters
 
-        const size_t & depth() const;
+        size_t depth() const;
 
         // Methods
 

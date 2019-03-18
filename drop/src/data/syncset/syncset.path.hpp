@@ -17,6 +17,10 @@ namespace drop
     {
     }
 
+    template <typename type> syncset <type> :: path :: path(bytewise) : _hash(bytewise{})
+    {
+    }
+
     // Operators
 
     template <typename type> typename syncset <type> :: navigation syncset <type> :: path :: operator [] (const size_t & index) const

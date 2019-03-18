@@ -37,10 +37,47 @@ namespace
 
     $test("syncset/prefix", []
     {
-        syncset <uint64_t> :: prefix prefix(42, 9);
-        auto serialized = bytewise :: serialize(prefix);
-        // auto deserialized = bytewise :: deserialize <syncset <uint64_t> :: prefix> (serialized);
-        std :: cout << bytewise :: constraints :: fixed <syncset <uint64_t> :: prefix> () << std :: endl;
-        std :: cout << introspection :: count <syncset <uint64_t> :: prefix, bytewise> () << std :: endl;
+        for(size_t depth = 0; depth < hash :: size * 8; depth++)
+        {
+            syncset <uint64_t> :: prefix prefix(42, depth);
+
+            auto serialized = bytewise :: serialize(prefix);
+
+            if(serialized.size() != ((depth >= 128 ? 2 : 1) + (depth + 7) / 8))
+                throw "Serialized prefix too long.";
+
+            auto deserialized = bytewise :: deserialize <syncset <uint64_t> :: prefix> (serialized);
+
+            for(size_t index = 0; index < depth; index++)
+                if(deserialized[index] != prefix[index])
+                    throw "Deserialized prefix does not match original prefix.";
+        }
+
+        {
+            std :: vector <syncset <uint64_t> :: navigation> reference =
+            {
+                syncset <uint64_t> :: left, syncset <uint64_t> :: right, syncset <uint64_t> :: left, syncset <uint64_t> :: right,
+                syncset <uint64_t> :: right, syncset <uint64_t> :: left, syncset <uint64_t> :: right, syncset <uint64_t> :: left,
+                syncset <uint64_t> :: left, syncset <uint64_t> :: left, syncset <uint64_t> :: left, syncset <uint64_t> :: right,
+                syncset <uint64_t> :: right, syncset <uint64_t> :: right, syncset <uint64_t> :: right, syncset <uint64_t> :: right
+            };
+
+            syncset <uint64_t> :: prefix prefix(hash(), 0);
+
+            for(size_t depth = 0; depth < reference.size(); depth++)
+            {
+                if(reference[depth] == syncset <uint64_t> :: left)
+                    prefix = prefix.left();
+                else
+                    prefix = prefix.right();
+
+                if(prefix.depth() != depth + 1)
+                    throw "Prefix has wrong depth.";
+
+                for(size_t index = 0; index <= depth; index++)
+                    if(prefix[index] != reference[index])
+                        throw "Prefix has wrong bits.";
+            }
+        }
     });
 };
