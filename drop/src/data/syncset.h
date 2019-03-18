@@ -338,11 +338,6 @@ namespace drop
 
         const prefix & prefix() const;
         const bool & dump() const;
-
-        // Operators
-
-        bool operator == (const listset &) const;
-        bool operator != (const listset &) const;
     };
 
     template <typename type> struct syncset <type> :: round

@@ -10,6 +10,8 @@
 #include "syncset/syncset.empty.hpp"
 #include "syncset/syncset.single.hpp"
 #include "syncset/syncset.multiple.hpp"
+#include "syncset/syncset.labelset.hpp"
+#include "syncset/syncset.listset.hpp"
 
 namespace drop
 {
