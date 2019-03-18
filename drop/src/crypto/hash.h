@@ -31,6 +31,14 @@ namespace drop
         class key;
         class state;
 
+    private:
+
+        // Bytewise
+
+        $bytewise(base, (std :: array <uint8_t, crypto_generichash_BYTES>));
+
+    public:
+
         // Constructors
 
         template <typename... types, std :: enable_if_t <(... && (bytewise :: constraints :: readable <types, state> ()))> * = nullptr> hash(const types & ...);
