@@ -229,4 +229,23 @@ namespace
                 throw "Something went horribly wrong!";
         }
     });
+
+    $test("syncset/get", []
+    {
+        syncset <uint64_t> mysyncset;
+
+        for(uint64_t n = 0; n < 8; n++)
+            mysyncset.add(n);
+
+        for(size_t depth = 0; depth <= 12; depth++)
+        {
+            auto set = mysyncset.get <true> ({hash(uint64_t(746)), depth});
+
+            std :: cout << depth << ": ";
+            for(uint64_t n : set.reinterpret <typename syncset <uint64_t> :: listset> ())
+                std :: cout << n << " ";
+
+            std :: cout << std :: endl;
+        }
+    });
 };

@@ -149,12 +149,12 @@ namespace drop
         set response;
         navigator navigator(prefix, *(this->_root));
 
-        for(; navigator && navigator.depth() <= prefix.bits(); navigator++);
+        for(; navigator && navigator.depth() <= prefix.depth(); navigator++);
         navigator--;
 
         navigator->match([&](const multiple & multiple)
         {
-            if(dump || (multiple.size() <= settings :: list_threshold))
+            if(dump || (multiple.size() <= settings :: thresholds :: list))
                 response = listset(prefix, multiple, dump);
             else
                 response = labelset(prefix, multiple);
@@ -162,16 +162,16 @@ namespace drop
         {
             bool match = true;
 
-            for(size_t i = navigator.depth(); i < prefix.bits(); i++)
-                match &= (prefix[i] == single.label()[i]);
+            for(size_t i = navigator.depth(); i < prefix.depth(); i++)
+                match &= (prefix[i] == path(single.label())[i]);
 
             if(match)
                 response = listset(prefix, single, dump);
             else
-                response = listset(prefix, dump, empty());
+                response = listset(prefix, empty(), dump);
         }, [&](const empty & empty)
         {
-            response = listset(prefix, dump, empty);
+            response = listset(prefix, empty, dump);
         });
 
         return response;

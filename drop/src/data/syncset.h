@@ -94,6 +94,7 @@ namespace drop
         round sync(const view &);
 
     private:
+    public: // REMOVE ME
 
         // Private methods
 
@@ -313,7 +314,7 @@ namespace drop
         bool operator != (const labelset &) const;
     };
 
-    template <typename type> class syncset <type> :: listset : std :: vector <type>
+    template <typename type> class syncset <type> :: listset : public std :: vector <type>
     {
         // Members
 
