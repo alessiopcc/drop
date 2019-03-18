@@ -28,6 +28,14 @@ namespace drop
 {
     class signature : public std :: array <uint8_t, crypto_sign_BYTES>
     {
+    public:
+
+        // Properties
+
+        static constexpr size_t size = crypto_sign_BYTES;
+
+    private:
+
         // Bytewise
 
         $bytewise(base, (std :: array <uint8_t, crypto_sign_BYTES>));
@@ -41,6 +49,14 @@ namespace drop
 
         class publickey : public std :: array <uint8_t, crypto_sign_PUBLICKEYBYTES>
         {
+        public:
+
+            // Properties
+
+            static constexpr size_t size = crypto_sign_PUBLICKEYBYTES;
+
+        private:
+
             // Bytewise
 
             $bytewise(base, (std :: array <uint8_t, crypto_sign_PUBLICKEYBYTES>));
@@ -48,6 +64,14 @@ namespace drop
 
         class secretkey : public std :: array <uint8_t, crypto_sign_SECRETKEYBYTES>
         {
+        public:
+
+            // Properties
+
+            static constexpr size_t size = crypto_sign_SECRETKEYBYTES;
+
+        private:
+
             // Bytewise
 
             $bytewise(base, (std :: array <uint8_t, crypto_sign_SECRETKEYBYTES>));

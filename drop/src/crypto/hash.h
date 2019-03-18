@@ -22,6 +22,10 @@ namespace drop
     {
     public:
 
+        // Properties
+
+        static constexpr size_t size = crypto_generichash_BYTES;
+
         // Nested classes
 
         class key;
@@ -46,10 +50,18 @@ namespace drop
 
     class hash :: key : public std :: array <uint8_t, crypto_generichash_KEYBYTES>
     {
+    public:
+
+        // Properties
+
+        static constexpr size_t size = crypto_generichash_KEYBYTES;
+
+    private:
+
         // Bytewise
 
         $bytewise(base, (std :: array <uint8_t, crypto_generichash_KEYBYTES>));
-        
+
     public:
 
         // Static methods

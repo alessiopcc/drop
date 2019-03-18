@@ -35,6 +35,14 @@ namespace drop
 
         class publickey : public std :: array <uint8_t, crypto_box_PUBLICKEYBYTES>
         {
+        public:
+
+            // Properties
+
+            static constexpr size_t size = crypto_box_PUBLICKEYBYTES;
+
+        private:
+
             // Bytewise
 
             $bytewise(base, (std :: array <uint8_t, crypto_box_PUBLICKEYBYTES>));
@@ -42,6 +50,14 @@ namespace drop
 
         class secretkey : public std :: array <uint8_t, crypto_box_SECRETKEYBYTES>
         {
+        public:
+
+            // Properties
+
+            static constexpr size_t size = crypto_box_SECRETKEYBYTES;
+
+        private:
+
             // Bytewise
 
             $bytewise(base, (std :: array <uint8_t, crypto_box_SECRETKEYBYTES>));

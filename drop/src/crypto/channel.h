@@ -42,6 +42,14 @@ namespace drop
 
         class key : public std :: array <uint8_t, crypto_secretbox_KEYBYTES>
         {
+        public:
+
+            // Properties
+
+            static constexpr size_t size = crypto_secretbox_KEYBYTES;
+
+        private:
+
             // Bytewise
 
             $bytewise(base, (std :: array <uint8_t, crypto_secretbox_KEYBYTES>));
@@ -55,6 +63,14 @@ namespace drop
 
         class nonce : public std :: array <uint8_t, crypto_secretbox_NONCEBYTES>
         {
+        public:
+
+            // Properties
+
+            static constexpr size_t size = crypto_secretbox_NONCEBYTES;
+
+        private:
+
             // Bytewise
 
             $bytewise(base, (std :: array <uint8_t, crypto_secretbox_NONCEBYTES>));

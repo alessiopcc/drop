@@ -109,7 +109,7 @@ namespace
             throw "`channel :: nonce :: random` generated the same nonce twice in a row.";
 
         auto specular = mynonce.specular();
-        specular[specular.size() - 1] ^= 0x80;
+        specular.back() ^= 0x80;
 
         if(mynonce != specular)
             throw "`channel :: nonce :: specular` does not return the correct value.";
