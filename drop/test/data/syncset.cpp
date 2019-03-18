@@ -3,6 +3,7 @@
 // Libraries
 
 #include <iostream>
+#include <unordered_set>
 
 // Includes
 
@@ -173,5 +174,59 @@ namespace
 
         if(!success)
             throw "Something wrong on `pull`";
+    });
+
+    $test("syncset/add-find", []
+    {
+        syncset <uint64_t> syncset;
+        std :: unordered_set <uint64_t> set;
+
+        for(uint64_t n = 0; n < 1024; n++)
+        {
+            if(rand() % 2)
+            {
+                syncset.add(n);
+                set.insert(n);
+            }
+        }
+
+        for(uint64_t n = 0; n < 2048; n++)
+        {
+            bool shouldfind = (set.find(n) != set.end());
+            bool found = syncset.find(n);
+
+            if(shouldfind != found)
+                throw "Something went horribly wrong!";
+        }
+    });
+
+    $test("syncset/remove-find", []
+    {
+        syncset <uint64_t> syncset;
+        std :: unordered_set <uint64_t> set;
+
+        for(uint64_t n = 0; n < 1024; n++)
+        {
+            syncset.add(n);
+            set.insert(n);
+        }
+
+        for(uint64_t n = 0; n < 1024; n++)
+        {
+            if(rand() % 2)
+            {
+                syncset.remove(n);
+                set.erase(n);
+            }
+        }
+
+        for(uint64_t n = 0; n < 2048; n++)
+        {
+            bool shouldfind = (set.find(n) != set.end());
+            bool found = syncset.find(n);
+
+            if(shouldfind != found)
+                throw "Something went horribly wrong!";
+        }
     });
 };
