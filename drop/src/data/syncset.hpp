@@ -142,6 +142,41 @@ namespace drop
         return (*found);
     }
 
+    // Private methods
+
+    template <typename type> template <bool dump> typename syncset <type> :: set syncset <type> :: get(const prefix & prefix)
+    {
+        set response;
+        navigator navigator(prefix, *(this->_root));
+
+        for(; navigator && navigator.depth() <= prefix.bits(); navigator++);
+        navigator--;
+
+        navigator->match([&](const multiple & multiple)
+        {
+            if(dump || (multiple.size() <= settings :: list_threshold))
+                response = listset(prefix, multiple, dump);
+            else
+                response = labelset(prefix, multiple);
+        }, [&](const single & single)
+        {
+            bool match = true;
+
+            for(size_t i = navigator.depth(); i < prefix.bits(); i++)
+                match &= (prefix[i] == single.label()[i]);
+
+            if(match)
+                response = listset(prefix, single, dump);
+            else
+                response = listset(prefix, dump, empty());
+        }, [&](const empty & empty)
+        {
+            response = listset(prefix, dump, empty);
+        });
+
+        return response;
+    }
+
     // Operators
 
     template <typename type> syncset <type> & syncset <type> :: operator = (const syncset <type> & rho)
