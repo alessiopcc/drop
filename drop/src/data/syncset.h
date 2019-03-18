@@ -13,7 +13,7 @@ namespace drop
 #include "variant.hpp"
 #include "varint.h"
 #include "drop/bytewise/bytewise.hpp"
-#include "drop/crypto/hash.h"
+#include "drop/crypto/hash.hpp"
 
 namespace drop
 {
@@ -34,6 +34,8 @@ namespace drop
                 static constexpr size_t list = 8;
             };
         };
+
+    public: // REMOVE ME
 
         // Service nested enums
 
@@ -107,6 +109,8 @@ namespace drop
 
     template <typename type> class syncset <type> :: path : public hash
     {
+    public:
+
         // Constructors
 
         path(const hash &);

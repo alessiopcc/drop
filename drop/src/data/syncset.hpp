@@ -4,6 +4,7 @@
 // Includes
 
 #include "syncset.h"
+#include "syncset/syncset.path.hpp"
 
 namespace drop
 {
