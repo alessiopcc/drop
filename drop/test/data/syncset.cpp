@@ -248,4 +248,60 @@ namespace
             std :: cout << std :: endl;
         }
     });
+
+    $test("syncset/sync", []
+    {
+        syncset <uint64_t> alice;
+        syncset <uint64_t> bob;
+
+        for(uint64_t i = 0; i < 1024; i++)
+        {
+            alice.add(i);
+            bob.add(i);
+        }
+
+        alice.add(2048);
+
+        auto log = [](const auto & name, const auto & round)
+        {
+            std :: cout << name << ": " << std :: endl;
+            std :: cout << "Elements in the view: " << round.view.size() << std :: endl;
+
+            if(round.add.size())
+            {
+                std :: cout << "Add: " << round.add[0];
+                for(size_t i = 1; i < round.add.size(); i++)
+                    std :: cout << ", " << round.add[i];
+                std :: cout << std :: endl;
+            }
+
+            if(round.remove.size())
+            {
+                std :: cout << "Remove: " << round.remove[0];
+                for(size_t i = 1; i < round.remove.size(); i++)
+                    std :: cout << ", " << round.remove[i];
+                std :: cout << std :: endl;
+            }
+
+            std :: cout << std :: endl;
+        };
+
+        auto round = alice.sync();
+        log("Alice", round);
+
+        while(true)
+        {
+            round = bob.sync(round.view);
+            log("Bob", round);
+
+            if(round.view.empty())
+                break;
+
+            round = alice.sync(round.view);
+            log("Alice", round);
+
+            if(round.view.empty())
+                break;
+        }
+    });
 };
